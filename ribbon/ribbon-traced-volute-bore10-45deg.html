@@ -1,0 +1,209 @@
+<title>Volute, 10mm — traced</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{color-scheme:dark;--bg:#14161a;--ink:#e8eaed;--dim:#9aa3ad;--line:#2a2f36;
+      --panel:#1b1e24;--accent:#e0457b;--edge:rgba(0,0,0,.30)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:14px 18px 10px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--dim);font-size:13px;margin-top:3px}
+.sub b{color:var(--ink);font-weight:600}
+main{display:grid;grid-template-columns:1fr 220px;gap:0;height:calc(100vh - 62px);
+     min-height:420px}
+#wrap{position:relative;overflow:hidden}
+canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+canvas.drag{cursor:grabbing}
+aside{border-left:1px solid var(--line);padding:14px;overflow:auto;background:var(--panel)}
+h2{margin:0 0 8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+   color:var(--dim);font-weight:600}
+.grp{margin-bottom:18px}
+button{font:inherit;color:var(--ink);background:#232830;border:1px solid var(--line);
+       border-radius:6px;padding:5px 9px;cursor:pointer;margin:0 4px 4px 0}
+button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.key{display:flex;align-items:center;gap:7px;margin:3px 0;font-size:12.5px}
+/* the mouth's swatch is near-black on a near-black panel, so every swatch
+   gets an outline rather than that one getting a special case */
+.sw{width:12px;height:12px;border-radius:3px;flex:0 0 auto;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.hint{color:var(--dim);font-size:12px;margin-top:10px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px}
+dt{color:var(--dim)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:720px){main{grid-template-columns:1fr;height:auto}
+  #wrap{height:56vh}aside{border-left:0;border-top:1px solid var(--line)}}
+</style>
+<header>
+  <h1>Volute, 10mm — traced</h1>
+  <div class="sub" id="sub"></div>
+</header>
+<main>
+  <div id="wrap"><canvas id="c"></canvas></div>
+  <aside>
+    <div class="grp"><h2>Colour</h2>
+      <button id="m-face" aria-pressed="true">by face</button>
+      <button id="m-sec" aria-pressed="false">by facet</button>
+    </div>
+    <div class="grp"><h2>Reveal</h2>
+      <input id="rev" type="range" min="1" max="1" value="1">
+      <div class="hint" id="revn"></div>
+    </div>
+    <div class="grp"><h2>Key</h2><div id="key"></div></div>
+    <div class="grp"><h2>Numbers</h2><dl id="nums"></dl></div>
+    <div class="hint">Drag to turn. Scroll to zoom. Double-click to reset.</div>
+  </aside>
+</main>
+<script>
+const D = {"V":[[85.335,-20.391,-5.0],[85.335,-20.391,5.0],[94.573,-16.565,5.0],[94.573,-16.565,-5.0],[77.681,-1.913,-5.0],[77.681,-1.913,5.0],[86.919,1.913,5.0],[86.919,1.913,-5.0],[54.368,54.368,-5.0],[54.368,54.368,5.0],[62.022,62.022,5.0],[62.022,62.022,-5.0],[0.0,76.888,-5.0],[0.0,76.888,5.0],[0.0,87.712,5.0],[0.0,87.712,-5.0],[-54.368,54.368,-5.0],[-54.368,54.368,5.0],[-62.022,62.022,5.0],[-62.022,62.022,-5.0],[-76.888,-0.0,-5.0],[-76.888,-0.0,5.0],[-87.712,0.0,5.0],[-87.712,0.0,-5.0],[-57.883,-45.883,-5.0],[-57.883,-45.883,5.0],[-65.537,-53.537,5.0],[-65.537,-53.537,-5.0],[-12.0,-64.888,-5.0],[-12.0,-64.888,5.0],[-12.0,-75.712,5.0],[-12.0,-75.712,-5.0],[33.883,-45.883,-5.0],[33.883,-45.883,5.0],[41.537,-53.537,5.0],[41.537,-53.537,-5.0],[52.888,-0.0,-5.0],[52.888,-0.0,5.0],[63.712,0.0,5.0],[63.712,0.0,-5.0],[37.397,37.397,-5.0],[37.397,37.397,5.0],[45.051,45.051,5.0],[45.051,45.051,-5.0],[0.0,52.888,-5.0],[0.0,52.888,5.0],[0.0,63.712,5.0],[0.0,63.712,-5.0],[-37.397,37.397,-5.0],[-37.397,37.397,5.0],[-45.051,45.051,5.0],[-45.051,45.051,-5.0],[-52.888,-0.0,-5.0],[-52.888,-0.0,5.0],[-63.712,0.0,5.0],[-63.712,0.0,-5.0],[-40.912,-28.912,-5.0],[-40.912,-28.912,5.0],[-48.566,-36.566,5.0],[-48.566,-36.566,-5.0],[-12.0,-40.888,-5.0],[-12.0,-40.888,5.0],[-12.0,-51.712,5.0],[-12.0,-51.712,-5.0],[16.912,-28.912,-5.0],[16.912,-28.912,5.0],[24.566,-36.566,5.0],[24.566,-36.566,-5.0],[28.888,0.0,-5.0],[28.888,0.0,5.0],[39.712,-0.0,5.0],[39.712,-0.0,-5.0],[20.427,20.427,-5.0],[20.427,20.427,5.0],[28.081,28.081,5.0],[28.081,28.081,-5.0],[0.0,28.888,-5.0],[0.0,28.888,5.0],[0.0,39.712,5.0],[0.0,39.712,-5.0],[-20.427,20.427,-5.0],[-20.427,20.427,5.0],[-28.081,28.081,5.0],[-28.081,28.081,-5.0],[-28.888,0.0,-5.0],[-28.888,0.0,5.0],[-39.712,-0.0,5.0],[-39.712,-0.0,-5.0],[-23.941,-11.941,-5.0],[-23.941,-11.941,5.0],[-31.595,-19.595,5.0],[-31.595,-19.595,-5.0],[-12.0,-16.888,-5.0],[-12.0,-16.888,5.0],[-12.0,-27.712,5.0],[-12.0,-27.712,-5.0],[-0.059,-11.941,-5.0],[-0.059,-11.941,5.0],[7.595,-19.595,5.0],[7.595,-19.595,-5.0],[5.681,1.914,-5.0],[5.681,1.914,5.0],[14.919,-1.914,5.0],[14.919,-1.914,-5.0],[13.335,20.391,-5.0],[13.335,20.391,5.0],[22.573,16.565,5.0],[22.573,16.565,-5.0],[80.715,-22.305,8.0],[99.193,-14.651,8.0],[80.715,-22.305,-8.0],[99.193,-14.651,-8.0],[73.061,-3.827,8.0],[91.539,3.827,8.0],[73.061,-3.827,-8.0],[91.539,3.827,-8.0],[50.541,50.541,8.0],[65.849,65.849,8.0],[50.541,50.541,-8.0],[65.849,65.849,-8.0],[0.0,71.476,8.0],[0.0,93.124,8.0],[0.0,71.476,-8.0],[0.0,93.124,-8.0],[-50.541,50.541,8.0],[-65.849,65.849,8.0],[-50.541,50.541,-8.0],[-65.849,65.849,-8.0],[-71.476,-0.0,8.0],[-93.124,0.0,8.0],[-71.476,-0.0,-8.0],[-93.124,0.0,-8.0],[-54.056,-42.056,8.0],[-69.364,-57.364,8.0],[-54.056,-42.056,-8.0],[-69.364,-57.364,-8.0],[-12.0,-59.476,8.0],[-12.0,-81.124,8.0],[-12.0,-59.476,-8.0],[-12.0,-81.124,-8.0],[30.056,-42.056,8.0],[45.364,-57.364,8.0],[30.056,-42.056,-8.0],[45.364,-57.364,-8.0],[47.476,-0.0,8.0],[69.124,0.0,8.0],[47.476,-0.0,-8.0],[69.124,0.0,-8.0],[33.57,33.57,8.0],[48.878,48.878,8.0],[33.57,33.57,-8.0],[48.878,48.878,-8.0],[0.0,47.476,8.0],[0.0,69.124,8.0],[0.0,47.476,-8.0],[0.0,69.124,-8.0],[-33.57,33.57,8.0],[-48.878,48.878,8.0],[-33.57,33.57,-8.0],[-48.878,48.878,-8.0],[-47.476,-0.0,8.0],[-69.124,0.0,8.0],[-47.476,-0.0,-8.0],[-69.124,0.0,-8.0],[-37.085,-25.085,8.0],[-52.393,-40.393,8.0],[-37.085,-25.085,-8.0],[-52.393,-40.393,-8.0],[-12.0,-35.476,8.0],[-12.0,-57.124,8.0],[-12.0,-35.476,-8.0],[-12.0,-57.124,-8.0],[13.085,-25.085,8.0],[28.393,-40.393,8.0],[13.085,-25.085,-8.0],[28.393,-40.393,-8.0],[23.476,0.0,8.0],[45.124,-0.0,8.0],[23.476,0.0,-8.0],[45.124,-0.0,-8.0],[16.6,16.6,8.0],[31.908,31.908,8.0],[16.6,16.6,-8.0],[31.908,31.908,-8.0],[0.0,23.476,8.0],[0.0,45.124,8.0],[0.0,23.476,-8.0],[0.0,45.124,-8.0],[-16.6,16.6,8.0],[-31.908,31.908,8.0],[-16.6,16.6,-8.0],[-31.908,31.908,-8.0],[-23.476,0.0,8.0],[-45.124,-0.0,8.0],[-23.476,0.0,-8.0],[-45.124,-0.0,-8.0],[-20.114,-8.114,8.0],[-35.422,-23.422,8.0],[-20.114,-8.114,-8.0],[-35.422,-23.422,-8.0],[-12.0,-11.476,8.0],[-12.0,-33.124,8.0],[-12.0,-11.476,-8.0],[-12.0,-33.124,-8.0],[-3.886,-8.114,8.0],[11.422,-23.422,8.0],[-3.886,-8.114,-8.0],[11.422,-23.422,-8.0],[1.061,3.827,8.0],[19.539,-3.827,8.0],[1.061,3.827,-8.0],[19.539,-3.827,-8.0],[8.715,22.305,8.0],[27.193,14.651,8.0],[8.715,22.305,-8.0],[27.193,14.651,-8.0]],"Q":[{"v":[0,1,5,4],"f":0,"s":0},{"v":[3,7,6,2],"f":1,"s":0},{"v":[1,2,6,5],"f":2,"s":0},{"v":[0,4,7,3],"f":3,"s":0},{"v":[4,5,9,8],"f":0,"s":1},{"v":[7,11,10,6],"f":1,"s":1},{"v":[5,6,10,9],"f":2,"s":1},{"v":[4,8,11,7],"f":3,"s":1},{"v":[8,9,13,12],"f":0,"s":2},{"v":[11,15,14,10],"f":1,"s":2},{"v":[9,10,14,13],"f":2,"s":2},{"v":[8,12,15,11],"f":3,"s":2},{"v":[12,13,17,16],"f":0,"s":3},{"v":[15,19,18,14],"f":1,"s":3},{"v":[13,14,18,17],"f":2,"s":3},{"v":[12,16,19,15],"f":3,"s":3},{"v":[16,17,21,20],"f":0,"s":4},{"v":[19,23,22,18],"f":1,"s":4},{"v":[17,18,22,21],"f":2,"s":4},{"v":[16,20,23,19],"f":3,"s":4},{"v":[20,21,25,24],"f":0,"s":5},{"v":[23,27,26,22],"f":1,"s":5},{"v":[21,22,26,25],"f":2,"s":5},{"v":[20,24,27,23],"f":3,"s":5},{"v":[24,25,29,28],"f":0,"s":6},{"v":[27,31,30,26],"f":1,"s":6},{"v":[25,26,30,29],"f":2,"s":6},{"v":[24,28,31,27],"f":3,"s":6},{"v":[28,29,33,32],"f":0,"s":7},{"v":[31,35,34,30],"f":1,"s":7},{"v":[29,30,34,33],"f":2,"s":7},{"v":[28,32,35,31],"f":3,"s":7},{"v":[32,33,37,36],"f":0,"s":8},{"v":[35,39,38,34],"f":1,"s":8},{"v":[33,34,38,37],"f":2,"s":8},{"v":[32,36,39,35],"f":3,"s":8},{"v":[36,37,41,40],"f":0,"s":9},{"v":[39,43,42,38],"f":1,"s":9},{"v":[37,38,42,41],"f":2,"s":9},{"v":[36,40,43,39],"f":3,"s":9},{"v":[40,41,45,44],"f":0,"s":10},{"v":[43,47,46,42],"f":1,"s":10},{"v":[41,42,46,45],"f":2,"s":10},{"v":[40,44,47,43],"f":3,"s":10},{"v":[44,45,49,48],"f":0,"s":11},{"v":[47,51,50,46],"f":1,"s":11},{"v":[45,46,50,49],"f":2,"s":11},{"v":[44,48,51,47],"f":3,"s":11},{"v":[48,49,53,52],"f":0,"s":12},{"v":[51,55,54,50],"f":1,"s":12},{"v":[49,50,54,53],"f":2,"s":12},{"v":[48,52,55,51],"f":3,"s":12},{"v":[52,53,57,56],"f":0,"s":13},{"v":[55,59,58,54],"f":1,"s":13},{"v":[53,54,58,57],"f":2,"s":13},{"v":[52,56,59,55],"f":3,"s":13},{"v":[56,57,61,60],"f":0,"s":14},{"v":[59,63,62,58],"f":1,"s":14},{"v":[57,58,62,61],"f":2,"s":14},{"v":[56,60,63,59],"f":3,"s":14},{"v":[60,61,65,64],"f":0,"s":15},{"v":[63,67,66,62],"f":1,"s":15},{"v":[61,62,66,65],"f":2,"s":15},{"v":[60,64,67,63],"f":3,"s":15},{"v":[64,65,69,68],"f":0,"s":16},{"v":[67,71,70,66],"f":1,"s":16},{"v":[65,66,70,69],"f":2,"s":16},{"v":[64,68,71,67],"f":3,"s":16},{"v":[68,69,73,72],"f":0,"s":17},{"v":[71,75,74,70],"f":1,"s":17},{"v":[69,70,74,73],"f":2,"s":17},{"v":[68,72,75,71],"f":3,"s":17},{"v":[72,73,77,76],"f":0,"s":18},{"v":[75,79,78,74],"f":1,"s":18},{"v":[73,74,78,77],"f":2,"s":18},{"v":[72,76,79,75],"f":3,"s":18},{"v":[76,77,81,80],"f":0,"s":19},{"v":[79,83,82,78],"f":1,"s":19},{"v":[77,78,82,81],"f":2,"s":19},{"v":[76,80,83,79],"f":3,"s":19},{"v":[80,81,85,84],"f":0,"s":20},{"v":[83,87,86,82],"f":1,"s":20},{"v":[81,82,86,85],"f":2,"s":20},{"v":[80,84,87,83],"f":3,"s":20},{"v":[84,85,89,88],"f":0,"s":21},{"v":[87,91,90,86],"f":1,"s":21},{"v":[85,86,90,89],"f":2,"s":21},{"v":[84,88,91,87],"f":3,"s":21},{"v":[88,89,93,92],"f":0,"s":22},{"v":[91,95,94,90],"f":1,"s":22},{"v":[89,90,94,93],"f":2,"s":22},{"v":[88,92,95,91],"f":3,"s":22},{"v":[92,93,97,96],"f":0,"s":23},{"v":[95,99,98,94],"f":1,"s":23},{"v":[93,94,98,97],"f":2,"s":23},{"v":[92,96,99,95],"f":3,"s":23},{"v":[96,97,101,100],"f":0,"s":24},{"v":[99,103,102,98],"f":1,"s":24},{"v":[97,98,102,101],"f":2,"s":24},{"v":[96,100,103,99],"f":3,"s":24},{"v":[100,101,105,104],"f":0,"s":25},{"v":[103,107,106,102],"f":1,"s":25},{"v":[101,102,106,105],"f":2,"s":25},{"v":[100,104,107,103],"f":3,"s":25},{"v":[108,109,113,112],"f":6,"s":0},{"v":[110,114,115,111],"f":7,"s":0},{"v":[112,113,117,116],"f":6,"s":1},{"v":[114,118,119,115],"f":7,"s":1},{"v":[116,117,121,120],"f":6,"s":2},{"v":[118,122,123,119],"f":7,"s":2},{"v":[120,121,125,124],"f":6,"s":3},{"v":[122,126,127,123],"f":7,"s":3},{"v":[124,125,129,128],"f":6,"s":4},{"v":[126,130,131,127],"f":7,"s":4},{"v":[128,129,133,132],"f":6,"s":5},{"v":[130,134,135,131],"f":7,"s":5},{"v":[132,133,137,136],"f":6,"s":6},{"v":[134,138,139,135],"f":7,"s":6},{"v":[136,137,141,140],"f":6,"s":7},{"v":[138,142,143,139],"f":7,"s":7},{"v":[140,141,145,144],"f":6,"s":8},{"v":[142,146,147,143],"f":7,"s":8},{"v":[144,145,149,148],"f":6,"s":9},{"v":[146,150,151,147],"f":7,"s":9},{"v":[148,149,153,152],"f":6,"s":10},{"v":[150,154,155,151],"f":7,"s":10},{"v":[152,153,157,156],"f":6,"s":11},{"v":[154,158,159,155],"f":7,"s":11},{"v":[156,157,161,160],"f":6,"s":12},{"v":[158,162,163,159],"f":7,"s":12},{"v":[160,161,165,164],"f":6,"s":13},{"v":[162,166,167,163],"f":7,"s":13},{"v":[164,165,169,168],"f":6,"s":14},{"v":[166,170,171,167],"f":7,"s":14},{"v":[168,169,173,172],"f":6,"s":15},{"v":[170,174,175,171],"f":7,"s":15},{"v":[172,173,177,176],"f":6,"s":16},{"v":[174,178,179,175],"f":7,"s":16},{"v":[176,177,181,180],"f":6,"s":17},{"v":[178,182,183,179],"f":7,"s":17},{"v":[180,181,185,184],"f":6,"s":18},{"v":[182,186,187,183],"f":7,"s":18},{"v":[184,185,189,188],"f":6,"s":19},{"v":[186,190,191,187],"f":7,"s":19},{"v":[188,189,193,192],"f":6,"s":20},{"v":[190,194,195,191],"f":7,"s":20},{"v":[192,193,197,196],"f":6,"s":21},{"v":[194,198,199,195],"f":7,"s":21},{"v":[196,197,201,200],"f":6,"s":22},{"v":[198,202,203,199],"f":7,"s":22},{"v":[200,201,205,204],"f":6,"s":23},{"v":[202,206,207,203],"f":7,"s":23},{"v":[204,205,209,208],"f":6,"s":24},{"v":[206,210,211,207],"f":7,"s":24},{"v":[208,209,213,212],"f":6,"s":25},{"v":[210,214,215,211],"f":7,"s":25},{"v":[0,1,2,3],"f":4,"s":0},{"v":[107,106,105,104],"f":5,"s":25}],"bore":10.0,"mm":1000.7,"facet":45.0,"shape":"traced","rrange":null,"flat":false,"R":46.304,"segs":26,"over":8.24,"pal":["#ea744c","#ea984c","#eabc4c","#eae14c","#cfea4c","#aaea4c","#86ea4c","#61ea4c","#4cea5b","#4cea80","#4ceaa4","#4ceac9","#4ce7ea","#4cc3ea","#4c9eea","#4c7aea","#4c55ea","#674cea","#8c4cea","#b04cea","#d54cea","#ea4cdb","#ea4cb6","#ea4c92","#ea4c6d","#ea4f4c"],"shut":false,"faces":["inner wall","outer wall","top cheek","bottom cheek","mouth","far end","ply, top","ply, bottom"],"facecol":["#5aa9e6","#3d7ebd","#c9d6e3","#8fa3b8","#1c1c20","#e0457b","#d8cbb2","#b9a888"]};
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+const EDGE = getComputedStyle(document.documentElement)
+  .getPropertyValue('--edge').trim() || 'rgba(0,0,0,.30)';
+// A flat coil is 10mm thick against 212 across, so a near-overhead default
+// reads as a drawing rather than a thing. Start it further round.
+let yaw = -0.62, pitch = D.flat ? -0.95 : -0.42, zoom = 1,
+    mode = 'face', reveal = D.segs;
+
+/* --- the model, centred on its own middle so rotation feels right --- */
+const C = (() => {
+  let lo = [1e9,1e9,1e9], hi = [-1e9,-1e9,-1e9];
+  for (const v of D.V) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
+  return [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
+})();
+function rot(p){
+  const x=p[0]-C[0], y=p[1]-C[1], z=p[2]-C[2];
+  const cy=Math.cos(yaw), sy=Math.sin(yaw);
+  const x1=x*cy - z*sy, z1=x*sy + z*cy;
+  const cp=Math.cos(pitch), sp=Math.sin(pitch);
+  return [x1, y*cp - z1*sp, y*sp + z1*cp];
+}
+/* extent at this angle, so the fit does not jump as it turns */
+function span(){
+  let lo=[1e9,1e9], hi=[-1e9,-1e9];
+  for (const v of D.V){ const r=rot(v);
+    for (let i=0;i<2;i++){ lo[i]=Math.min(lo[i],r[i]); hi[i]=Math.max(hi[i],r[i]); } }
+  return [hi[0]-lo[0], hi[1]-lo[1], (lo[0]+hi[0])/2, (lo[1]+hi[1])/2];
+}
+function draw(){
+  const dpr = Math.min(devicePixelRatio||1, 2);
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w*dpr; cv.height = h*dpr;
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  cx.clearRect(0,0,w,h);
+  const [sw,sh,mx,my] = span();
+  const s = Math.min(w/(sw||1), h/(sh||1)) * 0.86 * zoom;
+  const P = p => { const r = rot(p);
+    return [w/2 + (r[0]-mx)*s, h/2 + (r[1]-my)*s, r[2]]; };
+
+  const items = [];
+  for (const q of D.Q){
+    if (q.f < 4 && q.s >= reveal) continue;
+    if (q.f === 5 && reveal < D.segs) continue;
+    const pts = q.v.map(i => P(D.V[i]));
+    const z = pts.reduce((a,p)=>a+p[2],0)/pts.length;
+    /* facing, from the projected winding: a back face winds the other way */
+    let area = 0;
+    for (let i=0;i<pts.length;i++){ const a=pts[i], b=pts[(i+1)%pts.length];
+      area += a[0]*b[1] - b[0]*a[1]; }
+    items.push({q, pts, z, front: area < 0});
+  }
+  items.sort((a,b) => a.z - b.z);          /* painter: far first */
+
+  for (const it of items){
+    const q = it.q;
+    let col = mode === 'face' ? D.facecol[q.f]
+            : (q.f >= 4 ? D.facecol[q.f] : D.pal[q.s % D.pal.length]);
+    /* one flat light, so the form reads; back faces sit darker */
+    const k = it.front ? 1 : 0.55;
+    cx.fillStyle = shade(col, k * (q.f===2?1.06:q.f===3?0.72:q.f===0?0.86:0.95));
+    cx.beginPath();
+    cx.moveTo(it.pts[0][0], it.pts[0][1]);
+    for (let i=1;i<it.pts.length;i++) cx.lineTo(it.pts[i][0], it.pts[i][1]);
+    cx.closePath(); cx.fill();
+    cx.strokeStyle = EDGE; cx.lineWidth = 0.6; cx.stroke();
+  }
+}
+function shade(hex, k){
+  const n = parseInt(hex.slice(1),16);
+  const f = v => Math.max(0, Math.min(255, Math.round(v*k)));
+  return `rgb(${f(n>>16&255)},${f(n>>8&255)},${f(n&255)})`;
+}
+
+/* --- controls --- */
+let drag = null;
+cv.addEventListener('pointerdown', e => {
+  drag = [e.clientX, e.clientY]; cv.classList.add('drag');
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', e => {
+  if (!drag) return;
+  yaw += (e.clientX - drag[0]) * 0.008;
+  pitch += (e.clientY - drag[1]) * 0.008;
+  pitch = Math.max(-1.5, Math.min(1.5, pitch));
+  drag = [e.clientX, e.clientY]; draw();
+});
+for (const ev of ['pointerup','pointercancel'])
+  cv.addEventListener(ev, () => { drag = null; cv.classList.remove('drag'); });
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom = Math.max(0.35, Math.min(6, zoom * (e.deltaY < 0 ? 1.1 : 1/1.1)));
+  draw();
+}, {passive:false});
+cv.addEventListener('dblclick', () => {
+  yaw = -0.62; pitch = D.flat ? -0.95 : -0.42; zoom = 1; draw();
+});
+
+const $ = id => document.getElementById(id);
+function setMode(m){
+  mode = m;
+  $('m-face').setAttribute('aria-pressed', m === 'face');
+  $('m-sec').setAttribute('aria-pressed', m === 'sec');
+  key(); draw();
+}
+$('m-face').onclick = () => setMode('face');
+$('m-sec').onclick = () => setMode('sec');
+
+const rev = $('rev');
+rev.max = D.segs; rev.value = D.segs;
+rev.oninput = () => { reveal = +rev.value; revn(); draw(); };
+function revn(){
+  $('revn').textContent = reveal + ' of ' + D.segs + ' facets'
+    + (reveal < D.segs ? '' : '  (all)');
+}
+
+function key(){
+  const k = $('key');
+  k.innerHTML = '';
+  const rows = mode === 'face'
+    ? D.faces.map((n,i) => [D.facecol[i], n, i])
+        .filter(([,,i]) => D.Q.some(q => q.f === i)).map(([c,n]) => [c,n])
+    : (D.shut ? [] : [[D.facecol[4],'mouth'], [D.facecol[5],'far end']]).concat(
+      [[D.pal[0], 'facet 1'], [D.pal[Math.floor(D.segs/2) % D.pal.length],
+        'facet ' + (Math.floor(D.segs/2)+1)],
+       [D.pal[(D.segs-1) % D.pal.length], 'facet ' + D.segs]]);
+  for (const [c,n] of rows){
+    const d = document.createElement('div'); d.className = 'key';
+    d.innerHTML = `<span class="sw" style="background:${c}"></span><span>${n}</span>`;
+    k.appendChild(d);
+  }
+}
+
+$('sub').innerHTML = `<b>${D.bore} \u00d7 ${D.bore}mm</b> section, `
+  + `<b>${D.mm}mm</b> of centreline, ${D.segs} facets of ${D.facet}\u00b0 `
+  + `\u2014 exact along every facet, <b>+${D.over}%</b> at each mitre`;
+$('nums').innerHTML = [
+  ['shape', D.shape], ['bore', D.bore + ' \u00d7 ' + D.bore + 'mm'],
+  ['section', (D.bore*D.bore) + 'mm\u00b2'],
+  ['centreline', D.mm + 'mm'],
+  ['bend radius', D.rrange ? ('R' + D.rrange[0] + ' to R' + D.rrange[1]) : (D.R + 'mm')],
+  ['R / bore', D.rrange
+     ? (D.rrange[0]/D.bore).toFixed(1) + ' to ' + (D.rrange[1]/D.bore).toFixed(1)
+     : (D.R/D.bore).toFixed(1)],
+  ['facet', D.facet + '\u00b0'], ['area at a mitre', '+' + D.over + '%'],
+].map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+
+key(); revn();
+addEventListener('resize', draw);
+draw();
+</script>

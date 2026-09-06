@@ -1,0 +1,122 @@
+{
+ "name": "volute",
+ "from": "volute/volute.py in this repository, not a cut file - there is no cut file.",
+ "how": "Six semicircles of stepping radius, R82.3 down to R22.3, each starting where the last ended. The classical compass construction of a spiral, which is the only one offset() can follow: it mitres a vertex assuming the curvature either side is constant, true of an arc and false of a smooth spiral. Drawn here so the shape can be seen; it is not cuttable, and volute.py reports why.",
+ "bore": 10.0,
+ "facet": 45.0,
+ "measured": {
+  "closest_approach_mm": 7.75,
+  "openings_deg_apart": 135,
+  "note": "the bore comes within 7.75mm of itself against a 20mm cheek band, and the openings are 135 degrees apart where opposed is 180. Both are the enclosed inner end."
+ },
+ "stations": [
+  [
+   89.954,
+   -18.478
+  ],
+  [
+   82.3,
+   0.0
+  ],
+  [
+   58.195,
+   58.195
+  ],
+  [
+   0.0,
+   82.3
+  ],
+  [
+   -58.195,
+   58.195
+  ],
+  [
+   -82.3,
+   0.0
+  ],
+  [
+   -61.71,
+   -49.71
+  ],
+  [
+   -12.0,
+   -70.3
+  ],
+  [
+   37.71,
+   -49.71
+  ],
+  [
+   58.3,
+   -0.0
+  ],
+  [
+   41.224,
+   41.224
+  ],
+  [
+   0.0,
+   58.3
+  ],
+  [
+   -41.224,
+   41.224
+  ],
+  [
+   -58.3,
+   0.0
+  ],
+  [
+   -44.739,
+   -32.739
+  ],
+  [
+   -12.0,
+   -46.3
+  ],
+  [
+   20.739,
+   -32.739
+  ],
+  [
+   34.3,
+   -0.0
+  ],
+  [
+   24.254,
+   24.254
+  ],
+  [
+   0.0,
+   34.3
+  ],
+  [
+   -24.254,
+   24.254
+  ],
+  [
+   -34.3,
+   0.0
+  ],
+  [
+   -27.768,
+   -15.768
+  ],
+  [
+   -12.0,
+   -22.3
+  ],
+  [
+   3.768,
+   -15.768
+  ],
+  [
+   10.3,
+   -0.0
+  ],
+  [
+   17.954,
+   18.478
+  ]
+ ]
+}

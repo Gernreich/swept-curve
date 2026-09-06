@@ -1,0 +1,209 @@
+<title>Octagonal Trumpet, 25mm — traced</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{color-scheme:dark;--bg:#14161a;--ink:#e8eaed;--dim:#9aa3ad;--line:#2a2f36;
+      --panel:#1b1e24;--accent:#e0457b;--edge:rgba(0,0,0,.30)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+     font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:14px 18px 10px;border-bottom:1px solid var(--line)}
+h1{margin:0;font-size:17px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--dim);font-size:13px;margin-top:3px}
+.sub b{color:var(--ink);font-weight:600}
+main{display:grid;grid-template-columns:1fr 220px;gap:0;height:calc(100vh - 62px);
+     min-height:420px}
+#wrap{position:relative;overflow:hidden}
+canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+canvas.drag{cursor:grabbing}
+aside{border-left:1px solid var(--line);padding:14px;overflow:auto;background:var(--panel)}
+h2{margin:0 0 8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+   color:var(--dim);font-weight:600}
+.grp{margin-bottom:18px}
+button{font:inherit;color:var(--ink);background:#232830;border:1px solid var(--line);
+       border-radius:6px;padding:5px 9px;cursor:pointer;margin:0 4px 4px 0}
+button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.key{display:flex;align-items:center;gap:7px;margin:3px 0;font-size:12.5px}
+/* the mouth's swatch is near-black on a near-black panel, so every swatch
+   gets an outline rather than that one getting a special case */
+.sw{width:12px;height:12px;border-radius:3px;flex:0 0 auto;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.hint{color:var(--dim);font-size:12px;margin-top:10px}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px}
+dt{color:var(--dim)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:720px){main{grid-template-columns:1fr;height:auto}
+  #wrap{height:56vh}aside{border-left:0;border-top:1px solid var(--line)}}
+</style>
+<header>
+  <h1>Octagonal Trumpet, 25mm — traced</h1>
+  <div class="sub" id="sub"></div>
+</header>
+<main>
+  <div id="wrap"><canvas id="c"></canvas></div>
+  <aside>
+    <div class="grp"><h2>Colour</h2>
+      <button id="m-face" aria-pressed="true">by face</button>
+      <button id="m-sec" aria-pressed="false">by facet</button>
+    </div>
+    <div class="grp"><h2>Reveal</h2>
+      <input id="rev" type="range" min="1" max="1" value="1">
+      <div class="hint" id="revn"></div>
+    </div>
+    <div class="grp"><h2>Key</h2><div id="key"></div></div>
+    <div class="grp"><h2>Numbers</h2><dl id="nums"></dl></div>
+    <div class="hint">Drag to turn. Scroll to zoom. Double-click to reset.</div>
+  </aside>
+</main>
+<script>
+const D = {"V":[[460.258,3.035,-12.5],[460.258,3.035,12.5],[460.258,28.035,12.5],[460.258,28.035,-12.5],[514.616,3.035,-12.5],[514.616,3.035,12.5],[504.664,28.035,12.5],[504.664,28.035,-12.5],[565.791,51.452,-12.5],[565.791,51.452,12.5],[540.753,62.178,12.5],[540.753,62.178,-12.5],[564.49,415.93,-12.5],[564.49,415.93,12.5],[539.454,426.194,12.5],[539.454,426.194,-12.5],[598.503,450.198,-12.5],[598.503,450.198,12.5],[588.055,475.16,12.5],[588.055,475.16,-12.5],[647.039,450.38,-12.5],[647.039,450.38,12.5],[657.411,475.418,12.5],[657.411,475.418,-12.5],[680.882,416.282,-12.5],[680.882,416.282,12.5],[706.0,426.464,12.5],[706.0,426.464,-12.5],[680.336,368.399,-12.5],[680.336,368.399,12.5],[705.2,356.381,12.5],[705.2,356.381,-12.5],[636.833,333.094,-12.5],[636.833,333.094,12.5],[652.951,313.978,12.5],[652.951,313.978,-12.5],[585.147,287.828,-12.5],[585.147,287.828,12.5],[610.281,276.608,12.5],[610.281,276.608,-12.5],[585.963,218.652,-12.5],[585.963,218.652,12.5],[610.841,229.13,12.5],[610.841,229.13,-12.5],[633.947,170.668,-12.5],[633.947,170.668,12.5],[644.309,195.662,12.5],[644.309,195.662,-12.5],[797.987,170.566,-12.5],[797.987,170.566,12.5],[798.003,195.566,12.5],[798.003,195.566,-12.5],[460.258,-1.965,15.5],[460.258,33.035,15.5],[460.258,-1.965,-15.5],[460.258,33.035,-15.5],[516.606,-1.965,15.5],[502.674,33.035,15.5],[516.606,-1.965,-15.5],[502.674,33.035,-15.5],[570.799,49.306,15.5],[535.745,64.324,15.5],[570.799,49.306,-15.5],[535.745,64.324,-15.5],[569.498,413.878,15.5],[534.446,428.246,15.5],[569.498,413.878,-15.5],[534.446,428.246,-15.5],[600.593,445.206,15.5],[585.965,480.152,15.5],[600.593,445.206,-15.5],[585.965,480.152,-15.5],[644.965,445.372,15.5],[659.485,480.426,15.5],[644.965,445.372,-15.5],[659.485,480.426,-15.5],[675.859,414.246,15.5],[711.023,428.5,15.5],[675.859,414.246,-15.5],[711.023,428.5,-15.5],[675.363,370.803,15.5],[710.173,353.977,15.5],[675.363,370.803,-15.5],[710.173,353.977,-15.5],[633.609,336.917,15.5],[656.175,310.155,15.5],[633.609,336.917,-15.5],[656.175,310.155,-15.5],[580.12,290.072,15.5],[615.308,274.364,15.5],[580.12,290.072,-15.5],[615.308,274.364,-15.5],[580.987,216.557,15.5],[615.817,231.225,15.5],[580.987,216.557,-15.5],[615.817,231.225,-15.5],[631.875,165.67,15.5],[646.381,200.66,15.5],[631.875,165.67,-15.5],[646.381,200.66,-15.5],[797.984,165.566,15.5],[798.006,200.566,15.5],[797.984,165.566,-15.5],[798.006,200.566,-15.5]],"Q":[{"v":[0,1,5,4],"f":0,"s":0},{"v":[3,7,6,2],"f":1,"s":0},{"v":[1,2,6,5],"f":2,"s":0},{"v":[0,4,7,3],"f":3,"s":0},{"v":[4,5,9,8],"f":0,"s":1},{"v":[7,11,10,6],"f":1,"s":1},{"v":[5,6,10,9],"f":2,"s":1},{"v":[4,8,11,7],"f":3,"s":1},{"v":[8,9,13,12],"f":0,"s":2},{"v":[11,15,14,10],"f":1,"s":2},{"v":[9,10,14,13],"f":2,"s":2},{"v":[8,12,15,11],"f":3,"s":2},{"v":[12,13,17,16],"f":0,"s":3},{"v":[15,19,18,14],"f":1,"s":3},{"v":[13,14,18,17],"f":2,"s":3},{"v":[12,16,19,15],"f":3,"s":3},{"v":[16,17,21,20],"f":0,"s":4},{"v":[19,23,22,18],"f":1,"s":4},{"v":[17,18,22,21],"f":2,"s":4},{"v":[16,20,23,19],"f":3,"s":4},{"v":[20,21,25,24],"f":0,"s":5},{"v":[23,27,26,22],"f":1,"s":5},{"v":[21,22,26,25],"f":2,"s":5},{"v":[20,24,27,23],"f":3,"s":5},{"v":[24,25,29,28],"f":0,"s":6},{"v":[27,31,30,26],"f":1,"s":6},{"v":[25,26,30,29],"f":2,"s":6},{"v":[24,28,31,27],"f":3,"s":6},{"v":[28,29,33,32],"f":0,"s":7},{"v":[31,35,34,30],"f":1,"s":7},{"v":[29,30,34,33],"f":2,"s":7},{"v":[28,32,35,31],"f":3,"s":7},{"v":[32,33,37,36],"f":0,"s":8},{"v":[35,39,38,34],"f":1,"s":8},{"v":[33,34,38,37],"f":2,"s":8},{"v":[32,36,39,35],"f":3,"s":8},{"v":[36,37,41,40],"f":0,"s":9},{"v":[39,43,42,38],"f":1,"s":9},{"v":[37,38,42,41],"f":2,"s":9},{"v":[36,40,43,39],"f":3,"s":9},{"v":[40,41,45,44],"f":0,"s":10},{"v":[43,47,46,42],"f":1,"s":10},{"v":[41,42,46,45],"f":2,"s":10},{"v":[40,44,47,43],"f":3,"s":10},{"v":[44,45,49,48],"f":0,"s":11},{"v":[47,51,50,46],"f":1,"s":11},{"v":[45,46,50,49],"f":2,"s":11},{"v":[44,48,51,47],"f":3,"s":11},{"v":[52,53,57,56],"f":6,"s":0},{"v":[54,58,59,55],"f":7,"s":0},{"v":[56,57,61,60],"f":6,"s":1},{"v":[58,62,63,59],"f":7,"s":1},{"v":[60,61,65,64],"f":6,"s":2},{"v":[62,66,67,63],"f":7,"s":2},{"v":[64,65,69,68],"f":6,"s":3},{"v":[66,70,71,67],"f":7,"s":3},{"v":[68,69,73,72],"f":6,"s":4},{"v":[70,74,75,71],"f":7,"s":4},{"v":[72,73,77,76],"f":6,"s":5},{"v":[74,78,79,75],"f":7,"s":5},{"v":[76,77,81,80],"f":6,"s":6},{"v":[78,82,83,79],"f":7,"s":6},{"v":[80,81,85,84],"f":6,"s":7},{"v":[82,86,87,83],"f":7,"s":7},{"v":[84,85,89,88],"f":6,"s":8},{"v":[86,90,91,87],"f":7,"s":8},{"v":[88,89,93,92],"f":6,"s":9},{"v":[90,94,95,91],"f":7,"s":9},{"v":[92,93,97,96],"f":6,"s":10},{"v":[94,98,99,95],"f":7,"s":10},{"v":[96,97,101,100],"f":6,"s":11},{"v":[98,102,103,99],"f":7,"s":11},{"v":[0,1,2,3],"f":4,"s":0},{"v":[51,50,49,48],"f":5,"s":11}],"bore":25.0,"mm":1107.9,"facet":45.0,"shape":"traced","rrange":null,"flat":false,"R":83.81,"segs":12,"over":8.24,"pal":["#ea744c","#eac34c","#c3ea4c","#74ea4c","#4cea74","#4ceac3","#4cc3ea","#4c74ea","#744cea","#c34cea","#ea4cc3","#ea4c74"],"shut":false,"faces":["inner wall","outer wall","top cheek","bottom cheek","mouth","far end","ply, top","ply, bottom"],"facecol":["#5aa9e6","#3d7ebd","#c9d6e3","#8fa3b8","#1c1c20","#e0457b","#d8cbb2","#b9a888"]};
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+const EDGE = getComputedStyle(document.documentElement)
+  .getPropertyValue('--edge').trim() || 'rgba(0,0,0,.30)';
+// A flat coil is 10mm thick against 212 across, so a near-overhead default
+// reads as a drawing rather than a thing. Start it further round.
+let yaw = -0.62, pitch = D.flat ? -0.95 : -0.42, zoom = 1,
+    mode = 'face', reveal = D.segs;
+
+/* --- the model, centred on its own middle so rotation feels right --- */
+const C = (() => {
+  let lo = [1e9,1e9,1e9], hi = [-1e9,-1e9,-1e9];
+  for (const v of D.V) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
+  return [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
+})();
+function rot(p){
+  const x=p[0]-C[0], y=p[1]-C[1], z=p[2]-C[2];
+  const cy=Math.cos(yaw), sy=Math.sin(yaw);
+  const x1=x*cy - z*sy, z1=x*sy + z*cy;
+  const cp=Math.cos(pitch), sp=Math.sin(pitch);
+  return [x1, y*cp - z1*sp, y*sp + z1*cp];
+}
+/* extent at this angle, so the fit does not jump as it turns */
+function span(){
+  let lo=[1e9,1e9], hi=[-1e9,-1e9];
+  for (const v of D.V){ const r=rot(v);
+    for (let i=0;i<2;i++){ lo[i]=Math.min(lo[i],r[i]); hi[i]=Math.max(hi[i],r[i]); } }
+  return [hi[0]-lo[0], hi[1]-lo[1], (lo[0]+hi[0])/2, (lo[1]+hi[1])/2];
+}
+function draw(){
+  const dpr = Math.min(devicePixelRatio||1, 2);
+  const w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = w*dpr; cv.height = h*dpr;
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  cx.clearRect(0,0,w,h);
+  const [sw,sh,mx,my] = span();
+  const s = Math.min(w/(sw||1), h/(sh||1)) * 0.86 * zoom;
+  const P = p => { const r = rot(p);
+    return [w/2 + (r[0]-mx)*s, h/2 + (r[1]-my)*s, r[2]]; };
+
+  const items = [];
+  for (const q of D.Q){
+    if (q.f < 4 && q.s >= reveal) continue;
+    if (q.f === 5 && reveal < D.segs) continue;
+    const pts = q.v.map(i => P(D.V[i]));
+    const z = pts.reduce((a,p)=>a+p[2],0)/pts.length;
+    /* facing, from the projected winding: a back face winds the other way */
+    let area = 0;
+    for (let i=0;i<pts.length;i++){ const a=pts[i], b=pts[(i+1)%pts.length];
+      area += a[0]*b[1] - b[0]*a[1]; }
+    items.push({q, pts, z, front: area < 0});
+  }
+  items.sort((a,b) => a.z - b.z);          /* painter: far first */
+
+  for (const it of items){
+    const q = it.q;
+    let col = mode === 'face' ? D.facecol[q.f]
+            : (q.f >= 4 ? D.facecol[q.f] : D.pal[q.s % D.pal.length]);
+    /* one flat light, so the form reads; back faces sit darker */
+    const k = it.front ? 1 : 0.55;
+    cx.fillStyle = shade(col, k * (q.f===2?1.06:q.f===3?0.72:q.f===0?0.86:0.95));
+    cx.beginPath();
+    cx.moveTo(it.pts[0][0], it.pts[0][1]);
+    for (let i=1;i<it.pts.length;i++) cx.lineTo(it.pts[i][0], it.pts[i][1]);
+    cx.closePath(); cx.fill();
+    cx.strokeStyle = EDGE; cx.lineWidth = 0.6; cx.stroke();
+  }
+}
+function shade(hex, k){
+  const n = parseInt(hex.slice(1),16);
+  const f = v => Math.max(0, Math.min(255, Math.round(v*k)));
+  return `rgb(${f(n>>16&255)},${f(n>>8&255)},${f(n&255)})`;
+}
+
+/* --- controls --- */
+let drag = null;
+cv.addEventListener('pointerdown', e => {
+  drag = [e.clientX, e.clientY]; cv.classList.add('drag');
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', e => {
+  if (!drag) return;
+  yaw += (e.clientX - drag[0]) * 0.008;
+  pitch += (e.clientY - drag[1]) * 0.008;
+  pitch = Math.max(-1.5, Math.min(1.5, pitch));
+  drag = [e.clientX, e.clientY]; draw();
+});
+for (const ev of ['pointerup','pointercancel'])
+  cv.addEventListener(ev, () => { drag = null; cv.classList.remove('drag'); });
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoom = Math.max(0.35, Math.min(6, zoom * (e.deltaY < 0 ? 1.1 : 1/1.1)));
+  draw();
+}, {passive:false});
+cv.addEventListener('dblclick', () => {
+  yaw = -0.62; pitch = D.flat ? -0.95 : -0.42; zoom = 1; draw();
+});
+
+const $ = id => document.getElementById(id);
+function setMode(m){
+  mode = m;
+  $('m-face').setAttribute('aria-pressed', m === 'face');
+  $('m-sec').setAttribute('aria-pressed', m === 'sec');
+  key(); draw();
+}
+$('m-face').onclick = () => setMode('face');
+$('m-sec').onclick = () => setMode('sec');
+
+const rev = $('rev');
+rev.max = D.segs; rev.value = D.segs;
+rev.oninput = () => { reveal = +rev.value; revn(); draw(); };
+function revn(){
+  $('revn').textContent = reveal + ' of ' + D.segs + ' facets'
+    + (reveal < D.segs ? '' : '  (all)');
+}
+
+function key(){
+  const k = $('key');
+  k.innerHTML = '';
+  const rows = mode === 'face'
+    ? D.faces.map((n,i) => [D.facecol[i], n, i])
+        .filter(([,,i]) => D.Q.some(q => q.f === i)).map(([c,n]) => [c,n])
+    : (D.shut ? [] : [[D.facecol[4],'mouth'], [D.facecol[5],'far end']]).concat(
+      [[D.pal[0], 'facet 1'], [D.pal[Math.floor(D.segs/2) % D.pal.length],
+        'facet ' + (Math.floor(D.segs/2)+1)],
+       [D.pal[(D.segs-1) % D.pal.length], 'facet ' + D.segs]]);
+  for (const [c,n] of rows){
+    const d = document.createElement('div'); d.className = 'key';
+    d.innerHTML = `<span class="sw" style="background:${c}"></span><span>${n}</span>`;
+    k.appendChild(d);
+  }
+}
+
+$('sub').innerHTML = `<b>${D.bore} \u00d7 ${D.bore}mm</b> section, `
+  + `<b>${D.mm}mm</b> of centreline, ${D.segs} facets of ${D.facet}\u00b0 `
+  + `\u2014 exact along every facet, <b>+${D.over}%</b> at each mitre`;
+$('nums').innerHTML = [
+  ['shape', D.shape], ['bore', D.bore + ' \u00d7 ' + D.bore + 'mm'],
+  ['section', (D.bore*D.bore) + 'mm\u00b2'],
+  ['centreline', D.mm + 'mm'],
+  ['bend radius', D.rrange ? ('R' + D.rrange[0] + ' to R' + D.rrange[1]) : (D.R + 'mm')],
+  ['R / bore', D.rrange
+     ? (D.rrange[0]/D.bore).toFixed(1) + ' to ' + (D.rrange[1]/D.bore).toFixed(1)
+     : (D.R/D.bore).toFixed(1)],
+  ['facet', D.facet + '\u00b0'], ['area at a mitre', '+' + D.over + '%'],
+].map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+
+key(); revn();
+addEventListener('resize', draw);
+draw();
+</script>

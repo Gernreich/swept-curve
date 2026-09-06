@@ -1,0 +1,190 @@
+<title>Volute Bore</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#15171b; --panel:#f6f3ec; --ink:#e9ebee; --dim:#8b939d; --rule:#2a2f36;
+  --cut:#101216; --slot:#a85800; --mark:#2f5fd0; --warn:#c0392b; --air:#dfe6ef;
+  --card:#1b1e24;
+}
+:root:not([data-theme="dark"]){ }
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --ground:#efece5; --ink:#1b1e24; --dim:#5f6772; --rule:#d6d1c6; --card:#f8f6f1;
+  }
+}
+:root[data-theme="light"]{
+  --ground:#efece5; --ink:#1b1e24; --dim:#5f6772; --rule:#d6d1c6; --card:#f8f6f1;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);
+  font-family:"Source Serif 4",Georgia,serif;line-height:1.6;
+  padding:36px 20px 80px}
+.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:30px}
+h1{font-family:Archivo,system-ui,sans-serif;font-weight:700;font-size:clamp(30px,5vw,46px);
+  letter-spacing:-.02em;margin:0;text-wrap:balance;line-height:1.05}
+.sub{color:var(--dim);font-size:17px;margin:8px 0 0;max-width:62ch}
+h2{font-family:Archivo,system-ui,sans-serif;font-weight:700;font-size:20px;
+  letter-spacing:-.01em;margin:0 0 10px}
+p{margin:0 0 12px;max-width:66ch}
+.eyebrow{font-family:Archivo,system-ui,sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
+figure{margin:0;background:var(--panel);border:1px solid var(--rule);border-radius:12px;
+  padding:14px;overflow-x:auto}
+canvas{display:block;width:100%;height:auto;max-width:100%}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+button{font-family:Archivo,system-ui,sans-serif;font-size:12px;font-weight:500;
+  letter-spacing:.03em;padding:7px 13px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--rule);background:var(--card);color:var(--ink)}
+button[aria-pressed="true"]{background:var(--mark);border-color:var(--mark);color:#fff}
+button:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+table{border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:13px;font-variant-numeric:tabular-nums}
+td{border-bottom:1px solid var(--rule);padding:7px 4px}
+td:last-child{text-align:right}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:18px}
+.card.good{border-left:3px solid var(--mark)}
+.card.open{border-left:3px solid var(--warn)}
+.cap{color:var(--dim);font-size:13px;margin-top:10px}
+code{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.9em}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+<header>
+  <p class="eyebrow">bore-ribbon &middot; 10mm square section</p>
+  <h1>The volute bore</h1>
+  <p class="sub">A metre of 10&nbsp;&times;&nbsp;10mm bore wound into a 192mm disc, drawn as
+  six semicircles of stepping radius. Every arc is constant&#8209;radius, which is the
+  whole reason it works.</p>
+</header>
+
+<section>
+  <figure>
+    <canvas id="c" width="1600" height="1150" aria-label="The volute bore drawn to scale: a spiral of six semicircles, the cheek band shown as an outline with the airway inside it, the outer end reaching the rim and the inner end enclosed at the centre"></canvas>
+  </figure>
+  <div class="ctl">
+    <button id="b-band" aria-pressed="true">Cheek band</button>
+    <button id="b-air" aria-pressed="true">Airway</button>
+    <button id="b-centre" aria-pressed="false">Centreline</button>
+    <button id="b-ends" aria-pressed="true">Ends</button>
+  </div>
+  <p class="cap">Drawn to scale at 1&nbsp;unit&nbsp;=&nbsp;1mm. The band is the plywood cheek,
+  20mm wide; the pale channel inside it is the 10mm airway.</p>
+</section>
+
+<section>
+  <h2>What the geometry does</h2>
+  <table>
+    <tr><td>centreline</td><td>1000.7mm</td></tr>
+    <tr><td>section</td><td>10 &times; 10mm = 100mm&sup2;</td></tr>
+    <tr><td>facets</td><td>45&deg;, +8.2% at each mitre</td></tr>
+    <tr><td>semicircle radii</td><td>82.3, 70.3, 58.3, 46.3, 34.3, 22.3mm</td></tr>
+    <tr><td>step between passes</td><td>24mm</td></tr>
+    <tr><td>closest the bore comes to itself</td><td>7.75mm &mdash; needs 20</td></tr>
+    <tr><td>the two openings</td><td>135&deg; apart &mdash; opposed is 180</td></tr>
+    <tr><td>tightest arc</td><td>R22.3, floor is R19.6</td></tr>
+    <tr><td>cheek overall</td><td>192.3 &times; 174.2mm</td></tr>
+    <tr><td>bed</td><td>580 &times; 288mm usable &mdash; fits twice over</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Why arcs, and not a spiral</h2>
+  <p>A true spiral&rsquo;s radius is still changing across each facet, and the offsetting
+  code mitres a vertex assuming the curvature either side of it is constant. That is true
+  of an arc and false of a spiral, and it cost <strong>6.44mm of a 10mm airway</strong> &mdash;
+  the same class of fault as a bore that measures 10 by 7.</p>
+  <p>Here the radius holds across each arc and steps only at the vertices, where a mitre
+  already expects a corner. It is the construction every other shape in the repository
+  already uses.</p>
+</section>
+
+<section>
+  <h2>The centre end has no way out</h2>
+  <p>A volute winds inward and ends at the centre, and that end is <strong>enclosed</strong>.
+  Measured against the rest of the bore, the inner lead comes within <strong>7.75mm</strong>
+  of its neighbours where it needs 20mm, and a straight lead leaving the centre runs
+  <strong>1mm</strong> before it is inside the coil. There is no direction it can leave in.</p>
+  <p>So this is a correct bore path and not yet an instrument. Both openings have to reach
+  the rim, which means the true double spiral: wind in, then back out <em>between</em> the
+  turns already there.</p>
+  <div class="cards">
+    <div class="card open">
+      <p class="eyebrow">What is solved</p>
+      <p>The construction. Constant&#8209;radius arcs keep the airway exact, the six radii
+      step cleanly from 82.3 to 22.3mm, it lands on <code>1000.7mm</code>, and the tightest arc clears the tooth floor at R22.3 against R19.6.</p>
+    </div>
+    <div class="card open">
+      <p class="eyebrow">What is not</p>
+      <p>Interleaving the return. Every version I built retraced exactly over the inward
+      path &mdash; <code>0.00mm</code> clearance. The outward passes need to sit half a step
+      off the inward ones, and the volute&rsquo;s shifting centres do not give me that for
+      free the way a plain spiral would.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+const D = {"centre": [[89.9536686473018, -18.477590650225732], [82.3, 0.0], [58.194888091652864, 58.19488809165286], [5.0394215784913586e-15, 82.3], [-58.19488809165286, 58.194888091652864], [-82.3, 1.0078843156982717e-14], [-61.7096067174143, -49.70960671741428], [-12.000000000000012, -70.3], [37.709606717414275, -49.7096067174143], [58.3, -1.574895783703496e-14], [41.22432534317573, 41.22432534317571], [1.7849227097572673e-14, 58.3], [-41.22432534317567, 41.22432534317577], [-58.3, 1.9949496358110383e-14], [-44.73904396893713, -32.73904396893717], [-12.00000000000002, -46.3], [20.739043968937104, -32.73904396893719], [34.3, -1.974130640225533e-14], [24.253762594698568, 24.253762594698586], [1.8902423344839396e-14, 34.3], [-24.253762594698543, 24.25376259469861], [-34.3, 1.8063540287423463e-14], [-27.768481220460004, -15.768481220460007], [-12.000000000000055, -22.299999999999994], [3.768481220459984, -15.76848122046003], [10.299999999999997, -1.1977045695661107e-14], [17.95366864730181, 18.477590650225718]], "radii": [82.3, 70.3, 58.3, 46.3, 34.3, 22.3], "band_in": [[99.19246397241466, -14.650756326574832], [91.53879532511286, 3.8268343236509006], [65.84855673895467, 65.84855673895464], [1.4210854715202004e-14, 93.12392200292393], [-65.84855673895464, 65.84855673895467], [-93.12392200292393, 7.105427357601002e-15], [-69.36327536471609, -57.363275364716074], [-12.000000000000014, -81.12392200292393], [45.36327536471606, -57.3632753647161], [69.12392200292393, -2.1316282072803006e-14], [48.87799399047753, 48.8779939904775], [7.105427357601002e-15, 69.12392200292393], [-48.87799399047748, 48.87799399047756], [-69.12392200292393, 3.552713678800501e-14], [-52.39271261623893, -40.39271261623896], [-12.000000000000021, -57.12392200292394], [28.392712616238896, -40.39271261623899], [45.12392200292394, -2.1316282072803006e-14], [31.907431242000357, 31.90743124200039], [1.7763568394002505e-14, 45.12392200292394], [-31.90743124200033, 31.907431242000413], [-45.12392200292394, 1.7763568394002505e-14], [-35.4221498677618, -23.422149867761796], [-12.000000000000075, -33.12392200292393], [11.422149867761773, -23.42214986776184], [19.53879532511286, -3.8268343236509197], [27.19246397241467, 14.650756326574811]], "band_out": [[80.71487332218894, -22.304424973876632], [73.06120467488714, -3.8268343236509006], [50.541219444351064, 50.54121944435107], [0.0, 71.47607799707606], [-50.541219444351064, 50.54121944435107], [-71.47607799707606, 7.105427357601002e-15], [-54.05593807011251, -42.05593807011248], [-12.000000000000007, -59.47607799707606], [30.05593807011249, -42.055938070112504], [47.476077997076054, -1.4210854715202004e-14], [33.57065669587393, 33.570656695873915], [1.4210854715202004e-14, 47.476077997076054], [-33.570656695873886, 33.570656695873964], [-47.476077997076054, 2.1316282072803006e-14], [-37.08537532163534, -25.08537532163537], [-12.000000000000021, -35.47607799707606], [13.085375321635311, -25.08537532163539], [23.476077997076054, -1.4210854715202004e-14], [16.600093947396772, 16.600093947396793], [1.4210854715202004e-14, 23.47607799707606], [-16.600093947396758, 16.600093947396807], [-23.476077997076057, 1.4210854715202004e-14], [-20.114812573158204, -8.114812573158218], [-12.000000000000036, -11.476077997076057], [-3.885187426841801, -8.114812573158222], [1.0612046748871329, 3.8268343236508957], [8.714873322188948, 22.304424973876625]], "air_in": [[94.57306630985823, -16.564173488400282], [86.91939766255643, 1.9134171618254503], [62.021722415303756, 62.021722415303756], [7.105427357601002e-15, 87.71196100146197], [-62.02172241530374, 62.02172241530376], [-87.71196100146197, 7.105427357601002e-15], [-65.5364410410652, -53.536441041065174], [-12.000000000000021, -75.71196100146197], [41.53644104106518, -53.5364410410652], [63.71196100146197, -7.105427357601002e-15], [45.05115966682662, 45.051159666826614], [2.1316282072803006e-14, 63.71196100146197], [-45.05115966682657, 45.05115966682667], [-63.71196100146197, 1.4210854715202004e-14], [-48.565878292588025, -36.56587829258807], [-12.000000000000021, -51.71196100146197], [24.565878292587993, -36.565878292588096], [39.71196100146197, -1.4210854715202004e-14], [28.080596918349464, 28.08059691834949], [1.4210854715202004e-14, 39.711961001461965], [-28.08059691834944, 28.08059691834951], [-39.711961001461965, 1.7763568394002505e-14], [-31.59531554411091, -19.595315544110896], [-12.000000000000064, -27.71196100146196], [7.59531554411088, -19.595315544110935], [14.91939766255643, -1.9134171618254658], [22.57306630985824, 16.564173488400264]], "air_out": [[85.33427098474536, -20.391007812051182], [77.68060233744356, -1.9134171618254503], [54.36805376800197, 54.368053768001964], [1.4210854715202004e-14, 76.88803899853802], [-54.368053768001964, 54.36805376800197], [-76.88803899853802, 1.4210854715202004e-14], [-57.882772393763396, -45.88277239376339], [-12.000000000000007, -64.88803899853802], [33.88277239376339, -45.8827723937634], [52.88803899853802, -7.105427357601002e-15], [37.397491019524836, 37.39749101952481], [7.105427357601002e-15, 52.88803899853802], [-37.397491019524786, 37.397491019524864], [-52.88803899853802, 2.1316282072803006e-14], [-40.91220964528624, -28.912209645286264], [-12.000000000000018, -40.88803899853802], [16.912209645286204, -28.91220964528629], [28.88803899853803, -1.4210854715202004e-14], [20.42692827104767, 20.426928271047686], [1.7763568394002505e-14, 28.88803899853803], [-20.42692827104765, 20.426928271047707], [-28.88803899853803, 1.4210854715202004e-14], [-23.941646896809104, -11.941646896809115], [-12.00000000000005, -16.888038998538025], [-0.05835310319090681, -11.941646896809125], [5.680602337443565, 1.9134171618254419], [13.33427098474538, 20.39100781205117]], "len": 1000.7, "gap": 7.75, "openings": 135, "bbox": [-93.1, -81.1, 192.3, 174.2]};
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+const show = {band:true, air:true, centre:false, ends:true};
+const [bx,by,bw,bh] = D.bbox;
+function draw(){
+  const W = cv.width, H = cv.height;
+  cx.clearRect(0,0,W,H);
+  const pad = 108;
+  const s = Math.min((W-2*pad)/bw, (H-2*pad)/bh);
+  const ox = (W - bw*s)/2 - bx*s, oy = (H - bh*s)/2 - by*s;
+  const P = p => [ox + p[0]*s, oy + p[1]*s];
+  const path = pts => { cx.beginPath();
+    pts.forEach((p,i)=>{ const q=P(p); i?cx.lineTo(q[0],q[1]):cx.moveTo(q[0],q[1]); }); };
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  if (show.air){
+    cx.fillStyle = css('--air');
+    path(D.air_out); const back=[...D.air_in].reverse();
+    back.forEach(p=>{const q=P(p);cx.lineTo(q[0],q[1]);});
+    cx.closePath(); cx.fill();
+  }
+  if (show.band){
+    cx.strokeStyle = css('--cut'); cx.lineWidth = Math.max(1.4, 1.1*s);
+    cx.lineJoin='round';
+    path(D.band_in); cx.stroke();
+    path(D.band_out); cx.stroke();
+  }
+  if (show.centre){
+    cx.strokeStyle = css('--slot'); cx.lineWidth = Math.max(1,0.8*s);
+    cx.setLineDash([7,6]); path(D.centre); cx.stroke(); cx.setLineDash([]);
+  }
+  if (show.ends){
+    // labels live in the margin with a leader back to the opening, so they
+    // never sit on the drawing or run off the edge
+    const tag = (p, ax, ay, align, text, col) => {
+      const q = P(p);
+      cx.strokeStyle=col; cx.lineWidth=2.5; cx.setLineDash([5,5]);
+      cx.beginPath(); cx.moveTo(q[0],q[1]); cx.lineTo(ax,ay); cx.stroke();
+      cx.setLineDash([]);
+      cx.beginPath(); cx.arc(q[0],q[1],8,0,7); cx.fillStyle=col; cx.fill();
+      cx.font='600 25px Archivo, system-ui, sans-serif'; cx.fillStyle=col;
+      cx.textAlign=align; cx.textBaseline='middle';
+      cx.fillText(text, ax + (align==='left'?12:-12), ay);
+    };
+    const c = D.centre, W2 = cv.width, H2 = cv.height;
+    tag(c[0], W2-330, 74, 'left', 'reaches the rim', css('--mark'));
+    tag(c[c.length-1], 150, H2-96, 'left', 'enclosed \u2014 7.75mm of room', css('--warn'));
+  }
+  // scale bar
+  cx.strokeStyle = css('--dim'); cx.lineWidth = 2;
+  const y = H - 34, x0 = 60, x1 = 60 + 50*s;
+  cx.beginPath(); cx.moveTo(x0,y); cx.lineTo(x1,y);
+  cx.moveTo(x0,y-7); cx.lineTo(x0,y+7); cx.moveTo(x1,y-7); cx.lineTo(x1,y+7); cx.stroke();
+  cx.font='400 20px "IBM Plex Mono", monospace'; cx.fillStyle=css('--dim');
+  cx.textAlign='left'; cx.fillText('50mm', x1+12, y+7);
+}
+for (const k of ['band','air','centre','ends']){
+  const b = document.getElementById('b-'+k);
+  b.addEventListener('click', ()=>{ show[k]=!show[k];
+    b.setAttribute('aria-pressed', String(show[k])); draw(); });
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+draw();
+</script>
