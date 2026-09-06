@@ -69,7 +69,7 @@ its quantity buys you.
 
 The inner wall is the centreline offset inward by `bore/2`, so there is no bore
 at all below `R = bore/2`. **But the tooth runs out long before the geometry
-does.** A Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
+does.** A ribbon/Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
 the same fact that forced `pin_width()` in `bore-generator` to floor at the
 tooth. At the 10mm bore and 30° facets:
 
@@ -169,8 +169,8 @@ cheek's sheet with panels, so cutting one sheet twice left you thirteen panels
 short with nothing to notice it but counting. `items_for()` emits ONE cheek and
 `sheet()` packs cheeks and panels as separate groups:
 
-    ...-cheek-x2-cut-files.svg     one cheek. Cut it twice.
-    ...-panels-cut-files.svg       every wall panel. Cut once.
+    ...-ribbon/cheek-x2-cut-files.svg     one cheek. Cut it twice.
+    ...-ribbon/panels-cut-files.svg       every wall panel. Cut once.
 
 `x2` is the bell's convention - `bell-round10-...-x3-...` means three plies -
 so the count of copies lives in the name, where a reader looking at a folder
@@ -306,7 +306,7 @@ changes:
 
 ```sh
 python3 ribbon_view.py --shape=serpentine --bore=25 --embed \
-    --out=../../../../../bores/Gernreich.github.io/bore-viewer.html \
+    --out=../../../../bores/Gernreich.github.io/bore-viewer.html \
     --home=https://gernreich.github.io/trumpet/parts/bore/concept/swept-curve/ribbon/
 ```
 
@@ -314,14 +314,14 @@ An embed follows `prefers-color-scheme`, because it sits inside somebody
 else's page. It cannot see an explicit theme toggle on the host — a frame is
 its own document — so it matches by default and not after a manual switch.
 
-**Nothing gates it.** `check.py`'s lesson from `bore-stretched` applies —
+**Nothing gates it.** `ribbon/check.py`'s lesson from `bore-stretched` applies —
 a render can be wrong while every check passes. Look at the page after changing
 it.
 
 ## Previews, because a cut file is invisible on a page
 
 `previews/` holds a readable rendering of every cut file, built by
-`lasermade-tools/make-preview.py`. Same geometry, same cut order, thicker
+`ribbon/lasermade-tools/make-preview.py`. Same geometry, same cut order, thicker
 strokes, and the three inks that fail contrast on a light ground darkened.
 Rebuild them whenever a cut file changes — verified by comparing the path data,
 which must be identical to the source.
@@ -348,14 +348,14 @@ python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
 python3 ribbon_view.py --shape=serpentine --bore=25    # the page you turn
 
 for f in ribbon-*.svg; do
-  python3 $G/make-preview.py "$f"       # previews/<name>, readable on a page
+  python3 $ribbon/G/make-preview.py "$f"       # previews/<name>, readable on a page
 done
 
 G=~/LaserMadeMusic/GIT/lasermade-tools
-python3 $G/md2html.py README.md index.html
-python3 $G/doc-audit.py README.md --html index.html \
-    --rebuild "python3 $G/md2html.py {md} {out}" --links
-python3 $G/svg-stroke-check.py --dir . --quiet
+python3 $ribbon/G/md2html.py README.md index.html
+python3 $ribbon/G/doc-audit.py README.md --html index.html \
+    --rebuild "python3 $ribbon/G/md2html.py {md} {out}" --links
+python3 $ribbon/G/svg-stroke-check.py --dir . --quiet
 ```
 
 **Read the audit output before pushing.** It ends with a pass/fail tally.

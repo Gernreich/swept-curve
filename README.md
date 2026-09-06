@@ -27,13 +27,13 @@ slider builds it up a facet at a time.
 
 | | |
 | --- | --- |
-| [`ribbon-coupon-bore10-30deg-R30.html`](ribbon-coupon-bore10-30deg-R30.html) | the 180° coupon |
-| [`ribbon-serpentine-bore10-30deg-3lobes-R72.html`](ribbon-serpentine-bore10-30deg-3lobes-R72.html) | the metre serpentine, 10mm bore |
-| [`ribbon-opposed-bore10-30deg-3lobes-R64.html`](ribbon-opposed-bore10-30deg-3lobes-R64.html) | the metre again, with mouth and bell facing opposite ways |
-| [`ribbon-spiral-bore10-45deg-R35to113.html`](ribbon-spiral-bore10-45deg-R35to113.html) | the metre wound flat, two and a bit turns |
-| [`ribbon-wave-bore10-45deg-5arc.html`](ribbon-wave-bore10-45deg-5arc.html) | a trough and a crest, level at both ends |
-| [`ribbon-spiral-bore10-45deg-R74to144.html`](ribbon-spiral-bore10-45deg-R74to144.html) | the coil at two turns, 1458.2mm |
-| [`ribbon-spiral-bore10-45deg-R36to144.html`](ribbon-spiral-bore10-45deg-R36to144.html) | the coil at three turns, 1766.9mm |
+| [`coupon/ribbon-coupon-bore10-30deg-R30/ribbon-coupon-bore10-30deg-R30.html`](coupon/ribbon-coupon-bore10-30deg-R30/ribbon-coupon-bore10-30deg-R30.html) | the 180° coupon |
+| [`serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html`](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html) | the metre serpentine, 10mm bore |
+| [`opposed/ribbon-opposed-bore10-30deg-3lobes-R64/ribbon-opposed-bore10-30deg-3lobes-R64.html`](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/ribbon-opposed-bore10-30deg-3lobes-R64.html) | the metre again, with mouth and bell facing opposite ways |
+| [`spiral/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html`](spiral/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html) | the metre wound flat, two and a bit turns |
+| [`wave/ribbon-wave-bore10-45deg-5arc/ribbon-wave-bore10-45deg-5arc.html`](wave/ribbon-wave-bore10-45deg-5arc/ribbon-wave-bore10-45deg-5arc.html) | a trough and a crest, level at both ends |
+| [`spiral/ribbon-spiral-bore10-45deg-R74to144/ribbon-spiral-bore10-45deg-R74to144.html`](spiral/ribbon-spiral-bore10-45deg-R74to144/ribbon-spiral-bore10-45deg-R74to144.html) | the coil at two turns, 1458.2mm |
+| [`spiral/ribbon-spiral-bore10-45deg-R36to144/ribbon-spiral-bore10-45deg-R36to144.html`](spiral/ribbon-spiral-bore10-45deg-R36to144/ribbon-spiral-bore10-45deg-R36to144.html) | the coil at three turns, 1766.9mm |
 | [`ribbon-traced-volute-bore10-45deg.html`](ribbon-traced-volute-bore10-45deg.html) | the volute, drawn but not cuttable |
 
 Two more draw instruments that live in other repositories, and they are the only
@@ -117,7 +117,7 @@ of `bore − thickness`. That is exactly what this generator did until
 
 The inner wall's radius is `R − (bore + thickness)/2`, so there is no bore at
 all below that. Long before it, the inner panel gets too short to carry a
-finger: a Boxes.py tooth is `2 × thickness` and **does not scale with the
+finger: a ribbon/Boxes.py tooth is `2 × thickness` and **does not scale with the
 bore**. At the 10mm bore and 30° facets:
 
 | R / bore | R | inner panel | holds a 6mm tooth? |
@@ -143,8 +143,8 @@ command away and git has the 25mm sheets that were here until 2026-09-03.
 
 | | 10 × 10mm |
 | --- | --- |
-| the cheek, **cut twice** | [`bore10`](ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-cheek-x2-cut-files.svg) |
-| the panels, cut once | [`bore10`](ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-panels-cut-files.svg) |
+| the cheek, **cut twice** | [`bore10`](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/cut-files/ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-cheek-x2-cut-files.svg) |
+| the panels, cut once | [`bore10`](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/cut-files/ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-panels-cut-files.svg) |
 | section | 100mm² |
 | cheek band | 20mm |
 | R / bore | 7.2 |
@@ -186,7 +186,7 @@ in the worse direction, and the panels stay long enough to carry real joints.
 
 A 90mm straight run held by a single 6mm tab in its middle is a hinge, not a
 joint: it pivots and the seam opens. Teeth alternate with gaps of their own
-width, as Boxes.py does —
+width, as ribbon/Boxes.py does —
 
     n = floor((L − 2 × shoulder + tooth) / (2 × tooth))
 
@@ -202,8 +202,8 @@ the bed or starts crossing itself:
 
 | facets | turns | longest | R, centre to rim | cut files |
 | ---: | ---: | ---: | --- | --- |
-| 17 | 2.1 | **1458.2mm** | R74 to R144 | [cheek](ribbon-spiral-bore10-45deg-R74to144-1458mm-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R74to144-1458mm-panels-cut-files.svg) |
-| 25 | 3.1 | **1766.9mm** | R36.5 to R144 | [cheek](ribbon-spiral-bore10-45deg-R36to144-1767mm-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R36to144-1767mm-panels-cut-files.svg) |
+| 17 | 2.1 | **1458.2mm** | R74 to R144 | [cheek](spiral/ribbon-spiral-bore10-45deg-R74to144/cut-files/ribbon-spiral-bore10-45deg-R74to144-1458mm-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R74to144/cut-files/ribbon-spiral-bore10-45deg-R74to144-1458mm-panels-cut-files.svg) |
+| 25 | 3.1 | **1766.9mm** | R36.5 to R144 | [cheek](spiral/ribbon-spiral-bore10-45deg-R36to144/cut-files/ribbon-spiral-bore10-45deg-R36to144-1767mm-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R36to144/cut-files/ribbon-spiral-bore10-45deg-R36to144-1767mm-panels-cut-files.svg) |
 | 33 | 4.1 | — | — | none passes |
 
 **Four turns was offered once and was wrong.** It measured 2130mm and every
@@ -229,8 +229,8 @@ makes a coiled bore playable at all.
 
 | | 10 × 10mm, ported |
 | --- | --- |
-| the cheek, **cut twice** | [`bore10`](ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-cheek-x2-cut-files.svg) |
-| the panels, cut once | [`bore10`](ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-panels-cut-files.svg) |
+| the cheek, **cut twice** | [`bore10`](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-cheek-x2-cut-files.svg) |
+| the panels, cut once | [`bore10`](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-panels-cut-files.svg) |
 | centreline | 1000.0mm |
 | the opening | 10.1mm square, one bore back from the mouth |
 | the two sheets | 240 × 243mm and 593 × 96mm |
@@ -243,13 +243,13 @@ and after this was added.
 
 | bore | plain | ported |
 | --- | --- | --- |
-| the coupon, 123.2mm | [cheek](ribbon-coupon-bore10-30deg-R30-180turn-cheek-x2-cut-files.svg) · [panels](ribbon-coupon-bore10-30deg-R30-180turn-panels-cut-files.svg) | [cheek](ribbon-coupon-bore10-30deg-R30-180turn-ported-cheek-x2-cut-files.svg) · [panels](ribbon-coupon-bore10-30deg-R30-180turn-ported-panels-cut-files.svg) |
-| the serpentine, 1000.0mm | [cheek](ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-cheek-x2-cut-files.svg) · [panels](ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-panels-cut-files.svg) | [cheek](ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-ported-cheek-x2-cut-files.svg) · [panels](ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-ported-panels-cut-files.svg) |
-| the opposed bore, 1000.0mm | [cheek](ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg) · [panels](ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-panels-cut-files.svg) | [cheek](ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-ported-cheek-x2-cut-files.svg) · [panels](ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-ported-panels-cut-files.svg) |
-| the wave, 836.5mm | [cheek](ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg) · [panels](ribbon-wave-bore10-45deg-5arc-836mm-panels-cut-files.svg) | [cheek](ribbon-wave-bore10-45deg-5arc-836mm-ported-cheek-x2-cut-files.svg) · [panels](ribbon-wave-bore10-45deg-5arc-836mm-ported-panels-cut-files.svg) |
-| the spiral, 1000.0mm | [cheek](ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R35to113-1000mm-panels-cut-files.svg) | [cheek](ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-panels-cut-files.svg) |
-| the coil at two turns, 1458.2mm | [cheek](ribbon-spiral-bore10-45deg-R74to144-1458mm-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R74to144-1458mm-panels-cut-files.svg) | [cheek](ribbon-spiral-bore10-45deg-R74to144-1458mm-ported-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R74to144-1458mm-ported-panels-cut-files.svg) |
-| the coil at three turns, 1766.9mm | [cheek](ribbon-spiral-bore10-45deg-R36to144-1767mm-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R36to144-1767mm-panels-cut-files.svg) | [cheek](ribbon-spiral-bore10-45deg-R36to144-1767mm-ported-cheek-x2-cut-files.svg) · [panels](ribbon-spiral-bore10-45deg-R36to144-1767mm-ported-panels-cut-files.svg) |
+| the coupon, 123.2mm | [cheek](coupon/ribbon-coupon-bore10-30deg-R30/cut-files/ribbon-coupon-bore10-30deg-R30-180turn-cheek-x2-cut-files.svg) · [panels](coupon/ribbon-coupon-bore10-30deg-R30/cut-files/ribbon-coupon-bore10-30deg-R30-180turn-panels-cut-files.svg) | [cheek](coupon/ribbon-coupon-bore10-30deg-R30/cut-files/ribbon-coupon-bore10-30deg-R30-180turn-ported-cheek-x2-cut-files.svg) · [panels](coupon/ribbon-coupon-bore10-30deg-R30/cut-files/ribbon-coupon-bore10-30deg-R30-180turn-ported-panels-cut-files.svg) |
+| the serpentine, 1000.0mm | [cheek](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/cut-files/ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-cheek-x2-cut-files.svg) · [panels](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/cut-files/ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-panels-cut-files.svg) | [cheek](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/cut-files/ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-ported-cheek-x2-cut-files.svg) · [panels](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/cut-files/ribbon-serpentine-bore10-30deg-3lobes-R72-1000mm-ported-panels-cut-files.svg) |
+| the opposed bore, 1000.0mm | [cheek](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg) · [panels](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-panels-cut-files.svg) | [cheek](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-ported-cheek-x2-cut-files.svg) · [panels](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-ported-panels-cut-files.svg) |
+| the wave, 836.5mm | [cheek](wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg) · [panels](wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-panels-cut-files.svg) | [cheek](wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-ported-cheek-x2-cut-files.svg) · [panels](wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-ported-panels-cut-files.svg) |
+| the spiral, 1000.0mm | [cheek](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-panels-cut-files.svg) | [cheek](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-panels-cut-files.svg) |
+| the coil at two turns, 1458.2mm | [cheek](spiral/ribbon-spiral-bore10-45deg-R74to144/cut-files/ribbon-spiral-bore10-45deg-R74to144-1458mm-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R74to144/cut-files/ribbon-spiral-bore10-45deg-R74to144-1458mm-panels-cut-files.svg) | [cheek](spiral/ribbon-spiral-bore10-45deg-R74to144/cut-files/ribbon-spiral-bore10-45deg-R74to144-1458mm-ported-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R74to144/cut-files/ribbon-spiral-bore10-45deg-R74to144-1458mm-ported-panels-cut-files.svg) |
+| the coil at three turns, 1766.9mm | [cheek](spiral/ribbon-spiral-bore10-45deg-R36to144/cut-files/ribbon-spiral-bore10-45deg-R36to144-1767mm-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R36to144/cut-files/ribbon-spiral-bore10-45deg-R36to144-1767mm-panels-cut-files.svg) | [cheek](spiral/ribbon-spiral-bore10-45deg-R36to144/cut-files/ribbon-spiral-bore10-45deg-R36to144-1767mm-ported-cheek-x2-cut-files.svg) · [panels](spiral/ribbon-spiral-bore10-45deg-R36to144/cut-files/ribbon-spiral-bore10-45deg-R36to144-1767mm-ported-panels-cut-files.svg) |
 
 A ported cheek is **exactly the same size as its plain twin** — measured, all
 seven pairs agree to 0.0mm in both dimensions, because a port is a hole and
@@ -285,8 +285,8 @@ has a riser between its lobes for the same reason. At 100mm it is clean.
 
 | | 10 × 10mm |
 | --- | --- |
-| the cheek, **cut twice** | [`bore10`](ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg) |
-| the panels, cut once | [`bore10`](ribbon-wave-bore10-45deg-5arc-836mm-panels-cut-files.svg) |
+| the cheek, **cut twice** | [`bore10`](wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg) |
+| the panels, cut once | [`bore10`](wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-panels-cut-files.svg) |
 | section | 100mm² |
 | centreline | 836.5mm |
 | the two openings | 180° apart |
@@ -299,10 +299,10 @@ has a riser between its lobes for the same reason. At 100mm it is clean.
 <div class="tw">
 <table>
 <tr>
-<td align="center"><a href="ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg"><img src="previews/ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg" alt="The cheek: a band following a trough and a crest, orange slots down both of its walls each with a small blue hex number, and a straight lead at either end" width="620"></a></td>
+<td align="center"><a href="wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg"><img src="previews/ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg" alt="The cheek: a band following a trough and a crest, orange slots down both of its walls each with a small blue hex number, and a straight lead at either end" width="620"></a></td>
 </tr>
 <tr>
-<td align="center"><sub>ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg &middot; 362 &times; 300mm sheet</sub></td>
+<td align="center"><sub>wave/ribbon-wave-bore10-45deg-5arc/cut-files/ribbon-wave-bore10-45deg-5arc-836mm-cheek-x2-cut-files.svg &middot; 362 &times; 300mm sheet</sub></td>
 </tr>
 </table>
 </div>
@@ -335,8 +335,8 @@ wound this tight needs the smaller floor, and it costs area at each mitre —
 
 | | 10 × 10mm |
 | --- | --- |
-| the cheek, **cut twice** | [`bore10`](ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg) |
-| the panels, cut once | [`bore10`](ribbon-spiral-bore10-45deg-R35to113-1000mm-panels-cut-files.svg) |
+| the cheek, **cut twice** | [`bore10`](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg) |
+| the panels, cut once | [`bore10`](spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-panels-cut-files.svg) |
 | section | 100mm² |
 | centreline | 1000.0mm |
 | the two openings | 180° apart |
@@ -349,10 +349,10 @@ wound this tight needs the smaller floor, and it costs area at each mitre —
 <div class="tw">
 <table>
 <tr>
-<td align="center"><a href="ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg"><img src="previews/ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg" alt="The cheek: a spiral band of two and a bit turns, orange slots down both of its walls, each with a small blue hex number, and a straight lead running out of the open middle" width="620"></a></td>
+<td align="center"><a href="spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg"><img src="previews/ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg" alt="The cheek: a spiral band of two and a bit turns, orange slots down both of its walls, each with a small blue hex number, and a straight lead running out of the open middle" width="620"></a></td>
 </tr>
 <tr>
-<td align="center"><sub>ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg &middot; 239.5 &times; 243.0mm sheet</sub></td>
+<td align="center"><sub>spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-cheek-x2-cut-files.svg &middot; 239.5 &times; 243.0mm sheet</sub></td>
 </tr>
 </table>
 </div>
@@ -385,8 +385,8 @@ straights take up the slack at **82.4539mm**, which is 1000.0mm again.
 
 | | 10 × 10mm |
 | --- | --- |
-| the cheek, **cut twice** | [`bore10`](ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg) |
-| the panels, cut once | [`bore10`](ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-panels-cut-files.svg) |
+| the cheek, **cut twice** | [`bore10`](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg) |
+| the panels, cut once | [`bore10`](opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-panels-cut-files.svg) |
 | section | 100mm² |
 | the two openings | 180° apart, each 22mm clear |
 | centreline | 1000.0mm |
@@ -401,10 +401,10 @@ straights take up the slack at **82.4539mm**, which is 1000.0mm again.
 <div class="tw">
 <table>
 <tr>
-<td align="center"><a href="ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg"><img src="previews/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg" alt="The cheek: one long thin band following three half-circles and a closing quarter turn, pierced by two rows of orange slots, one row for each wall,each with a small blue number beside it" width="620"></a></td>
+<td align="center"><a href="opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg"><img src="previews/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg" alt="The cheek: one long thin band following three half-circles and a closing quarter turn, pierced by two rows of orange slots, one row for each wall,each with a small blue number beside it" width="620"></a></td>
 </tr>
 <tr>
-<td align="center"><sub>ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg &middot; 572.0 &times; 251.2mm sheet</sub></td>
+<td align="center"><sub>opposed/ribbon-opposed-bore10-30deg-3lobes-R64/cut-files/ribbon-opposed-bore10-30deg-3lobes-R64-1000mm-cheek-x2-cut-files.svg &middot; 572.0 &times; 251.2mm sheet</sub></td>
 </tr>
 </table>
 </div>
@@ -424,7 +424,7 @@ holds the radius across each facet and steps it only at the joins, where a mitre
 already expects a corner.
 
 **No cut file, because it is not yet an instrument**, and
-[`volute.py`](volute/volute.py) says so itself — it runs the same kind of checks
+[`ribbon/volute.py`](volute/volute.py) says so itself — it runs the same kind of checks
 the generator does and two of them fail:
 
 | | |
@@ -450,8 +450,8 @@ constant across each semicircle and steps it between them, where that spiral
 gives every facet its own arc — nor sound, because its cheek crossed itself.
 It has been withdrawn.
 
-[`volute.html`](volute/volute.html) draws it flat and to scale, from the
-[`volute.json`](volute/volute.json) the script writes, and
+[`ribbon/volute.html`](volute/volute.html) draws it flat and to scale, from the
+[`ribbon/volute.json`](volute/volute.json) the script writes, and
 [`ribbon-traced-volute-bore10-45deg.html`](ribbon-traced-volute-bore10-45deg.html)
 turns it in three dimensions from [`traces/volute.json`](traces/volute.json) —
 the same `--trace=` route the octagonal trumpet's bore uses, which is what
@@ -459,8 +459,8 @@ draws a centreline this repository did not generate.
 
 ## The coupon
 
-Two files: **[the cheek](ribbon-coupon-bore10-30deg-R30-180turn-cheek-x2-cut-files.svg)**,
-which you cut **twice**, and **[the panels](ribbon-coupon-bore10-30deg-R30-180turn-panels-cut-files.svg)**,
+Two files: **[the cheek](coupon/ribbon-coupon-bore10-30deg-R30/cut-files/ribbon-coupon-bore10-30deg-R30-180turn-cheek-x2-cut-files.svg)**,
+which you cut **twice**, and **[the panels](coupon/ribbon-coupon-bore10-30deg-R30/cut-files/ribbon-coupon-bore10-30deg-R30-180turn-panels-cut-files.svg)**,
 which you cut once — a 180° turn at the 10mm bore, 123.2mm of centreline,
 **18 parts**.
 

@@ -24,7 +24,7 @@ and against how short the inner panels get.
 WHAT LIMITS THE BEND. The inner wall is the centreline offset inward by
 bore/2, so its radius is R - bore/2 and there is no bore at all below
 R = bore/2. Long before that the inner panel gets too short to carry a finger:
-a Boxes.py tooth is 2 x thickness and does NOT scale with the bore, so at the
+a ribbon/Boxes.py tooth is 2 x thickness and does NOT scale with the bore, so at the
 10mm bore and 30 degrees the inner panel holds no tooth at all until R = 25mm.
 That is why this coupon is R 25 and not the R 15 it looks like it wants to be.
 """
@@ -84,7 +84,7 @@ def play():
     the file by exactly the play.
     """
     return PLAY_BY_BORE.get(round(BORE, 3), PLAY_UNMEASURED)
-TOOTH = 2 * THICK    # Boxes.py FingerJointSettings; does not scale
+TOOTH = 2 * THICK    # ribbon/Boxes.py FingerJointSettings; does not scale
 SHOULDER = 2.0       # least material either side of a tooth
 
 CUT, INNER, MARK = '#000000', '#ff8000', '#0000ff'
@@ -395,7 +395,7 @@ def teeth(L):
 
     One tooth was enough at the coupon's 10-16mm panels and is a hinge at 90mm:
     a straight run held by a single 6mm tab in its middle pivots about it and
-    the seam opens. Alternating tooth and gap of equal width, as Boxes.py does,
+    the seam opens. Alternating tooth and gap of equal width, as ribbon/Boxes.py does,
     so a panel gets as many as it has room for:
 
         n = floor((L - 2*SHOULDER + TOOTH) / (2*TOOTH))
@@ -985,24 +985,24 @@ def main(write=True):
     # file. A trial writes somewhere else or it does not write at all.
     L = sum(seglen(a, b) for a, b in zip(c, c[1:]))
     # the group goes before -cut-files, not after: every sheet in this
-    # project ends -cut-files.svg and a reader sorts on the tail
+    # project ends -ribbon/cut-files.svg and a reader sorts on the tail
     if SHAPE == 'wave':
         stem = (f'ribbon-wave-bore{BORE:g}-{FACET:g}deg-'
-                f'{WAVE_LOBE_ARCS}arc-{L:.0f}mm.svg')
+                f'{WAVE_LOBE_ARCS}arc-{L:.0f}ribbon/mm.svg')
     elif SHAPE == 'spiral':
         stem = (f'ribbon-spiral-bore{BORE:g}-{FACET:g}deg-'
-                f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}mm.svg')
+                f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}ribbon/mm.svg')
     elif SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{SHAPE}-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
-                f'-R{LOBE_R:.0f}-{L:.0f}mm.svg')
+                f'-R{LOBE_R:.0f}-{L:.0f}ribbon/mm.svg')
     else:
         stem = (f'ribbon-coupon-bore{BORE:g}-{FACET:g}deg'
-                f'-R{RADIUS:g}-180turn.svg')
+                f'-R{RADIUS:g}-ribbon/180turn.svg')
     if PORT:
         # a ported design is a different part from its unported twin - same
         # coil, one hole, and radii solved separately - so it gets its own
         # name rather than overwriting the one without
-        stem = stem[:-4] + '-ported.svg'
+        stem = stem[:-4] + '-ribbon/ported.svg'
     out_path = OUT or os.path.join(
         os.path.dirname(os.path.abspath(__file__)), stem)
     written, ink, cut_slots = sheet(parts, cheekpoly, c, out_path, write)
