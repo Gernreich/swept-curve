@@ -50,8 +50,8 @@ WEB = 2.0            # material left outboard of a slot; the cheek's thin part
 # the bore.
 # Functions, not constants: --bore and --web change these, and a module-level
 # value computed at import cannot follow. WALL_OFF was a constant for exactly
-# one run and --bore=25 quietly kept the 10mm figure - which the airway check
-# caught, reporting 15mm of error against a 25mm bore.
+# one run, and a --bore on the command line quietly kept the default figure -
+# which the airway check caught, reporting the whole difference as error.
 def wall_off():
     return BORE / 2 + THICK / 2
 
@@ -64,12 +64,11 @@ def band():
     return 2 * cheek_off()
 BURN = 0.1           # kerf; the laser takes this out, centred on the line
 # Per side, and a lookup of what has actually been cut, not a curve through
-# it - bore-generator's PLAY_BY_BORE, same figures. 0 at the 25mm bore and
-# 0.025 at the 10mm: required clearance FALLS as the joint grows, which fits a
-# fabrication error that does not scale against elastic take-up that does.
-# A bore not in the table gets the small-joint value, because too loose is a
-# worse joint and too tight is no joint at all.
-PLAY_BY_BORE = {25.0: 0.0, 10.0: 0.025}
+# it - bore_split.py's PLAY_BY_BORE, same figure. One bore has been measured,
+# and 0.025 per side is what went together on it. A bore not in the table gets
+# that value too, because too loose is a worse joint and too tight is no joint
+# at all.
+PLAY_BY_BORE = {10.0: 0.025}
 PLAY_UNMEASURED = 0.025
 
 
@@ -200,11 +199,10 @@ def centreline():
     separate faceting step, so there is nothing for it to disagree with.
     """
     if SHAPE == 'torus':
-        # A closed regular ring of FACET turns. torus-octagonal is this at
-        # FACET 45: eight facets, a 25 x 25mm section, and the airway between
-        # apothems 58.149 and 83.149. RADIUS is the CIRCUMRADIUS of the
-        # centreline polygon, so its facet lines sit at RADIUS*cos(FACET/2),
-        # which for the torus is 70.649 - the mean of those two apothems.
+        # A closed regular ring of FACET turns: at FACET 45 an octagon, eight
+        # facets and an airway between the inner and outer apothems. RADIUS is
+        # the CIRCUMRADIUS of the centreline polygon, so its facet lines sit at
+        # RADIUS*cos(FACET/2) - the mean of those two apothems.
         n = int(round(360.0 / FACET))
         if abs(n * FACET - 360.0) > 1e-9:
             raise ValueError(f'--facet={FACET:g} does not divide a full turn '

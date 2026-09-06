@@ -7,16 +7,13 @@ the renaming and reorganising is finished. Git has them all. Until it exists,
 this file is the documentation, and any recipe below that renders or audits a
 README is waiting on that writeup rather than describing something present.
 
-**The 25mm CUT SHEETS went on 2026-09-03**; `--bore` is untouched and takes any value,
-and only the sheets kept here are 10mm.
+**Every sheet kept here is 10mm.** `--bore` is untouched and takes any value; nothing
+is shipped at another.
 
-**The two 25mm VIEWERS stayed** - `ribbon-torus-bore25-45deg-R76.html` and
-`ribbon-traced-octagonal-trumpet-bore25-45deg.html`. They went briefly with the sheets,
-because a name filter cannot tell a 25mm sheet from a drawing of a 25mm instrument, and
-came back the same day: torus-octagonal and trumpet-octagonal are both still here, and
-those pages are their only 3D views. **They keep the 25 in their names because the
-objects are 25mm.** Renaming them to survive a filter would be the filter deciding what
-is true.
+**The octagonal work left this repository on 2026-09-05** - the torus and the traced
+octagonal trumpet, their two viewer pages, and the trace they were drawn from. They are
+not in git at all now. `--shape=torus` and `--trace=` stay, because they are general and
+the next closed ring or measured curve will want them.
 
 ## Working in this repository
 
@@ -30,7 +27,7 @@ variations on each other:
 | | curve | section at a turn | why it exists |
 | --- | --- | --- | --- |
 | `bore-generator` | 90° lattice turns | +41.4% | fits a walk into a box |
-| `torus-octagonal` | a circle, 45° facets | +8.2% | a closed constant-section loop |
+| `--shape=torus` | a circle, 45° facets | +8.2% | a closed constant-section loop |
 | here | any planar curve | +3.5% at 30° | constant section on a smooth curve |
 
 ## The geometry, in one paragraph
@@ -68,9 +65,9 @@ faces, so shoulder-to-shoulder is the bore. Only the width was wrong, which is
 why the measured section was 10 x 7 and not 7 x 7.
 
 `wall_off()`, `cheek_off()` and `band()` are **functions**. They were constants
-for one run, and `--bore=25` kept the 10mm figure — caught immediately by the
-corrected airway check reporting 15mm of error, which is what a check named for
-its quantity buys you.
+for one run, and a `--bore` on the command line kept the default figure — caught
+immediately by the corrected airway check reporting the whole difference as error,
+which is what a check named for its quantity buys you.
 
 ## What limits a bend, and it is not what you would guess
 
@@ -128,29 +125,28 @@ them.
 
 ## A traced centreline is kept with how it was taken
 
-`--trace=` draws a bore measured off somebody else's cut file. Only
-trumpet-octagonal needs it: its sheet is a hand-authored band, and the curve
-behind it is not written down as parameters anywhere.
+`--trace=` draws a bore from stations somebody else's drawing or script fixed,
+rather than from parameters this generator holds. It exists for a curve whose
+shape is written down somewhere other than here.
 
-`traces/octagonal-trumpet.json` carries the stations **and the provenance** -
-which path in which file, which transforms were composed onto it, how the
-midline was taken, and what was measured. A traced number without that is a
-number nobody can check.
+A trace file carries the stations **and the provenance** - where they came
+from, how they were taken, and what was measured off them. A traced number
+without that is a number nobody can check. `traces/volute.json` is the one kept:
+six semicircles of stepping radius from `volute/volute.py`, with its closest
+approach and the angle between its openings recorded beside them.
 
-**Three things fell out of the trace that were not assumed**, and they are why
-it is trustworthy: the strip is 31.2mm wide, which is 25mm of airway with a 3mm
-wall each side; the turns are +-45 degrees, the same facet angle as the torus;
-and the total turning is 0, which is what a bore between a mouthpiece and a
-bell must do. An opening faces out of the tube, so the mouth faces back along
-the run and the bell forwards; they are opposed when the turns cancel. 180
-degrees is the wrong answer and puts both openings on the same heading -
---shape=opposed exists because that mistake was made and cut.
+**The total turning of a trace is worth checking, and it is 0.** An opening
+faces out of the tube, so the mouth faces back along the run and the bell
+forwards; they are opposed when the turns cancel. 180 degrees is the wrong
+answer and puts both openings on the same heading - `--shape=opposed` exists
+because that mistake was made and cut. The volute's openings come out 135
+degrees apart, and its bore comes within 7.75mm of itself, which is why it is
+drawn and not cut.
 
-It is a trace, so it is not exact. The width scatters 30.7 to 35.5mm about a
-nominal 31.2, two turns are still 5 degrees off square, and two stations a few
-millimetres apart had to be merged - the shortest real facet on this channel is
-2*R*tan(22.5), about 62mm, so 12mm was a safe threshold. **If the parameters
-ever turn up, generate it instead and delete the trace.**
+A trace measured off a cut file is not exact: widths scatter, turns land a few
+degrees off, and stations a few millimetres apart have to be merged against the
+shortest real facet, `2*R*tan(FACET/2)`. **If the parameters ever turn up,
+generate it instead and delete the trace.**
 
 ## A closed ring is a shape too
 
@@ -159,11 +155,11 @@ a closed polyline's seam like any other vertex. Without that the two facets
 either side of the join come out over-long - 53.35mm against 48.17 - and the
 ring does not close.
 
-**torus-octagonal is exactly this**: FACET 45, a 25 x 25mm section, and a
-centreline octagon of circumradius 76.4696 whose facets sit at apothem 70.649.
-Offset by +-12.5 that gives the airway apothems 58.149 and 83.149, which is
-what that repository's own verifier reports out of its cut file. The render is
-extrapolated from the cut file's numbers and agrees with them to 0.001mm.
+At FACET 45 that is an octagon: eight facets, sitting at apothem
+`RADIUS*cos(22.5)`, and offsetting by `+-bore/2` gives the two airway apothems.
+`--radius` is the CIRCUMRADIUS of the centreline polygon, not an apothem, which
+is the one thing to get right before comparing a ring here against a ring
+measured off a cut file.
 
 `ribbon_view.py` draws a closed loop with no mouth and no far end, because the
 last station is the first.
@@ -312,7 +308,7 @@ declared twice, and rendered a blank canvas.
 changes:
 
 ```sh
-python3 ribbon_view.py --shape=serpentine --bore=25 --embed \
+python3 ribbon_view.py --shape=serpentine --embed \
     --out=../../../../bores/Gernreich.github.io/bore-viewer.html \
     --home=https://gernreich.github.io/trumpet/parts/bore/concept/swept-curve/ribbon/
 ```
@@ -352,7 +348,7 @@ while the sheet still holds it, black for the outlines.
 python3 ribbon_bore.py                 # cut file + the checks
 python3 ribbon_bore.py --no-write      # the checks alone
 python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
-python3 ribbon_view.py --shape=serpentine --bore=25    # the page you turn
+python3 ribbon_view.py --shape=serpentine    # the page you turn
 
 for f in ribbon-*.svg; do
   python3 $ribbon/G/make-preview.py "$f"       # previews/<name>, readable on a page
