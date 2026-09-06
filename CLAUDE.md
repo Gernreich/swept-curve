@@ -1,5 +1,12 @@
 # CLAUDE.md
 
+
+**The README is gone.** Every `README.md` and `index.html` under `trumpet/` was
+removed on 2026-09-05, pending one new writeup for the trumpet as a whole once
+the renaming and reorganising is finished. Git has them all. Until it exists,
+this file is the documentation, and any recipe below that renders or audits a
+README is waiting on that writeup rather than describing something present.
+
 **The 25mm CUT SHEETS went on 2026-09-03**; `--bore` is untouched and takes any value,
 and only the sheets kept here are 10mm.
 
