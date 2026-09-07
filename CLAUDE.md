@@ -309,7 +309,7 @@ changes:
 
 ```sh
 python3 ribbon_view.py --shape=serpentine --embed \
-    --out=../../../../bores/Gernreich.github.io/bore-viewer.html \
+    --out=../../../../../Gernreich.github.io/bore-viewer.html \
     --home=https://gernreich.github.io/trumpet/parts/bore/concept/swept-curve/ribbon/
 ```
 
