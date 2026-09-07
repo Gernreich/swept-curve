@@ -440,13 +440,15 @@ def build(title, embed=False, home=''):
 
 def main():
     a = sys.argv[1:]
-    for flag, cast in (('shape', str), ('bore', float), ('facet', float),
-                       ('radius', float), ('lobes', int), ('lobe-r', float),
-                       ('rise', float), ('lead', float), ('web', float),
-                       ('spiral-facets', int), ('spiral-ri', float),
-                       ('spiral-ro', float), ('wave-rise', float),
-                       ('wave-trough-r', float), ('wave-crest-r', float),
-                       ('wave-lead-r', float)):
+    FLAGS = (('shape', str), ('bore', float), ('facet', float),
+             ('radius', float), ('lobes', int), ('lobe-r', float),
+             ('rise', float), ('lead', float), ('web', float),
+             ('spiral-facets', int), ('spiral-ri', float),
+             ('spiral-ro', float), ('wave-rise', float),
+             ('wave-trough-r', float), ('wave-crest-r', float),
+             ('wave-lead-r', float), ('ds-pitch', float),
+             ('ds-r0', float), ('ds-facets', int), ('ds-cross-r', float))
+    for flag, cast in FLAGS:
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
             continue
@@ -457,8 +459,22 @@ def main():
                 'spiral-ro': 'SPIRAL_RO', 'wave-rise': 'WAVE_RISE',
                 'wave-trough-r': 'WAVE_TROUGH_R',
                 'wave-crest-r': 'WAVE_CREST_R',
-                'wave-lead-r': 'WAVE_LEAD_R'}[flag]
+                'wave-lead-r': 'WAVE_LEAD_R', 'ds-pitch': 'DS_PITCH',
+                'ds-r0': 'DS_R0', 'ds-facets': 'DS_FACETS',
+                'ds-cross-r': 'DS_CROSS_R'}[flag]
         setattr(B, name, cast(hit[0].split('=', 1)[1]))
+
+    # This table is a SECOND copy of the generator's, and an unlisted flag
+    # used to fall straight through it: the double spiral was drawn here at
+    # its default crossover radius while the cut files beside it were cut at
+    # another, and the only tell was 6.5mm of length between two reports
+    # nobody was comparing. An unknown flag is now an error, so a page and
+    # the sheets it belongs to cannot be built from different numbers.
+    known = {f'--{f}' for f, _ in FLAGS} | {'--out', '--home', '--embed'}
+    for x in a:
+        if x.startswith('--') and x.split('=', 1)[0] not in known:
+            sys.exit(f'ribbon_view: {x.split("=", 1)[0]} is not a flag here. '
+                     f'Known: {" ".join(sorted(known))}')
 
     # the opposed shape carries its own lobe; see ribbon_bore.OPPOSED_R
     if B.SHAPE == 'opposed':
@@ -507,15 +523,28 @@ def main():
         stem = (f'ribbon-spiral-bore{B.BORE:g}-{B.FACET:g}deg-'
                 f'R{B.SPIRAL_RI:.0f}to{B.SPIRAL_RO:.0f}')
         title = f'Ribbon Spiral, {B.BORE:g}mm Bore'
+    elif B.SHAPE == 'dspiral':
+        stem = (f'ribbon-dspiral-bore{B.BORE:g}-{B.FACET:g}deg-'
+                f'R{B.DS_R0:.0f}-pitch{B.DS_PITCH:.0f}')
+        title = f'Ribbon Double Spiral, {B.BORE:g}mm Bore'
     elif B.SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{B.SHAPE}-bore{B.BORE:g}-{B.FACET:g}deg-'
                 f'{B.LOBES}lobes-R{B.LOBE_R:.0f}')
         title = ('Ribbon Opposed-Ends Bore, %gmm' % B.BORE
                  if B.SHAPE == 'opposed'
                  else f'Ribbon Serpentine, {B.BORE:g}mm Bore')
-    else:
+    elif B.SHAPE == 'coupon':
         stem = f'ribbon-coupon-bore{B.BORE:g}-{B.FACET:g}deg-R{B.RADIUS:g}'
         title = f'Ribbon Coupon, {B.BORE:g}mm Bore'
+    else:
+        # This used to be the coupon's branch with no test on the shape, so a
+        # shape added to the generator and not to this list came out headed
+        # "Ribbon Coupon" over a picture of something else. The double spiral
+        # did, and every check here passed while it did: the numbers panel is
+        # built from the geometry and was right throughout. Only the drawing
+        # showed it.
+        sys.exit(f'ribbon_view: no title or filename for --shape={B.SHAPE}. '
+                 f'Add it here as well as in ribbon_bore.centreline().')
     out = [x for x in a if x.startswith('--out=')]
     hm = [x for x in a if x.startswith('--home=')]
     embed = '--embed' in a

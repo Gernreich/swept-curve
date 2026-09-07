@@ -126,6 +126,28 @@ OPPOSED_R, OPPOSED_RISE = 64.0, 82.4539
 # The radii then follow from wanting 1000mm with 22mm between neighbouring
 # passes, against the 20mm the cheek band needs.
 SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
+# 'dspiral' is two spiral arms half a turn apart about one centre, crossed at
+# the middle by a straight - the double spiral. Arm B IS arm A rotated 180
+# degrees, so the whole path is point-symmetric about the centre and the gap
+# between neighbouring passes is DS_PITCH/2 by construction rather than by
+# search. Pick the pitch and you have picked the gap; the cheek band needs 20.
+#
+# Its vertices sit on a smooth Archimedean spiral r = R0 + b*theta sampled every
+# FACET degrees, NOT on the stepping-radius arcs 'spiral' uses. The note above
+# says that is the one construction offset() cannot follow. That note is about
+# offsetting the smooth curve and faceting the result separately; offsetting the
+# faceted centreline is exact whatever placed its vertices, and the airway check
+# measures 4.1e-14mm of error here against the 10mm bore. The stepping-radius
+# construction cannot be used for this shape anyway: its polar radius advances
+# unevenly - 7mm across one half turn and 32mm across another on the shipped
+# spiral - and two arms interleaved at those radii collide.
+#
+# The crossover is one arc of DS_CROSS_R swinging off the arm's inner end onto a
+# heading that points at the centre, then a straight through it. Both are solved,
+# not chosen. A tangent from the centre to that arc only exists when the arm's
+# inner end is outside twice the arc radius, so DS_R0 > 2 * DS_CROSS_R is a hard
+# floor and the reason the middle is open rather than tight.
+DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 28.0
 # 'wave' is the drawn shape: level, down into a trough, up over a crest,
 # and out level again. It is the easiest bore here and worth saying why -
 # nothing nests. A coil has to hold every pass 20mm off every other pass it
@@ -265,6 +287,99 @@ def centreline():
             x, y = cx + r * math.cos(t0 + step), cy + r * math.sin(t0 + step)
             pts.append((x, y))
             a += step
+
+        def tail(u, v):
+            dx, dy = u[0] - v[0], u[1] - v[1]
+            m = math.hypot(dx, dy)
+            return (u[0] + dx / m * LEAD, u[1] + dy / m * LEAD)
+        return flip([tail(pts[0], pts[1])] + pts + [tail(pts[-1], pts[-2])])
+    if SHAPE == 'dspiral':
+        b = DS_PITCH / (2 * math.pi)
+        floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
+            math.radians(FACET / 2))
+        if DS_CROSS_R < floor:
+            raise ValueError(
+                f'--ds-cross-r={DS_CROSS_R:g} and a {BORE:g}mm bore at '
+                f'{FACET:g} degree facets needs R{floor:.1f}.')
+        if DS_R0 <= 2 * DS_CROSS_R:
+            raise ValueError(
+                f'--ds-r0={DS_R0:g} is not outside twice --ds-cross-r='
+                f'{DS_CROSS_R:g}, so no straight from the centre is tangent to '
+                f'the crossover arc and the two arms cannot be joined. Use '
+                f'--ds-r0 above {2 * DS_CROSS_R:g}.')
+        # curvature of r = R0 + b*theta is tightest at the inner end
+        rho = (DS_R0 ** 2 + b ** 2) ** 1.5 / (DS_R0 ** 2 + 2 * b ** 2)
+        if rho < floor:
+            raise ValueError(
+                f'the spiral is tightest at R{rho:.1f} where its inner end '
+                f'meets the crossover, and a {BORE:g}mm bore at {FACET:g} '
+                f'degree facets needs R{floor:.1f}.')
+        if DS_PITCH / 2 < band():
+            raise ValueError(
+                f'--ds-pitch={DS_PITCH:g} puts neighbouring passes '
+                f'{DS_PITCH / 2:g}mm apart and the cheek band is '
+                f'{band():g}mm wide, so the two arms overlap. Use --ds-pitch '
+                f'above {2 * band():g}.')
+
+        # one arm, inner end first, on r = R0 + b*theta every FACET degrees
+        arm = []
+        for k in range(DS_FACETS + 1):
+            th = math.radians(k * FACET)
+            r = DS_R0 + b * th
+            arm.append((r * math.cos(th), r * math.sin(th)))
+
+        # the crossover: an arc of DS_CROSS_R off the inner end, then a
+        # straight that has to land on the centre. Solve the turn, do not
+        # pick it - a turn that misses leaves the two arms not joined.
+        S = arm[0]
+        h0 = math.atan2(DS_R0, b) + math.pi        # heading, travelling in
+        def leg(delta):
+            sg = 1.0 if delta >= 0 else -1.0
+            cx = S[0] + DS_CROSS_R * math.cos(h0 + sg * math.pi / 2)
+            cy = S[1] + DS_CROSS_R * math.sin(h0 + sg * math.pi / 2)
+            a0 = math.atan2(S[1] - cy, S[0] - cx)
+            ex = cx + DS_CROSS_R * math.cos(a0 + delta)
+            ey = cy + DS_CROSS_R * math.sin(a0 + delta)
+            h1 = h0 + delta
+            perp = -math.sin(h1) * -ex + math.cos(h1) * -ey
+            along = -ex * math.cos(h1) + -ey * math.sin(h1)
+            return (cx, cy), a0, (ex, ey), h1, perp, along
+
+        found = None
+        lo, hi, N = -math.pi * 0.99, math.pi * 0.99, 3000
+        prev = lo
+        for i in range(1, N + 1):
+            x = lo + (hi - lo) * i / N
+            if (leg(x)[4] < 0) != (leg(prev)[4] < 0):
+                a, c2 = prev, x
+                for _ in range(120):
+                    m = (a + c2) / 2
+                    if (leg(m)[4] < 0) != (leg(a)[4] < 0):
+                        c2 = m
+                    else:
+                        a = m
+                cand = (a + c2) / 2
+                if leg(cand)[5] > 0:            # the centre must be AHEAD
+                    found = cand
+                    break
+            prev = x
+        if found is None:
+            raise ValueError(
+                'no crossover arc reaches the centre at '
+                f'--ds-cross-r={DS_CROSS_R:g}, --ds-r0={DS_R0:g}.')
+        (cx, cy), a0, E, h1, _, t = leg(found)
+        steps = max(1, int(math.ceil(abs(math.degrees(found)) / FACET)))
+        cross = [(cx + DS_CROSS_R * math.cos(a0 + found * i / steps),
+                  cy + DS_CROSS_R * math.sin(a0 + found * i / steps))
+                 for i in range(1, steps + 1)]
+        cross.append((0.0, 0.0))
+
+        # rim -> centre, then the same thing turned through 180 degrees.
+        # Negating both coordinates IS the half-turn, and it is what makes
+        # the interleave exact: arm B at any bearing is arm A half a turn
+        # further along, which is DS_PITCH/2 further out.
+        half = list(reversed(arm)) + cross
+        pts = half + [(-x, -y) for x, y in reversed(half)][1:]
 
         def tail(u, v):
             dx, dy = u[0] - v[0], u[1] - v[1]
@@ -949,6 +1064,7 @@ def main(write=True):
     over = 100 * (1 / math.cos(math.radians(FACET) / 2) - 1)
     R = (WAVE_TROUGH_R if SHAPE == 'wave'
          else SPIRAL_RI if SHAPE == 'spiral'
+         else DS_CROSS_R if SHAPE == 'dspiral'
          else LOBE_R if SHAPE in ('serpentine', 'opposed') else RADIUS)
     what = (f'a wave: a trough of R{WAVE_TROUGH_R:g} and a crest of '
             f'R{WAVE_CREST_R:g}, level at both ends'
@@ -956,6 +1072,10 @@ def main(write=True):
             f'a flat coil, {SPIRAL_FACETS} facets, R{SPIRAL_RI:g} at the '
             f'centre out to R{SPIRAL_RO:g} at the rim'
             if SHAPE == 'spiral' else
+            f'two spiral arms half a turn apart, {DS_FACETS} facets each from '
+            f'R{DS_R0:g}, rising {DS_PITCH:g}mm a turn, crossed at the centre '
+            f'by a straight off R{DS_CROSS_R:g}'
+            if SHAPE == 'dspiral' else
             f'{LOBES} half-circles of R{R:g} joined by {RISE:g}mm straights'
             + (', then a quarter turn to bring the ends opposed'
                if SHAPE == 'opposed' else '')
@@ -990,6 +1110,9 @@ def main(write=True):
     elif SHAPE == 'spiral':
         stem = (f'ribbon-spiral-bore{BORE:g}-{FACET:g}deg-'
                 f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}ribbon/mm.svg')
+    elif SHAPE == 'dspiral':
+        stem = (f'ribbon-dspiral-bore{BORE:g}-{FACET:g}deg-'
+                f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-{L:.0f}ribbon/mm.svg')
     elif SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{SHAPE}-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:.0f}-{L:.0f}ribbon/mm.svg')
@@ -1001,6 +1124,16 @@ def main(write=True):
         # coil, one hole, and radii solved separately - so it gets its own
         # name rather than overwriting the one without
         stem = stem[:-4] + '-ribbon/ported.svg'
+        # --out replaces the stem outright, so it also replaces the marker
+        # that keeps a ported design off its unported twin. A --port run with
+        # --out therefore used to write the ported sheets over the plain ones
+        # under the plain name, and nothing said so: same part count, same
+        # sheet sizes, one extra contour in a 529-path file. Refuse instead.
+        if OUT and 'ported' not in os.path.basename(OUT):
+            raise ValueError(
+                f'--port with --out={OUT} would write the ported sheets under '
+                f'a name that does not say so, over the unported twin. Put '
+                f'"ported" in the --out name.')
     out_path = OUT or os.path.join(
         os.path.dirname(os.path.abspath(__file__)), stem)
     written, ink, cut_slots = sheet(parts, cheekpoly, c, out_path, write)
@@ -1041,7 +1174,9 @@ if __name__ == '__main__':
                        ('web', float), ('wave-rise', float),
                        ('wave-trough-r', float), ('wave-crest-r', float),
                        ('wave-lead-r', float), ('spiral-facets', int),
-                       ('spiral-ri', float), ('spiral-ro', float)):
+                       ('spiral-ri', float), ('spiral-ro', float),
+                       ('ds-pitch', float), ('ds-r0', float),
+                       ('ds-facets', int), ('ds-cross-r', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
             continue
@@ -1052,7 +1187,9 @@ if __name__ == '__main__':
          'wave-rise': 'WAVE_RISE', 'wave-trough-r': 'WAVE_TROUGH_R',
          'wave-crest-r': 'WAVE_CREST_R', 'wave-lead-r': 'WAVE_LEAD_R',
          'spiral-facets': 'SPIRAL_FACETS', 'spiral-ri': 'SPIRAL_RI',
-         'spiral-ro': 'SPIRAL_RO'}[flag]
+         'spiral-ro': 'SPIRAL_RO',
+         'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
+         'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
                    'lobe-r': 'LOBE_R', 'rise': 'RISE', 'lead': 'LEAD',
@@ -1062,7 +1199,10 @@ if __name__ == '__main__':
                    'wave-lead-r': 'WAVE_LEAD_R',
                    'spiral-facets': 'SPIRAL_FACETS',
                    'spiral-ri': 'SPIRAL_RI',
-                   'spiral-ro': 'SPIRAL_RO'}[flag]] = v
+                   'spiral-ro': 'SPIRAL_RO',
+                   'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
+                   'ds-facets': 'DS_FACETS',
+                   'ds-cross-r': 'DS_CROSS_R'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
         if not any(x.startswith('--lobe-r=') for x in a):
