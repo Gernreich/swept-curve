@@ -523,7 +523,7 @@ def main():
         here, stem + ('-ribbon/embed.html' if embed else '.html'))
     open(path, 'w').write(build(title, embed,
                                 hm[0].split('=', 1)[1] if hm else
-                                'https://gernreich.github.io/trumpet/parts/bore/concept/swept-curve/ribbon/'))
+                                'https://gernreich.github.io/trumpet/'))
     d = data_for()
     print(f'  {os.path.basename(path):<52}drag to turn, colour by face '
           f'or facet')

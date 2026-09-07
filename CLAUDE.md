@@ -310,7 +310,7 @@ changes:
 ```sh
 python3 ribbon_view.py --shape=serpentine --embed \
     --out=../../../../../Gernreich.github.io/bore-viewer.html \
-    --home=https://gernreich.github.io/trumpet/parts/bore/concept/swept-curve/ribbon/
+    --home=https://gernreich.github.io/trumpet/
 ```
 
 An embed follows `prefers-color-scheme`, because it sits inside somebody
