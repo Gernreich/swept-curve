@@ -126,6 +126,8 @@ OPPOSED_R, OPPOSED_RISE = 64.0, 82.4539
 # The radii then follow from wanting 1000mm with 22mm between neighbouring
 # passes, against the 20mm the cheek band needs.
 SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
+# The angle each shape is drawn at, where it is not FACET's default 30.
+FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0}
 # 'dspiral' is two spiral arms half a turn apart about one centre, crossed at
 # the middle by a straight - the double spiral. Arm B IS arm A rotated 180
 # degrees, so the whole path is point-symmetric about the centre and the gap
@@ -147,7 +149,10 @@ SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
 # not chosen. A tangent from the centre to that arc only exists when the arm's
 # inner end is outside twice the arc radius, so DS_R0 > 2 * DS_CROSS_R is a hard
 # floor and the reason the middle is open rather than tight.
-DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 28.0
+# These are the shipped design, so a bare --shape=dspiral rebuilds the sheets
+# beside this file rather than something near them. R28 was the default while
+# the design was cut at R30, and a bare run refused on a 9.77mm inner panel.
+DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 30.0
 # 'wave' is the drawn shape: level, down into a trough, up over a crest,
 # and out level again. It is the easiest bore here and worth saying why -
 # nothing nests. A coil has to hold every pass 20mm off every other pass it
@@ -1209,6 +1214,16 @@ if __name__ == '__main__':
             LOBE_R = OPPOSED_R
         if not any(x.startswith('--rise=') for x in a):
             RISE = OPPOSED_RISE
+    # FACET defaults to the coupon's 30, and the wave and the spirals are
+    # 45 degree designs. A bare --shape=wave therefore built arcs that do not
+    # close and reported six check failures, not one of which said "facet";
+    # a bare --shape=spiral refused, because 17 facets turn 480 degrees at 30
+    # and the ends only come out opposed on a whole number of turns. Both
+    # reproduce their shipped design at 45, so 45 is what they ask for when
+    # the caller has not spoken.
+    if SHAPE in FACET_BY_SHAPE and not any(
+            x.startswith('--facet=') for x in a):
+        FACET = FACET_BY_SHAPE[SHAPE]
     PORT = '--port' in a
     try:
         sys.exit(main(write='--no-write' not in a))

@@ -482,6 +482,14 @@ def main():
             B.LOBE_R = B.OPPOSED_R
         if not any(x.startswith('--rise=') for x in a):
             B.RISE = B.OPPOSED_RISE
+    # Read from the generator, not copied. When ribbon_bore grew a per-shape
+    # facet default this file did not, and a bare --shape=wave drew 611.1mm
+    # here against the generator's 836.5mm while --shape=spiral drew nothing
+    # at all. That is the second time a second copy of the generator's
+    # argument handling has quietly diverged in this file.
+    if B.SHAPE in B.FACET_BY_SHAPE and not any(
+            x.startswith('--facet=') for x in a):
+        B.FACET = B.FACET_BY_SHAPE[B.SHAPE]
 
     here = os.path.dirname(os.path.abspath(__file__))
     # --trace draws a centreline from stations fixed somewhere other than this
