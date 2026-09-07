@@ -446,7 +446,7 @@ def slot(mid, ang):
     """The cheek's mortice for one tab: the hole is drawn BURN UNDER size.
 
     Opposite sign to the panel, and for the same reason - the kerf opens a
-    hole and closes a part. Plus PLAY per side, which is bore-generator's
+    hole and closes a part. Plus PLAY per side, which is bore_split.py's
     figure for the 10mm bore, taken out of the notch and never off the tab.
     """
     e = BURN / 2

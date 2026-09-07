@@ -26,7 +26,7 @@ variations on each other:
 
 | | curve | section at a turn | why it exists |
 | --- | --- | --- | --- |
-| `bore-generator` | 90° lattice turns | +41.4% | fits a walk into a box |
+| `../walk` (`bore_split.py`) | 90° lattice turns | +41.4% | fits a walk into a box |
 | `--shape=torus` | a circle, 45° facets | +8.2% | a closed constant-section loop |
 | here | any planar curve | +3.5% at 30° | constant section on a smooth curve |
 
@@ -74,7 +74,7 @@ which is what a check named for its quantity buys you.
 The inner wall is the centreline offset inward by `bore/2`, so there is no bore
 at all below `R = bore/2`. **But the tooth runs out long before the geometry
 does.** A ribbon/Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
-the same fact that forced `pin_width()` in `bore-generator` to floor at the
+the same fact that forced `pin_width()` in `bore_split.py` to floor at the
 tooth. At the 10mm bore and 30° facets:
 
     R 15   inner panel 5.09mm   shorter than one tooth
@@ -194,7 +194,7 @@ area is a refusal, not a smaller sheet.
 The laser removes `BURN` centred on the line, so a part comes out `BURN` under
 and a hole `BURN` over. Every panel dimension is therefore drawn `BURN` **over**
 and every slot `BURN` **under**, plus `PLAY` per side taken out of the slot and
-never off the tab — `bore-generator`'s standing rule, and its 0.025mm figure for
+never off the tab — `bore_split.py`'s standing rule, and its 0.025mm figure for
 the 10mm bore.
 
 Measured back out of the written file rather than asserted: a 6.100mm drawn tab
@@ -267,7 +267,7 @@ measured everything.
 
 Measuring the output with `re.findall(r'd="([^"]+)"')` matches the `id`
 attribute too and hands you `slots` where a coordinate should be. Use
-`(?:^|\s)d="`. `torus-octagonal`'s writeup records the same trap; it still cost
+`(?:^|\s)d="`. The octagonal writeup records the same trap; it still cost
 a run here.
 
 **A failing run deletes its output**, which is right — a sheet that failed a
@@ -293,7 +293,7 @@ six airway ones. A page with only four was drawn before that and is stale.
 
 It reuses `offset()` for the wall faces rather than reading the cut files, so
 it cannot disagree with the generator about where anything is. It is *not* the
-lattice viewer in `bore-generator`: that one is built on integer cells and cube
+lattice viewer in `../../../../tools/viewer.py`: that one is built on integer cells and cube
 faces with occupancy-based hidden-face removal, and there is no lattice here.
 
 `--embed` writes a compact build for an iframe: canvas only, a caption, a slow
@@ -317,7 +317,7 @@ An embed follows `prefers-color-scheme`, because it sits inside somebody
 else's page. It cannot see an explicit theme toggle on the host — a frame is
 its own document — so it matches by default and not after a manual switch.
 
-**Nothing gates it.** `ribbon/check.py`'s lesson from `bore-stretched` applies —
+**Nothing gates it.** The lesson from the stretched-lattice fork applies —
 a render can be wrong while every check passes. Look at the page after changing
 it.
 

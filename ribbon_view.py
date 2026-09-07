@@ -408,7 +408,7 @@ cv.addEventListener('wheel', e => {
 document.getElementById('cap').innerHTML =
   `<b>${D.bore} \u00d7 ${D.bore}mm</b> <span>constant section, </span>`
   + `<b>${D.mm}mm</b> <span>of bore on a planar curve \u2014 </span>`
-  + `<a href="__HOME__" target="_top">bore-ribbon</a>`;
+  + `<a href="__HOME__" target="_top">swept-curve</a>`;
 addEventListener('resize', draw);
 if (!still) requestAnimationFrame(tick); else draw();
 draw();
@@ -468,11 +468,10 @@ def main():
             B.RISE = B.OPPOSED_RISE
 
     here = os.path.dirname(os.path.abspath(__file__))
-    # --trace draws a centreline measured off somebody else's cut file rather
-    # than one this repository generates. trumpet-octagonal's bore is the only
-    # one so far: its sheet is a hand-authored band and the curve is not
-    # written down anywhere as parameters, so it was traced and the trace is
-    # kept, with its provenance, in traces/.
+    # --trace draws a centreline from stations fixed somewhere other than this
+    # generator's own parameters. Each trace is kept with its provenance in
+    # traces/ -- where it came from, how it was taken, what was measured -- so a
+    # traced number is one somebody can check.
     tr = [x for x in a if x.startswith('--trace=')]
     if tr:
         import json
