@@ -557,7 +557,7 @@ def main():
     hm = [x for x in a if x.startswith('--home=')]
     embed = '--embed' in a
     path = out[0].split('=', 1)[1] if out else os.path.join(
-        here, stem + ('-ribbon/embed.html' if embed else '.html'))
+        here, stem + ('-embed.html' if embed else '.html'))
     open(path, 'w').write(build(title, embed,
                                 hm[0].split('=', 1)[1] if hm else
                                 'https://gernreich.github.io/trumpet/'))

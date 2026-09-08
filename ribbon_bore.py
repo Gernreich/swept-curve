@@ -24,7 +24,7 @@ and against how short the inner panels get.
 WHAT LIMITS THE BEND. The inner wall is the centreline offset inward by
 bore/2, so its radius is R - bore/2 and there is no bore at all below
 R = bore/2. Long before that the inner panel gets too short to carry a finger:
-a ribbon/Boxes.py tooth is 2 x thickness and does NOT scale with the bore, so at the
+a Boxes.py tooth is 2 x thickness and does NOT scale with the bore, so at the
 10mm bore and 30 degrees the inner panel holds no tooth at all until R = 25mm.
 That is why this coupon is R 25 and not the R 15 it looks like it wants to be.
 """
@@ -83,7 +83,7 @@ def play():
     the file by exactly the play.
     """
     return PLAY_BY_BORE.get(round(BORE, 3), PLAY_UNMEASURED)
-TOOTH = 2 * THICK    # ribbon/Boxes.py FingerJointSettings; does not scale
+TOOTH = 2 * THICK    # Boxes.py FingerJointSettings; does not scale
 SHOULDER = 2.0       # least material either side of a tooth
 
 CUT, INNER, MARK = '#000000', '#ff8000', '#0000ff'
@@ -153,6 +153,10 @@ FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0}
 # beside this file rather than something near them. R28 was the default while
 # the design was cut at R30, and a bare run refused on a 9.77mm inner panel.
 DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 30.0
+# --ds-half: stop at the centre instead of carrying on into the second arm,
+# and run out from there. The crossover is the part of this shape that had
+# to be solved rather than chosen, so it is the part a coupon should test.
+DS_HALF = False
 # 'wave' is the drawn shape: level, down into a trough, up over a crest,
 # and out level again. It is the easiest bore here and worth saying why -
 # nothing nests. A coil has to hold every pass 20mm off every other pass it
@@ -385,6 +389,12 @@ def centreline():
         # further along, which is DS_PITCH/2 further out.
         half = list(reversed(arm)) + cross
         pts = half + [(-x, -y) for x, y in reversed(half)][1:]
+        if DS_HALF:
+            # a test piece off the centre: the crossover and one arm, run
+            # centre-first so the mouth is the middle of the coil. The whole
+            # shape is rim to rim through the centre, so half of it is
+            # exactly the part worth proving before cutting the rest.
+            pts = list(reversed(half))
 
         def tail(u, v):
             dx, dy = u[0] - v[0], u[1] - v[1]
@@ -513,7 +523,7 @@ def teeth(L):
 
     One tooth was enough at the coupon's 10-16mm panels and is a hinge at 90mm:
     a straight run held by a single 6mm tab in its middle pivots about it and
-    the seam opens. Alternating tooth and gap of equal width, as ribbon/Boxes.py does,
+    the seam opens. Alternating tooth and gap of equal width, as Boxes.py does,
     so a panel gets as many as it has room for:
 
         n = floor((L - 2*SHOULDER + TOOTH) / (2*TOOTH))
@@ -1108,27 +1118,27 @@ def main(write=True):
     # file. A trial writes somewhere else or it does not write at all.
     L = sum(seglen(a, b) for a, b in zip(c, c[1:]))
     # the group goes before -cut-files, not after: every sheet in this
-    # project ends -ribbon/cut-files.svg and a reader sorts on the tail
+    # project ends -cut-files.svg and a reader sorts on the tail
     if SHAPE == 'wave':
         stem = (f'ribbon-wave-bore{BORE:g}-{FACET:g}deg-'
-                f'{WAVE_LOBE_ARCS}arc-{L:.0f}ribbon/mm.svg')
+                f'{WAVE_LOBE_ARCS}arc-{L:.0f}mm.svg')
     elif SHAPE == 'spiral':
         stem = (f'ribbon-spiral-bore{BORE:g}-{FACET:g}deg-'
-                f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}ribbon/mm.svg')
+                f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}mm.svg')
     elif SHAPE == 'dspiral':
         stem = (f'ribbon-dspiral-bore{BORE:g}-{FACET:g}deg-'
-                f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-{L:.0f}ribbon/mm.svg')
+                f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-{L:.0f}mm.svg')
     elif SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{SHAPE}-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
-                f'-R{LOBE_R:.0f}-{L:.0f}ribbon/mm.svg')
+                f'-R{LOBE_R:.0f}-{L:.0f}mm.svg')
     else:
         stem = (f'ribbon-coupon-bore{BORE:g}-{FACET:g}deg'
-                f'-R{RADIUS:g}-ribbon/180turn.svg')
+                f'-R{RADIUS:g}-180turn.svg')
     if PORT:
         # a ported design is a different part from its unported twin - same
         # coil, one hole, and radii solved separately - so it gets its own
         # name rather than overwriting the one without
-        stem = stem[:-4] + '-ribbon/ported.svg'
+        stem = stem[:-4] + '-ported.svg'
         # --out replaces the stem outright, so it also replaces the marker
         # that keeps a ported design off its unported twin. A --port run with
         # --out therefore used to write the ported sheets over the plain ones
@@ -1225,6 +1235,7 @@ if __name__ == '__main__':
             x.startswith('--facet=') for x in a):
         FACET = FACET_BY_SHAPE[SHAPE]
     PORT = '--port' in a
+    DS_HALF = '--ds-half' in a
     try:
         sys.exit(main(write='--no-write' not in a))
     except ValueError as e:
