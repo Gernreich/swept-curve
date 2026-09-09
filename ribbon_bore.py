@@ -1075,7 +1075,8 @@ def sheet(parts, cheekpoly, cline, path_out, write=True):
             f'two cheeks are the same part and both go on the same way up. '
             f'{len(parts)} wall panels in all, numbered along the flow. The '
             f'airway is exact along every facet and {over:.1f}% over at each '
-            f'mitre. {THICK:g}mm ply, {BURN:g}mm kerf, {play():g}mm play per '
+            f'mitre. {THICK:g}mm ply, slots cut for a {SHEET:g}mm sheet at '
+            f'{BURN:g}mm kerf, {play():g}mm play per '
             f'side taken out of the slot and never off the tab. blue #0000ff '
             f'engraves, orange #ff8000 cuts the slots first, black #000000 '
             f'frees the parts.</desc>\n'
@@ -1494,7 +1495,8 @@ if __name__ == '__main__':
                        ('ds-pitch', float), ('ds-r0', float),
                        ('ds-facets', int), ('ds-cross-r', float),
                        ('vol-r0', float), ('vol-step', float),
-                       ('vol-semis', int), ('vol-cross-r', float)):
+                       ('vol-semis', int), ('vol-cross-r', float),
+                       ('sheet', float), ('burn', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
             continue
@@ -1509,7 +1511,8 @@ if __name__ == '__main__':
          'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
          'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R',
          'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
-         'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R'}[flag]
+         'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R',
+         'sheet': 'SHEET', 'burn': 'BURN'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
                    'lobe-r': 'LOBE_R', 'rise': 'RISE', 'lead': 'LEAD',
@@ -1525,7 +1528,8 @@ if __name__ == '__main__':
                    'ds-cross-r': 'DS_CROSS_R',
                    'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
                    'vol-semis': 'VOL_SEMIS',
-                   'vol-cross-r': 'VOL_CROSS_R'}[flag]] = v
+                   'vol-cross-r': 'VOL_CROSS_R',
+                   'sheet': 'SHEET', 'burn': 'BURN'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
         if not any(x.startswith('--lobe-r=') for x in a):

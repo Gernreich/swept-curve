@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="256.67mm" height="263.57mm" viewBox="0 0 256.67 263.57">
 <title>Ribbon bore, dspiral - the cheek - CUT THIS SHEET TWICE - 10mm square bore, 30 degree facets</title>
-<desc>1 user unit = 1mm. the cheek - CUT THIS SHEET TWICE. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 84 wall panels in all, numbered along the flow. The airway is exact along every facet and 3.5% over at each mitre. 3mm ply, 0.13mm kerf, 0.025mm play per side taken out of the slot and never off the tab. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
+<desc>1 user unit = 1mm. the cheek - CUT THIS SHEET TWICE. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 84 wall panels in all, numbered along the flow. The airway is exact along every facet and 3.5% over at each mitre. 3mm ply, slots cut for a 2.94mm sheet at 0.13mm kerf, 0.025mm play per side taken out of the slot and never off the tab. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
   <g id="numbers" fill="none" stroke="#0000ff" stroke-width="0.2">
     <path d="M 189.048,28.744 L 189.559,28.658 L 188.058,29.980"/>
     <path d="M 187.862,29.757 L 188.272,30.222"/>

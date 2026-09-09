@@ -9,7 +9,7 @@
      Cut the file in the repository root, not this one. -->
   <rect x="0.0" y="0.0" width="578.84" height="96.52" fill="#faf7f0"/>
 <title>Ribbon bore, spiral - the wall panels - 10mm square bore, 45 degree facets</title>
-<desc>1 user unit = 1mm. the wall panels. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 38 wall panels in all, numbered along the flow. The airway is exact along every facet and 8.2% over at each mitre. 3mm ply, 0.13mm kerf, 0.025mm play per side taken out of the slot and never off the tab. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
+<desc>1 user unit = 1mm. the wall panels. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 38 wall panels in all, numbered along the flow. The airway is exact along every facet and 8.2% over at each mitre. 3mm ply, slots cut for a 2.94mm sheet at 0.13mm kerf, 0.025mm play per side taken out of the slot and never off the tab. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
   <g id="numbers" fill="none" stroke="#0000ff" stroke-width="1.158">
     <path d="M 19.668,17.169 L 20.105,16.465 L 20.105,19.665"/>
     <path d="M 19.629,19.665 L 20.621,19.665"/>
