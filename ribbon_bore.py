@@ -768,17 +768,47 @@ def build():
     # you nothing. Either way the cheek slot carries the same number.
     seq = 0
     cl = c
+
+    def turn_at(poly, k):
+        """How far the wall turns at vertex k. A free end turns through 0."""
+        if k <= 0 or k >= len(poly) - 1:
+            return 0.0
+        h1 = math.atan2(poly[k][1] - poly[k - 1][1], poly[k][0] - poly[k - 1][0])
+        h2 = math.atan2(poly[k + 1][1] - poly[k][1], poly[k + 1][0] - poly[k][0])
+        return abs((h2 - h1 + math.pi) % (2 * math.pi) - math.pi)
+
     for name, poly in (('inner', inn), ('outer', out)):
         for i, (a, b) in enumerate(zip(poly, poly[1:]), 1):
-            L = seglen(a, b)
+            # A panel end is a SQUARE cut - a laser cuts through the sheet and
+            # cannot mitre it - and the offset polyline is the wall's
+            # centreline, so two neighbours meeting at a mitre have THICK/2 of
+            # ply either side of the point where their centrelines meet. On the
+            # concave side that ply runs past the mitre by (THICK/2)tan(phi/2)
+            # on each panel, and the two corners jam: they butt before either
+            # panel is seated. Cut and found at the bench on the dspiral
+            # halftest, where it is 0.81mm a joint over 14 joints; at 45
+            # degrees it is 1.24mm. Nothing saw it, because the airway check
+            # compares two offsets of one polyline and cannot fail, and no
+            # check looked at the panels as solids.
+            #
+            # So trim each end back to where the concave corners just touch.
+            # The gap that opens on the convex side is a V-groove closing to
+            # nothing at the far face, not a hole: on the inner wall it is on
+            # the airway side, on the outer wall it is outboard.
+            e0 = THICK / 2 * math.tan(turn_at(poly, i - 1) / 2)
+            e1 = THICK / 2 * math.tan(turn_at(poly, i) / 2)
+            L = seglen(a, b) - e0 - e1
             if L < TOOTH + 2 * SHOULDER:
                 raise ValueError(
                     f'{name} panel {i} is {L:.2f}mm and a {TOOTH:g}mm tooth '
                     f'with {SHOULDER:g}mm shoulders needs '
                     f'{TOOTH + 2 * SHOULDER:g}mm. Open the bend radius or '
                     f'coarsen --facet; the tooth does not scale with the bore.')
-            mid = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
             ang = math.atan2(b[1] - a[1], b[0] - a[0])
+            # the trim is not symmetric - the two ends turn through different
+            # angles - so the midpoint moves with it, and the slots follow
+            mid = ((a[0] + b[0]) / 2 + (e0 - e1) / 2 * math.cos(ang),
+                   (a[1] + b[1]) / 2 + (e0 - e1) / 2 * math.sin(ang))
             # Away from the bore, measured rather than assumed: from the
             # centreline's own midpoint out to the wall's. A left normal with
             # a sign flip for the inner wall works only for one handedness,
@@ -1144,6 +1174,45 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     bad = sum(1 for i, j in pairs if not apart(boxes[i], boxes[j]))
     note(bad == 0, 'no two slots overlap',
          f'{len(pairs)} pairs, {bad} overlapping')
+
+    # --- the panels have to fit round the bend as SOLIDS, not as lines
+    # The airway check compares two offsets of one polyline and cannot fail;
+    # it passes a hairpin tighter than its own wall. Nothing here looked at a
+    # panel as a body until the dspiral halftest was cut and its corners
+    # jammed. In plan a panel is a THICK-wide rectangle on its own segment,
+    # and two neighbours must not share any of it.
+    def plan_rect(q):
+        hl, ht = q['len'] / 2, THICK / 2
+        ca, sa = math.cos(q['ang']), math.sin(q['ang'])
+        mx, my = q['mid']
+        return [(mx + u * hl * ca - v * ht * sa, my + u * hl * sa + v * ht * ca)
+                for u, v in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+
+    def overlap(P, Q):
+        """separating-axis, on the four edge normals of two convex quads"""
+        for R in (P, Q):
+            for k in range(4):
+                ex = R[(k + 1) % 4][0] - R[k][0]
+                ey = R[(k + 1) % 4][1] - R[k][1]
+                nx, ny = -ey, ex
+                a = [nx * x + ny * y for x, y in P]
+                b = [nx * x + ny * y for x, y in Q]
+                if min(a) >= max(b) - 1e-7 or min(b) >= max(a) - 1e-7:
+                    return False
+        return True
+
+    rects = {}
+    for q in parts:
+        rects.setdefault(q['wall'], []).append(plan_rect(q))
+    npair = jam = 0
+    for rs in rects.values():
+        for i in range(len(rs)):
+            for j in range(i + 1, len(rs)):
+                npair += 1
+                if overlap(rs[i], rs[j]):
+                    jam += 1
+    note(jam == 0, 'no two wall panels share plan area',
+         f'{npair} pairs on {len(rects)} walls, {jam} jamming')
 
     # --- the tooth does not scale, so short panels are the failure mode
     short = min(p['len'] for p in parts)
