@@ -608,4 +608,13 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    # The generator refuses with a sentence written for the person at the
+    # bench -- "no crossover arc reaches the eye at --vol-cross-r=22" -- and
+    # that sentence came out of here as a traceback, because nothing caught it.
+    # ribbon_bore's own __main__ has caught ValueError all along; this is the
+    # same two lines.
+    try:
+        sys.exit(main())
+    except ValueError as e:
+        print(f'error: {e}')
+        sys.exit(1)

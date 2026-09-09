@@ -307,6 +307,32 @@ slots live inside panels and panels no longer share area. Left in place, unprove
 itself: two offsets of one polyline, a guard with its own precondition, a
 constant with a constant. **A check earns its place by being watched to fail.**
 
+## volute.py and ribbon_view.py, audited too
+
+**`volute.py`.** Two of its four checks are failing on the shipped design right
+now — *the bore stays clear of itself* at 7.75mm against the 20mm band, and
+*the two openings are opposed* at 135 degrees — which is the file's whole point
+and makes them the best-evidenced checks in the repository. *the cheek fits the
+P2S bed* fires from `--r0=200` up. Its two refusals hold: an arc under the tooth
+floor, and a facet angle that does not divide a semicircle.
+
+Those two failing checks are one condition stated twice, and they agree: the run
+turns 1035 degrees, 315 past a whole number of turns, and an opening faces out
+of the tube, so the openings sit (315 + 180) mod 360 = 135 degrees apart.
+
+*every arc holds a tooth* cannot fail — `centreline()` raises on the same
+condition first, exactly as `the shortest panel still holds a tooth` does in
+`ribbon_bore.py`.
+
+**`ribbon_view.py`.** Its guards hold: an unknown flag is refused by name, and a
+shape with no title or filename exits saying to add one. The check that matters
+for this file is whether it still agrees with the generator, since it has
+diverged twice — it does, on all seven shapes, to the tenth of a millimetre.
+
+One rough edge fixed: a refusal from the generator escaped as a traceback
+instead of the sentence the generator wrote. `ribbon_bore`'s `__main__` has
+caught `ValueError` all along; this one now does too.
+
 ## Look at the render. The checks do not see the drawing
 
 Two defects in this generator got through every check and were caught by
