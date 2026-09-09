@@ -36,7 +36,22 @@ BORE = 10.0          # the square section, mm
 FACET = 30.0         # degrees of turn per wall panel
 RADIUS = 30.0        # bend radius of the centreline; see the minimum below
 TAIL = 15.0          # straight lead-in and lead-out
-THICK = 3.0          # ply
+THICK = 3.0          # ply, NOMINAL: what the design is dimensioned on
+# What the sheet actually calipers, 2026-09-09. It is a second number and it
+# earns its keep: THICK carries the DRAWN dimensions -- the wall offsets, the
+# cheek band, TOOTH at 2*THICK, and the radii the shapes were solved against --
+# while SHEET is the MATERIAL, and the only place material thickness belongs is
+# the depth of the hole it has to pass through.
+#
+# Setting THICK to 2.94 instead was tried first and is wrong. It moves the
+# geometry: the wall offset goes 6.5 -> 6.47, the band 20 -> 19.88, and the
+# tooth 6 -> 5.88, which invalidates every shape whose parameters were solved
+# to land on 1000.0mm inside a 20mm band. It failed 'opposed' outright -- a
+# 2.14mm panel where 9.88mm is needed -- and took the serpentine's web from
+# 2.05mm to 1.106mm. The bore's walls being 0.06mm thinner than drawn opens the
+# airway to 10.06mm, which is the harmless direction and not worth re-solving
+# four shapes over.
+SHEET = 2.94
 WEB = 2.0            # material left outboard of a slot; the cheek's thin part
 
 # Where a wall's CENTRELINE sits, and where the cheek's edge does.
@@ -62,27 +77,33 @@ def cheek_off():
 
 def band():
     return 2 * cheek_off()
-BURN = 0.1           # kerf; the laser takes this out, centred on the line
+BURN = 0.13          # kerf, MEASURED 2026-09-09; the laser takes this out,
+                     # centred on the line. It was 0.1 by assumption.
 # Per side, and a lookup of what has actually been cut, not a curve through
 # it - bore_split.py's PLAY_BY_BORE, same figure. One bore has been measured,
 # and 0.025 per side is what went together on it. A bore not in the table gets
 # that value too, because too loose is a worse joint and too tight is no joint
 # at all.
 PLAY_BY_BORE = {10.0: 0.025}
-# Measured at the bench, 2026-09-09, on the dspiral halftest: assembled, the
-# tabs were loose in both directions. Taken off the SLOT and never off the tab,
-# which is this file's standing rule -- TOOTH feeds the shoulder arithmetic and
-# the panel-length guard, so widening the tab would move numbers that are
-# checked, while the notch is free to move.
+# The dspiral halftest assembled loose, and the cause was these two constants,
+# not the clearance. THICK was 3.0 against a sheet that calipers at 2.94, and
+# BURN was 0.1 against a kerf of 0.13. Every kerf compensation in the file was
+# therefore 0.03mm out, in the direction that makes parts smaller and holes
+# bigger, and the ply was 0.06mm thinner than the slot cut for it:
 #
-# It has to come off the slot in the across-the-ply direction whatever the rule
-# said, because there the tab is not drawn at all: its thickness IS the sheet,
-# and nothing in an SVG can add to it. That direction was already specified at
-# ZERO clearance -- slot 3.000mm against a 3mm tab -- and was loose anyway,
-# which says the ply is under its nominal 3mm, or the kerf is over 0.1mm, or
-# both. 0.1mm may therefore not be the end of it; the honest fix if it is still
-# loose is to measure the sheet and set THICK to what it really is.
-SLOT_TIGHTEN = 0.1
+#                          along the tooth   across the ply
+#     as it was cut             +0.110mm         +0.090mm
+#     with the true numbers     +0.050mm         +0.000mm
+#
+# The first row is the joint that was loose - twice the slack the design asks
+# for in one direction and, in the other, 0.09mm of slack where it specifies
+# none. The second row is what this file always meant to cut.
+#
+# So the fix is the constants, and this knob goes back to nothing. It is kept
+# at zero rather than deleted because it is the lever to reach for if a joint
+# is still wrong once the numbers under it are right: it takes its value off
+# the slot, in both directions, and never off the tab.
+SLOT_TIGHTEN = 0.0
 PLAY_UNMEASURED = 0.025
 
 
@@ -719,8 +740,10 @@ def slot(mid, ang):
     figure for the 10mm bore, taken out of the notch and never off the tab.
     """
     e = BURN / 2
+    # width off the DRAWN tooth, depth off the MEASURED sheet: the tab's width
+    # is a line on the panel, its thickness is the plywood itself
     hw = (TOOTH + 2 * play() - SLOT_TIGHTEN) / 2 - e
-    hh = (THICK - SLOT_TIGHTEN) / 2 - e
+    hh = (SHEET - SLOT_TIGHTEN) / 2 - e
     box = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
     return [(mid[0] + p[0] * math.cos(ang) - p[1] * math.sin(ang),
              mid[1] + p[0] * math.sin(ang) + p[1] * math.cos(ang))
