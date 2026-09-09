@@ -69,6 +69,20 @@ BURN = 0.1           # kerf; the laser takes this out, centred on the line
 # that value too, because too loose is a worse joint and too tight is no joint
 # at all.
 PLAY_BY_BORE = {10.0: 0.025}
+# Measured at the bench, 2026-09-09, on the dspiral halftest: assembled, the
+# tabs were loose in both directions. Taken off the SLOT and never off the tab,
+# which is this file's standing rule -- TOOTH feeds the shoulder arithmetic and
+# the panel-length guard, so widening the tab would move numbers that are
+# checked, while the notch is free to move.
+#
+# It has to come off the slot in the across-the-ply direction whatever the rule
+# said, because there the tab is not drawn at all: its thickness IS the sheet,
+# and nothing in an SVG can add to it. That direction was already specified at
+# ZERO clearance -- slot 3.000mm against a 3mm tab -- and was loose anyway,
+# which says the ply is under its nominal 3mm, or the kerf is over 0.1mm, or
+# both. 0.1mm may therefore not be the end of it; the honest fix if it is still
+# loose is to measure the sheet and set THICK to what it really is.
+SLOT_TIGHTEN = 0.1
 PLAY_UNMEASURED = 0.025
 
 
@@ -705,8 +719,8 @@ def slot(mid, ang):
     figure for the 10mm bore, taken out of the notch and never off the tab.
     """
     e = BURN / 2
-    hw = (TOOTH + 2 * play()) / 2 - e
-    hh = THICK / 2 - e
+    hw = (TOOTH + 2 * play() - SLOT_TIGHTEN) / 2 - e
+    hh = (THICK - SLOT_TIGHTEN) / 2 - e
     box = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
     return [(mid[0] + p[0] * math.cos(ang) - p[1] * math.sin(ang),
              mid[1] + p[0] * math.sin(ang) + p[1] * math.cos(ang))
