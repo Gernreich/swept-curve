@@ -1213,13 +1213,14 @@ def main(write=True):
             f'a flat coil, {SPIRAL_FACETS} facets, R{SPIRAL_RI:g} at the '
             f'centre out to R{SPIRAL_RO:g} at the rim'
             if SHAPE == 'spiral' else
-            f'two spiral arms half a turn apart, {DS_FACETS} facets each from '
-            f'R{DS_R0:g}, rising {DS_PITCH:g}mm a turn, crossed at the centre '
-            f'by a straight off R{DS_CROSS_R:g}'
+            f'two arms half a turn apart on an Archimedean spiral, '
+            f'{DS_FACETS} facets each from R{DS_R0:g}, rising {DS_PITCH:g}mm '
+            f'a turn, crossed at the centre by a straight off R{DS_CROSS_R:g}'
             if SHAPE == 'dspiral' else
-            f'a double volute: {VOL_SEMIS} semicircles an arm from R{VOL_R0:g} '
-            f'stepping {VOL_STEP:g}mm a turn, the return arm interleaved half '
-            f'a turn away, joined at the eye by an arc off R{VOL_CROSS_R:g}'
+            f'a double volute: a chain of {VOL_SEMIS} semicircles an arm '
+            f'from R{VOL_R0:g} stepping {VOL_STEP:g}mm a turn, the return arm '
+            f'interleaved half a turn away, joined at the eye by an arc off '
+            f'R{VOL_CROSS_R:g}'
             if SHAPE == 'volute' else
             f'{LOBES} half-circles of R{R:g} joined by {RISE:g}mm straights'
             + (', then a quarter turn to bring the ends opposed'

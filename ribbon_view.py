@@ -113,6 +113,16 @@ def data_for():
         'mm': round(sum(B.seglen(p, q) for p, q in zip(c, c[1:])), 1),
         'facet': B.FACET,
         'shape': B.SHAPE,
+        # What curve the vertices were placed on. Two constructions are in use
+        # and the drawing cannot tell them apart, so the panel says which:
+        # every shape but 'dspiral' is built from arcs whose radius holds all
+        # the way across, and 'dspiral' samples a smooth Archimedean spiral.
+        # See "Which curve each shape's vertices sit on" in CLAUDE.md.
+        'curve': {'dspiral': 'Archimedean spiral, sampled',
+                  'volute': 'chain of semicircles',
+                  'spiral': 'compass spiral, stepping arcs',
+                  'traced': 'traced stations'}.get(
+                      B.SHAPE, 'constant-radius arcs'),
         'rrange': ([round(B.SPIRAL_RI, 1), round(B.SPIRAL_RO, 1)]
                    if B.SHAPE == 'spiral' else None),
         'flat': B.SHAPE == 'spiral',
@@ -326,7 +336,8 @@ $('sub').innerHTML = `<b>${D.bore} \u00d7 ${D.bore}mm</b> section, `
   + `<b>${D.mm}mm</b> of centreline, ${D.segs} facets of ${D.facet}\u00b0 `
   + `\u2014 exact along every facet, <b>+${D.over}%</b> at each mitre`;
 $('nums').innerHTML = [
-  ['shape', D.shape], ['bore', D.bore + ' \u00d7 ' + D.bore + 'mm'],
+  ['shape', D.shape], ['curve', D.curve],
+  ['bore', D.bore + ' \u00d7 ' + D.bore + 'mm'],
   ['section', (D.bore*D.bore) + 'mm\u00b2'],
   ['centreline', D.mm + 'mm'],
   ['bend radius', D.rrange ? ('R' + D.rrange[0] + ' to R' + D.rrange[1]) : (D.R + 'mm')],

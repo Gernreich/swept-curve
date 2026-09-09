@@ -45,6 +45,41 @@ asserts which side came out inner, because the sign depends on which way round
 the centreline was written and getting it backwards silently swaps every panel
 length in the cut list.
 
+## Which curve each shape's vertices sit on
+
+The centreline polyline IS the facet plan, so the only thing separating one
+shape from another is where its vertices were placed. Two constructions are in
+use, and they are not variants of each other.
+
+**Constant-radius arcs** — `coupon`, `serpentine`, `opposed`, `wave`, `spiral`,
+`volute`. The radius holds all the way across an arc and changes only at a join,
+where a mitre already expects a corner. `spiral` is the classical compass
+spiral: one arc per facet, the radius stepping by a fixed amount. **`volute` is
+a chain of SEMICIRCLES** of stepping radius about two alternating centres —
+which is the case `volute/volute.py` exists to argue.
+
+**A smooth Archimedean spiral, sampled** — `dspiral` alone. **Its vertices sit
+on `r = R0 + b*theta`, taken every FACET degrees**, so the radius differs at
+every vertex and no two consecutive facets share one.
+
+It shows in the local radius along the centreline. The shipped double spiral
+has **16 distinct values, R30 to R111.6**; the shipped double volute has **6**
+— its two semicircles at R94 and R64, its crossover at R22, and the vertices
+where those meet.
+
+**The two are the same skeleton on different curves.** Both wind in, cross the
+eye, wind back out, and are point-symmetric so that both ends reach the rim;
+the volute reuses the double spiral's crossover solver almost verbatim. Only
+the curve differs, and neither can be turned into the other: the double
+spiral's vertices lie on one spiral about one centre, the volute's on circular
+arcs about two alternating centres. Two shapes, not two spellings of one.
+
+Do not read that as the volute being the correct one and the double spiral a
+compromise. See the note beside `DS_PITCH`: offsetting a faceted centreline is
+exact whatever placed its vertices, and the airway check measures 4.1e-14mm on
+the double spiral. The constant-radius argument is about offsetting a SMOOTH
+curve, which nothing here does.
+
 ## The walls are offset to their FACES, not their centrelines
 
 `wall_off()` is `(BORE + THICK)/2`. A wall is `THICK` thick and its slot is
