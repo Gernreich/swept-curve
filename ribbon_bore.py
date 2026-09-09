@@ -127,7 +127,7 @@ OPPOSED_R, OPPOSED_RISE = 64.0, 82.4539
 # passes, against the 20mm the cheek band needs.
 SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
 # The angle each shape is drawn at, where it is not FACET's default 30.
-FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0}
+FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0}
 # 'dspiral' is two spiral arms half a turn apart about one centre, crossed at
 # the middle by a straight - the double spiral. Arm B IS arm A rotated 180
 # degrees, so the whole path is point-symmetric about the centre and the gap
@@ -157,6 +157,37 @@ DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 30.0
 # and run out from there. The crossover is the part of this shape that had
 # to be solved rather than chosen, so it is the part a coupon should test.
 DS_HALF = False
+# 'volute' is the same idea drawn the way volute.py argued it should be: not a
+# smooth spiral sampled at facets, but a chain of semicircles whose radius holds
+# across each arc and steps only at the joins, where a mitre already expects a
+# corner. offset() mitres a vertex assuming the curvature either side is
+# constant, which is true of an arc and false of a spiral, and building the
+# volute smooth once cost 6.44mm of a 10mm airway.
+#
+# volute.py recorded two things it could not do, and both were the single arm,
+# not the construction. A volute winds inward and STOPS, so the inner end is
+# enclosed -- it came within 7.75mm of the rest of the bore where it needs 20 --
+# and six semicircles at 45 degrees turn 1035 degrees, leaving the openings 135
+# apart when opposed needs (F-1) a whole number of turns, i.e. F = 8k+1 at 45.
+#
+# Interleaving a return arm answers both, which is what that file said the work
+# was. Two centres, so the arm is a classical two-centre volute and its eye is
+# the midpoint of them, at (-VOL_STEP/4, 0); put the eye on the origin and arm B
+# is arm A turned through 180 degrees, exactly as in 'dspiral'. Then there is no
+# inner end to enclose, and the openings come out 180.00 degrees apart from the
+# symmetry alone -- the 8k+1 rule never binds, because the two ends are one end
+# and its own half-turn.
+#
+# The price is spacing, and it is why this is not a metre. One arm's passes are
+# VOL_STEP apart; interleaving puts a pass every VOL_STEP/2, so the step has to
+# carry twice the band, and a bigger step needs a bigger R0 to keep the arcs
+# off the floor. Clearance alone stops at 1078mm. The tooth stops it sooner:
+# the crossover's last chord is a part facet, so its panel is shorter than the
+# floor radius predicts, and R20 there gives a 9.69mm inner panel against the
+# 10mm a 6mm tooth needs. R22 is the first that clears. The shipped numbers are
+# what came back from sweeping the generator itself rather than the geometry:
+# 1179.9mm, 21.28mm of clearance, and the openings 180.00 degrees apart.
+VOL_R0, VOL_STEP, VOL_SEMIS, VOL_CROSS_R = 94.0, 60.0, 2, 22.0
 # 'wave' is the drawn shape: level, down into a trough, up over a crest,
 # and out level again. It is the easiest bore here and worth saying why -
 # nothing nests. A coil has to hold every pass 20mm off every other pass it
@@ -296,6 +327,100 @@ def centreline():
             x, y = cx + r * math.cos(t0 + step), cy + r * math.sin(t0 + step)
             pts.append((x, y))
             a += step
+
+        def tail(u, v):
+            dx, dy = u[0] - v[0], u[1] - v[1]
+            m = math.hypot(dx, dy)
+            return (u[0] + dx / m * LEAD, u[1] + dy / m * LEAD)
+        return flip([tail(pts[0], pts[1])] + pts + [tail(pts[-1], pts[-2])])
+    if SHAPE == 'volute':
+        floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
+            math.radians(FACET / 2))
+        per = int(round(180.0 / FACET))
+        if abs(per * FACET - 180.0) > 1e-9:
+            raise ValueError(
+                f'{FACET:g} degree facets do not divide a semicircle.')
+        if VOL_STEP / 2 < band():
+            raise ValueError(
+                f'--vol-step={VOL_STEP:g} puts the two arms {VOL_STEP / 2:g}mm '
+                f'apart and the cheek band is {band():g}mm wide. A single arm '
+                f'only needs the band; interleaving a second one needs twice '
+                f'it, so use --vol-step above {2 * band():g}.')
+        radii = [VOL_R0 - k * VOL_STEP / 2 for k in range(VOL_SEMIS)]
+        if min(radii) < floor:
+            raise ValueError(
+                f'the tightest arc is R{min(radii):.1f} and a {BORE:g}mm bore '
+                f'at {FACET:g} degree facets needs R{floor:.1f}.')
+        if VOL_CROSS_R < floor:
+            raise ValueError(
+                f'--vol-cross-r={VOL_CROSS_R:g} and a {BORE:g}mm bore at '
+                f'{FACET:g} degree facets needs R{floor:.1f}.')
+
+        # one arm, rim first: semicircles of stepping radius, each starting
+        # where the last ended. The centres alternate between two points on
+        # the x-axis, so the eye is the midpoint of them.
+        arm, ang = [(radii[0], 0.0)], 0.0
+        for r in radii:
+            px, py = arm[-1]
+            cx, cy = px - r * math.cos(ang), py - r * math.sin(ang)
+            for i in range(1, per + 1):
+                th = ang + math.pi * i / per
+                arm.append((cx + r * math.cos(th), cy + r * math.sin(th)))
+            ang += math.pi
+        eye = VOL_STEP / 4.0
+        arm = [(x + eye, y) for x, y in arm]      # put the eye on the origin
+
+        # the crossover, as in 'dspiral': an arc off the inner end and then a
+        # straight that has to LAND on the eye. Solve the turn, do not pick it
+        # - a turn that misses leaves the two arms not joined.
+        S = arm[-1]
+        h0 = math.atan2(S[1] - arm[-2][1], S[0] - arm[-2][0])
+
+        def leg(delta):
+            sg = 1.0 if delta >= 0 else -1.0
+            cx = S[0] + VOL_CROSS_R * math.cos(h0 + sg * math.pi / 2)
+            cy = S[1] + VOL_CROSS_R * math.sin(h0 + sg * math.pi / 2)
+            a0 = math.atan2(S[1] - cy, S[0] - cx)
+            ex = cx + VOL_CROSS_R * math.cos(a0 + delta)
+            ey = cy + VOL_CROSS_R * math.sin(a0 + delta)
+            h1 = h0 + delta
+            perp = -math.sin(h1) * -ex + math.cos(h1) * -ey
+            along = -ex * math.cos(h1) + -ey * math.sin(h1)
+            return (cx, cy), a0, perp, along
+
+        found = None
+        lo, hi, N = -math.pi * 0.99, math.pi * 0.99, 3000
+        prev = lo
+        for i in range(1, N + 1):
+            x = lo + (hi - lo) * i / N
+            if (leg(x)[2] < 0) != (leg(prev)[2] < 0):
+                a, c2 = prev, x
+                for _ in range(120):
+                    m = (a + c2) / 2
+                    if (leg(m)[2] < 0) != (leg(a)[2] < 0):
+                        c2 = m
+                    else:
+                        a = m
+                cand = (a + c2) / 2
+                if leg(cand)[3] > 0:            # the eye must be AHEAD
+                    found = cand
+                    break
+            prev = x
+        if found is None:
+            raise ValueError(
+                'no crossover arc reaches the eye at '
+                f'--vol-cross-r={VOL_CROSS_R:g}, --vol-r0={VOL_R0:g}, '
+                f'--vol-step={VOL_STEP:g}.')
+        (cx, cy), a0, _, _ = leg(found)
+        steps = max(1, int(math.ceil(abs(math.degrees(found)) / FACET)))
+        cross = [(cx + VOL_CROSS_R * math.cos(a0 + found * i / steps),
+                  cy + VOL_CROSS_R * math.sin(a0 + found * i / steps))
+                 for i in range(1, steps + 1)]
+        cross.append((0.0, 0.0))
+
+        # rim -> eye, then the same thing turned through 180 degrees.
+        half = arm + cross
+        pts = half + [(-x, -y) for x, y in reversed(half)][1:]
 
         def tail(u, v):
             dx, dy = u[0] - v[0], u[1] - v[1]
@@ -1080,6 +1205,7 @@ def main(write=True):
     R = (WAVE_TROUGH_R if SHAPE == 'wave'
          else SPIRAL_RI if SHAPE == 'spiral'
          else DS_CROSS_R if SHAPE == 'dspiral'
+         else VOL_CROSS_R if SHAPE == 'volute'
          else LOBE_R if SHAPE in ('serpentine', 'opposed') else RADIUS)
     what = (f'a wave: a trough of R{WAVE_TROUGH_R:g} and a crest of '
             f'R{WAVE_CREST_R:g}, level at both ends'
@@ -1091,6 +1217,10 @@ def main(write=True):
             f'R{DS_R0:g}, rising {DS_PITCH:g}mm a turn, crossed at the centre '
             f'by a straight off R{DS_CROSS_R:g}'
             if SHAPE == 'dspiral' else
+            f'a double volute: {VOL_SEMIS} semicircles an arm from R{VOL_R0:g} '
+            f'stepping {VOL_STEP:g}mm a turn, the return arm interleaved half '
+            f'a turn away, joined at the eye by an arc off R{VOL_CROSS_R:g}'
+            if SHAPE == 'volute' else
             f'{LOBES} half-circles of R{R:g} joined by {RISE:g}mm straights'
             + (', then a quarter turn to bring the ends opposed'
                if SHAPE == 'opposed' else '')
@@ -1128,6 +1258,9 @@ def main(write=True):
     elif SHAPE == 'dspiral':
         stem = (f'ribbon-dspiral-bore{BORE:g}-{FACET:g}deg-'
                 f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-{L:.0f}mm.svg')
+    elif SHAPE == 'volute':
+        stem = (f'ribbon-volute-bore{BORE:g}-{FACET:g}deg-'
+                f'R{VOL_R0:.0f}-step{VOL_STEP:.0f}-{L:.0f}mm.svg')
     elif SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{SHAPE}-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:.0f}-{L:.0f}mm.svg')
@@ -1191,7 +1324,9 @@ if __name__ == '__main__':
                        ('wave-lead-r', float), ('spiral-facets', int),
                        ('spiral-ri', float), ('spiral-ro', float),
                        ('ds-pitch', float), ('ds-r0', float),
-                       ('ds-facets', int), ('ds-cross-r', float)):
+                       ('ds-facets', int), ('ds-cross-r', float),
+                       ('vol-r0', float), ('vol-step', float),
+                       ('vol-semis', int), ('vol-cross-r', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
             continue
@@ -1204,7 +1339,9 @@ if __name__ == '__main__':
          'spiral-facets': 'SPIRAL_FACETS', 'spiral-ri': 'SPIRAL_RI',
          'spiral-ro': 'SPIRAL_RO',
          'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
-         'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R'}[flag]
+         'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R',
+         'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
+         'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
                    'lobe-r': 'LOBE_R', 'rise': 'RISE', 'lead': 'LEAD',
@@ -1217,7 +1354,10 @@ if __name__ == '__main__':
                    'spiral-ro': 'SPIRAL_RO',
                    'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
                    'ds-facets': 'DS_FACETS',
-                   'ds-cross-r': 'DS_CROSS_R'}[flag]] = v
+                   'ds-cross-r': 'DS_CROSS_R',
+                   'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
+                   'vol-semis': 'VOL_SEMIS',
+                   'vol-cross-r': 'VOL_CROSS_R'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
         if not any(x.startswith('--lobe-r=') for x in a):

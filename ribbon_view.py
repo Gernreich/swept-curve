@@ -96,8 +96,15 @@ def data_for():
     # The spiral has no single bend radius - that is the point of it - so it
     # reports the range it sweeps. Falling through to RADIUS printed the
     # coupon's R30 on a bore whose arcs run R34.7 to R112.9.
+    # dspiral and volute have no single bend radius either, and both quote
+    # their tightest arc, as ribbon_bore does. Neither was in this list: the
+    # double spiral read R30 because DS_CROSS_R and the coupon's RADIUS are
+    # both 30, so the fall-through was right by coincidence, and the volute
+    # inherited that 30 against arcs of R22, R64 and R94.
     R = (B.WAVE_TROUGH_R if B.SHAPE == 'wave'
          else B.SPIRAL_RI if B.SHAPE == 'spiral'
+         else B.DS_CROSS_R if B.SHAPE == 'dspiral'
+         else B.VOL_CROSS_R if B.SHAPE == 'volute'
          else B.LOBE_R if B.SHAPE in ('serpentine', 'opposed') else B.RADIUS)
     return {
         'V': [[round(v, 3) for v in p] for p in V],
@@ -447,7 +454,9 @@ def main():
              ('spiral-ro', float), ('wave-rise', float),
              ('wave-trough-r', float), ('wave-crest-r', float),
              ('wave-lead-r', float), ('ds-pitch', float),
-             ('ds-r0', float), ('ds-facets', int), ('ds-cross-r', float))
+             ('ds-r0', float), ('ds-facets', int), ('ds-cross-r', float),
+             ('vol-r0', float), ('vol-step', float),
+             ('vol-semis', int), ('vol-cross-r', float))
     for flag, cast in FLAGS:
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
@@ -461,7 +470,9 @@ def main():
                 'wave-crest-r': 'WAVE_CREST_R',
                 'wave-lead-r': 'WAVE_LEAD_R', 'ds-pitch': 'DS_PITCH',
                 'ds-r0': 'DS_R0', 'ds-facets': 'DS_FACETS',
-                'ds-cross-r': 'DS_CROSS_R'}[flag]
+                'ds-cross-r': 'DS_CROSS_R', 'vol-r0': 'VOL_R0',
+                'vol-step': 'VOL_STEP', 'vol-semis': 'VOL_SEMIS',
+                'vol-cross-r': 'VOL_CROSS_R'}[flag]
         setattr(B, name, cast(hit[0].split('=', 1)[1]))
 
     # This table is a SECOND copy of the generator's, and an unlisted flag
@@ -536,6 +547,10 @@ def main():
         stem = (f'ribbon-spiral-bore{B.BORE:g}-{B.FACET:g}deg-'
                 f'R{B.SPIRAL_RI:.0f}to{B.SPIRAL_RO:.0f}')
         title = f'Ribbon Spiral, {B.BORE:g}mm Bore'
+    elif B.SHAPE == 'volute':
+        stem = (f'ribbon-volute-bore{B.BORE:g}-{B.FACET:g}deg-'
+                f'R{B.VOL_R0:.0f}-step{B.VOL_STEP:.0f}')
+        title = f'Ribbon Double Volute, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'dspiral':
         # --ds-half is a different bore, not a view of the same one: it stops at
         # the centre and runs out from there. Without this it took the full

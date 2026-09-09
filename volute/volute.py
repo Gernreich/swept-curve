@@ -32,6 +32,24 @@ rather than in a cut file, because there is no cut file:
 Both are geometry, not parameters. Interleaving a return arm so that both ends
 reach the rim is the piece of work that would fix (1) and, with one extra
 facet, (2) with it.
+
+DONE, 2026-09-08, as `ribbon_bore.py --shape=volute`. Interleaving the return
+arm fixed both, and (2) fell out more cheaply than expected: the arm's centres
+alternate between two points, so the eye is the midpoint of them, and putting
+the eye on the origin makes the return arm the first arm turned through 180
+degrees. The openings then come out 180.00 degrees apart from the symmetry
+alone -- the 8k+1 rule never binds, because the two ends are one end and its
+own half-turn. There is no inner end left to enclose either.
+
+What it cost was length. One arm's passes are a step apart and interleaving
+puts a pass every half step, so the step has to carry twice the band; the
+shipped bore is 1179.9mm rather than the metre this file draws. The tightest
+part is the crossover, whose last chord is a part facet: R20 there leaves a
+9.69mm inner panel against the 10mm a 6mm tooth needs, and R22 is the first
+that clears.
+
+This file stays as the single arm, which is the shape it argues for and still
+the clearest statement of why the arcs are semicircles rather than a spiral.
 """
 import json, math, os, sys
 
