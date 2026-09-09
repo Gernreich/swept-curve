@@ -77,8 +77,13 @@ def cheek_off():
 
 def band():
     return 2 * cheek_off()
-BURN = 0.13          # kerf, MEASURED 2026-09-09; the laser takes this out,
-                     # centred on the line. It was 0.1 by assumption.
+BURN = 0.13          # kerf, MEASURED 2026-09-09; the FULL width the laser
+                     # takes out, centred on the line. It was 0.1 by assumption.
+# NOTE the difference from bore_split.py, which calls its own constant BURN and
+# means the RADIUS, because it hands the number to Boxes.py and Boxes offsets
+# each side of a line by burn. This file draws its own outlines and offsets by
+# BURN/2 a side, so here the number is the whole cut. Same name, half the
+# meaning; --kerf= is the flag on both, and it takes the measured width.
 # Per side, and a lookup of what has actually been cut, not a curve through
 # it - bore_split.py's PLAY_BY_BORE, same figure. One bore has been measured,
 # and 0.025 per side is what went together on it. A bore not in the table gets
@@ -1496,7 +1501,7 @@ if __name__ == '__main__':
                        ('ds-facets', int), ('ds-cross-r', float),
                        ('vol-r0', float), ('vol-step', float),
                        ('vol-semis', int), ('vol-cross-r', float),
-                       ('sheet', float), ('burn', float)):
+                       ('sheet', float), ('kerf', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
             continue
@@ -1512,7 +1517,7 @@ if __name__ == '__main__':
          'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R',
          'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
          'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R',
-         'sheet': 'SHEET', 'burn': 'BURN'}[flag]
+         'sheet': 'SHEET', 'kerf': 'BURN'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
                    'lobe-r': 'LOBE_R', 'rise': 'RISE', 'lead': 'LEAD',
@@ -1529,7 +1534,7 @@ if __name__ == '__main__':
                    'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
                    'vol-semis': 'VOL_SEMIS',
                    'vol-cross-r': 'VOL_CROSS_R',
-                   'sheet': 'SHEET', 'burn': 'BURN'}[flag]] = v
+                   'sheet': 'SHEET', 'kerf': 'BURN'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
         if not any(x.startswith('--lobe-r=') for x in a):
