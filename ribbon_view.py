@@ -470,7 +470,12 @@ def main():
     # another, and the only tell was 6.5mm of length between two reports
     # nobody was comparing. An unknown flag is now an error, so a page and
     # the sheets it belongs to cannot be built from different numbers.
-    known = {f'--{f}' for f, _ in FLAGS} | {'--out', '--home', '--embed'}
+    # --ds-half is a bare switch rather than --flag=value, so it is carried
+    # across here instead of through FLAGS. That makes three things this second
+    # copy has lacked that the generator had; the two notes above are the others.
+    B.DS_HALF = '--ds-half' in a
+    known = ({f'--{f}' for f, _ in FLAGS}
+             | {'--out', '--home', '--embed', '--ds-half'})
     for x in a:
         if x.startswith('--') and x.split('=', 1)[0] not in known:
             sys.exit(f'ribbon_view: {x.split("=", 1)[0]} is not a flag here. '
@@ -532,9 +537,16 @@ def main():
                 f'R{B.SPIRAL_RI:.0f}to{B.SPIRAL_RO:.0f}')
         title = f'Ribbon Spiral, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'dspiral':
+        # --ds-half is a different bore, not a view of the same one: it stops at
+        # the centre and runs out from there. Without this it took the full
+        # spiral's name and title, which is the mistake the else-branch below
+        # exists to stop, one level further in.
         stem = (f'ribbon-dspiral-bore{B.BORE:g}-{B.FACET:g}deg-'
-                f'R{B.DS_R0:.0f}-pitch{B.DS_PITCH:.0f}')
-        title = f'Ribbon Double Spiral, {B.BORE:g}mm Bore'
+                f'R{B.DS_R0:.0f}-pitch{B.DS_PITCH:.0f}'
+                + ('-halftest' if B.DS_HALF else ''))
+        title = ('Ribbon Double Spiral, Centre Half, %gmm Bore' % B.BORE
+                 if B.DS_HALF
+                 else f'Ribbon Double Spiral, {B.BORE:g}mm Bore')
     elif B.SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{B.SHAPE}-bore{B.BORE:g}-{B.FACET:g}deg-'
                 f'{B.LOBES}lobes-R{B.LOBE_R:.0f}')
