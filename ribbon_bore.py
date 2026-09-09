@@ -1214,6 +1214,52 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     note(jam == 0, 'no two wall panels share plan area',
          f'{npair} pairs on {len(rects)} walls, {jam} jamming')
 
+    # --- and the same question asked of the walls as SOLIDS, which can fail
+    # The check above compares two offsets of ONE polyline. They are parallel
+    # to each facet at a fixed separation by construction, so it returns the
+    # bore whatever the centreline does: it passes a hairpin tighter than its
+    # own wall and a zigzag that reverses at every vertex. It is worth keeping
+    # - it is the arithmetic of the section - but it is not evidence.
+    #
+    # This one measures the gap between the two walls as bodies, over every
+    # inner-panel-to-outer-panel pair, and the narrowest is the airway at its
+    # narrowest. A bore that pinches anywhere fails here.
+    def seg_dist(p1, p2, q1, q2):
+        def pt_seg(p, a, b):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            L2 = dx * dx + dy * dy
+            u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((p[0] - a[0]) * dx
+                                                       + (p[1] - a[1]) * dy) / L2))
+            return math.hypot(p[0] - (a[0] + u * dx), p[1] - (a[1] + u * dy))
+        return min(pt_seg(p1, q1, q2), pt_seg(p2, q1, q2),
+                   pt_seg(q1, p1, p2), pt_seg(q2, p1, p2))
+
+    def rect_dist(P, Q):
+        if overlap(P, Q):
+            return 0.0
+        return min(seg_dist(P[i], P[(i + 1) % 4], Q[j], Q[(j + 1) % 4])
+                   for i in range(4) for j in range(4))
+
+    # Only against its NEIGHBOURS along the run. Comparing every inner panel
+    # to every outer one measures the web between a coil's passes as well as
+    # the airway, and calls the narrower of the two a pinched bore: it failed
+    # the shipped spiral at 8.34mm on two panels eight facets apart, at radius
+    # 31.8 and 11.9 from the coil centre - different turns. Pass-to-pass
+    # collision is the cheek self-crossing check's job. Three facets either
+    # side reaches every mitre and no further; at that window all seven shapes
+    # measure the bore exactly and a hairpin tighter than its own wall comes
+    # out at 3mm.
+    NEAR = 3
+    ins = [plan_rect(q) for q in parts if q['wall'] == 'inner']
+    ous = [plan_rect(q) for q in parts if q['wall'] == 'outer']
+    gap, npr = float('inf'), 0
+    for i, A in enumerate(ins):
+        for j in range(max(0, i - NEAR), min(len(ous), i + NEAR + 1)):
+            gap = min(gap, rect_dist(A, ous[j])); npr += 1
+    note(npr > 0 and gap >= BORE - 1e-6, 'the two walls stand a bore apart',
+         f'{npr} neighbouring panel pairs, narrowest gap {gap:.4f}mm '
+         f'against {BORE:g}mm')
+
     # --- the tooth does not scale, so short panels are the failure mode
     short = min(p['len'] for p in parts)
     note(short >= TOOTH + 2 * SHOULDER, 'the shortest panel still holds a tooth',
@@ -1255,9 +1301,24 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
          f'{m} edges, {len(bad_edges)} crossing'
          + (f', first at {bad_edges[0]}' if bad_edges else ''))
 
-    note(WEB >= 1.5, 'the web outboard of a slot is cuttable',
-         f'{WEB:g}mm of ply beside a {THICK:g}mm slot, band '
-         f'{band():g}mm wide')
+    # Measured off the drawing, not asserted about the constant. This read
+    # "WEB >= 1.5" and printed "2mm of ply beside a 3mm slot" as though it had
+    # looked: it could only ever fail if someone edited WEB, and never if the
+    # geometry pinched the web at a tight mitre. The number it prints is the
+    # same 2.05mm on every shape here - WEB plus half the kerf - but now it is
+    # the narrowest one actually in the cheek.
+    def pt_seg(q, a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        L2 = dx * dx + dy * dy
+        u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((q[0] - a[0]) * dx
+                                                   + (q[1] - a[1]) * dy) / L2))
+        return math.hypot(q[0] - (a[0] + u * dx), q[1] - (a[1] + u * dy))
+    web = min((pt_seg(q, ring[i], ring[i + 1])
+               for sl in allslots for q in sl for i in range(len(ring) - 1)),
+              default=0.0)
+    note(web >= 1.5, 'the web outboard of a slot is cuttable',
+         f'narrowest slot to rim {web:.3f}mm against 1.5mm needed, '
+         f'band {band():g}mm wide')
 
     big = [n for n, w, h, _, _ in written if w > BED_W or h > BED_H]
     note(not big and len(written) > 0, 'every sheet fits the P2S bed',

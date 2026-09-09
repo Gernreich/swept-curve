@@ -265,6 +265,48 @@ The knock-on is that there is no flange left to engrave on, so the cheek's
 panel numbers moved **into the channel**, which is the floor of the bore. Two
 checks hold that: no engraved point off its own part, and none inside a slot.
 
+## Every check, audited against geometry it should reject
+
+Done 2026-09-08, after the dspiral halftest was cut and its panel corners
+jammed at every mitre with eleven checks passing. The method: give each check
+something it ought to fail, and see whether it does. A check nobody has watched
+fail is a check nobody has tested.
+
+**Effective — observed to fail on bad geometry:**
+
+- *the two walls stand a bore apart* — 3mm on a hairpin tighter than its own wall
+- *no two wall panels share plan area* — one jamming pair per mitre, all eight designs
+- *the cheek outline does not cross itself* — four packed spirals and a tight dspiral
+- *every slot corner is inside its cheek* — the wave at a R25 trough
+- *the web outboard of a slot is cuttable* — the same wave, and any WEB under 1.5
+- *every engraved point is on its own part* — found 18 points off, the two cheek labels
+- *no engraving lands in a slot* — see the section above; it has been wrong twice
+  and was caught both times by the count printed beside the verdict
+
+**Cannot fail, and should not be read as evidence:**
+
+- *the airway is the bore along every facet* — it compares two offsets of ONE
+  polyline, which are parallel to each facet at a fixed separation by
+  construction. It returns the bore for a straight line, a hairpin tighter than
+  its own wall, and a zigzag reversing at every vertex. Keep it: it is the
+  arithmetic of the section, and it would catch a mistake in `offset()`. But the
+  check that answers "is the airway the bore" is *the two walls stand a bore
+  apart*, which measures the walls as bodies.
+- *the shortest panel still holds a tooth* — `build()` raises on the identical
+  condition before `checks()` runs, so this restates a guard that has already
+  fired. The number it prints is real; the verdict is not.
+- *every sheet fits the P2S bed* — `sheet()` raises on an oversized part first.
+  Every attempt to make a sheet overflow tripped that instead.
+
+**Never reached:** *no two slots overlap*. Eighteen mutations and none reached
+it; anything that crowds the teeth trips the panel-length guard in `build()`
+first. It may now be subsumed by *no two wall panels share plan area*, since
+slots live inside panels and panels no longer share area. Left in place, unproven.
+
+**The pattern in all three failures.** Each vacuous check compared a thing with
+itself: two offsets of one polyline, a guard with its own precondition, a
+constant with a constant. **A check earns its place by being watched to fail.**
+
 ## Look at the render. The checks do not see the drawing
 
 Two defects in this generator got through every check and were caught by
