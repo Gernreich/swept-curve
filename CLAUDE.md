@@ -298,10 +298,17 @@ fail is a check nobody has tested.
 - *every sheet fits the P2S bed* — `sheet()` raises on an oversized part first.
   Every attempt to make a sheet overflow tripped that instead.
 
-**Never reached:** *no two slots overlap*. Eighteen mutations and none reached
-it; anything that crowds the teeth trips the panel-length guard in `build()`
-first. It may now be subsumed by *no two wall panels share plan area*, since
-slots live inside panels and panels no longer share area. Left in place, unproven.
+**Asks the wrong question:** *no two slots overlap*. The audit first recorded
+this as merely unreached -- eighteen mutations and none got to it. That was too
+kind. On 2026-09-09 it was found passing a real defect: the port sat 0.029mm
+from a slot on all ten ported cheeks, which is not an overlap and IS one hole
+once a 0.13mm kerf has been down both edges. Overlap is not the question;
+surviving material is. *the ply between two holes survives the kerf* now asks
+that, and it is what refuses every ported design today.
+
+A check can be worse than unproven. This one was actively wrong, and it took a
+different tool -- `flat-part-check`, which had never been pointed at these files
+-- to say so.
 
 **The pattern in all three failures.** Each vacuous check compared a thing with
 itself: two offsets of one polyline, a guard with its own precondition, a
