@@ -149,6 +149,32 @@ SHAPE = 'coupon'
 # wants 637mm of width and the bed has 600 - a straight vertical run buys
 # length in y, where there is room. At rise 90 the cheek is 532 x 254mm.
 LOBES, LOBE_R, RISE, LEAD = 3, 71.754, 90.0, 20.0
+# A PORTED bore leads longer, and nothing else does. The port is a bore-square
+# hole on the centreline and the tab slots run up both walls at wall_off, so a
+# full-width port passes within 0.16mm of a slot wherever it sits -- measured
+# along every design, the best any of them manages is 1.45mm against the 1.63mm
+# that leaves 1.5mm of ply after the kerf. The room has to come from the teeth,
+# not the placement.
+#
+# At 20mm the lead panel carries ONE tooth, dead centre, right where the port
+# is. At 30mm it carries two, at 9mm and 21mm from the tip, and the port spans
+# 5.07 to 14.94 -- so the second one clears and the panel keeps a tab. The
+# first is dropped by teeth_kept() below. The next slot after that is 7.72mm
+# away, which is room to spare.
+#
+# Applied only when --port is set, so every plain design keeps the length it
+# was cut at.
+# TRIED AND REJECTED, 2026-09-09. It does clear the port: the coupon goes from
+# 0.030mm of ply to 2.931mm and passes every check. But the lead is part of the
+# centreline, so lengthening it moves the whole coil -- the spiral's cheek
+# starts crossing itself, the volute puts 39 slot corners outside its cheek and
+# its web collapses to 0.080mm, and four more shapes lose a label into a slot.
+# The label-sliding code below already says this in one line, which was written
+# before and should have been read first: "the alternative, giving the port a
+# bore of extra lead, moves the whole coil and was what made the cheek cross
+# itself". Kept as a number so the next person does not spend the afternoon
+# rediscovering it.
+PORT_LEAD_REJECTED = 30.0
 # 'opposed' cannot reuse those. Its closing quarter turn runs outward rather
 # than folding back inside the lobes, which spends 82mm of width the
 # serpentine never spends, and R71.754 puts the cheek at 614mm on a bed with
@@ -704,7 +730,7 @@ def teeth(L):
     return [(i - (n - 1) / 2.0) * 2 * TOOTH for i in range(n)]
 
 
-def panel(L):
+def panel(L, cs=None):
     """One wall panel, flat, centred on the origin, kerf already taken out.
 
     The laser removes BURN centred on the line, so every edge with material
@@ -719,7 +745,7 @@ def panel(L):
     e = BURN / 2
     hl, ht = L / 2 + e, TOOTH / 2 + e
     hb, tip = BORE / 2 + e, BORE / 2 + THICK + e
-    cs = teeth(L)
+    cs = teeth(L) if cs is None else cs
     out = [(-hl, -hb)]
     for c in cs:
         out += [(c - ht, -hb), (c - ht, -tip), (c + ht, -tip), (c + ht, -hb)]
@@ -730,6 +756,52 @@ def panel(L):
     return out
 
 
+def teeth_kept(part, portpoly):
+    """This part's teeth, less any the port would cut into.
+
+    A tooth and its mortice are one thing: drop it from the panel and you must
+    drop it from the cheek, or a slot opens on nothing. That is why this is
+    computed once, in build(), and read from the part by both.
+    """
+    cs = teeth(part['len'])
+    if not portpoly:
+        return cs
+    # A panel whose ONLY tooth clashes would come out with no tab at all, held
+    # by glue and its neighbours. That is a real cost and not one to take
+    # silently, so it is refused here and the caller is told which panel.
+    # On every shape in this file it is the two 20mm lead panels, whose single
+    # tooth sits dead centre where the port is.
+    mx, my = part['mid']
+    ca, sa = math.cos(part['ang']), math.sin(part['ang'])
+    out = []
+    for c in cs:
+        S = slot((mx + c * ca, my + c * sa), part['ang'])
+        g = min(seg_gap(S[i], S[(i + 1) % len(S)],
+                        portpoly[j], portpoly[(j + 1) % len(portpoly)])
+                for i in range(len(S)) for j in range(len(portpoly)))
+        if g >= MIN_FEATURE + BURN:
+            out.append(c)
+    if cs and not out:
+        raise ValueError(
+            f'the port takes the only tooth on {part["wall"]} panel '
+            f'{part["n"]} ({part["len"]:.1f}mm), which would leave it with no '
+            f'tab. A bore-square port passes within 0.16mm of a slot wherever '
+            f'it sits, so the room has to come from somewhere: narrow the port '
+            f'(7mm clears at the mouth by 1.66mm), or accept a glued panel.')
+    return out
+
+
+def seg_gap(p1, p2, q1, q2):
+    """Closest approach of two segments."""
+    def ps(q, a, b):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        L2 = dx * dx + dy * dy
+        u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((q[0] - a[0]) * dx
+                                                   + (q[1] - a[1]) * dy) / L2))
+        return math.hypot(q[0] - (a[0] + u * dx), q[1] - (a[1] + u * dy))
+    return min(ps(p1, q1, q2), ps(p2, q1, q2), ps(q1, p1, p2), ps(q2, p1, p2))
+
+
 def slots_for(part):
     """Every mortice for one panel, placed on its segment.
 
@@ -738,7 +810,7 @@ def slots_for(part):
     mx, my = part['mid']
     ca, sa = math.cos(part['ang']), math.sin(part['ang'])
     return [slot((mx + c * ca, my + c * sa), part['ang'])
-            for c in teeth(part['len'])]
+            for c in part.get('teeth', teeth(part['len']))]
 
 
 def slot(mid, ang):
@@ -869,6 +941,11 @@ def build():
             parts.append({'kind': 'panel', 'wall': name, 'n': i, 'len': L,
                           'mid': mid, 'ang': ang, 'out': (nx, ny), 'tag': tag})
             report.append((tag, name, L))
+    # The teeth are settled here, once, because a tooth and its mortice have to
+    # agree and only this function has both the parts and the port.
+    portpoly = port_hole(c) if PORT else None
+    for q in parts:
+        q['teeth'] = teeth_kept(q, portpoly)
     return c, inn, out, parts, report
 
 
@@ -985,7 +1062,7 @@ def items_for(parts, cheekpoly, cline):
     for q in parts:
         w = q['len'] + BURN
         h2 = (BORE + 2 * THICK + BURN) / 2
-        poly = [(px + w / 2, py + h2) for px, py in panel(q['len'])]
+        poly = [(px + w / 2, py + h2) for px, py in panel(q['len'], q.get('teeth'))]
 
         def panel_marks(dx, dy, _t=q['tag'], _w=w, _h=h2):
             return label(_t, _w / 2 + dx, _h + dy, 3.2)
