@@ -108,7 +108,7 @@ which is what a check named for its quantity buys you.
 
 The inner wall is the centreline offset inward by `bore/2`, so there is no bore
 at all below `R = bore/2`. **But the tooth runs out long before the geometry
-does.** A ribbon/Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
+does.** A Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
 the same fact that forced `pin_width()` in `bore_split.py` to floor at the
 tooth. At the 10mm bore and 30° facets:
 
@@ -207,8 +207,8 @@ cheek's sheet with panels, so cutting one sheet twice left you thirteen panels
 short with nothing to notice it but counting. `items_for()` emits ONE cheek and
 `sheet()` packs cheeks and panels as separate groups:
 
-    ...-ribbon/cheek-x2-cut-files.svg     one cheek. Cut it twice.
-    ...-ribbon/panels-cut-files.svg       every wall panel. Cut once.
+    ...-cheek-x2-cut-files.svg     one cheek. Cut it twice.
+    ...-panels-cut-files.svg       every wall panel. Cut once.
 
 `x2` is the bell's convention - `bell-round10-...-x3-...` means three plies -
 so the count of copies lives in the name, where a reader looking at a folder
@@ -455,7 +455,7 @@ it.
 ## Previews, because a cut file is invisible on a page
 
 `previews/` holds a readable rendering of every cut file, built by
-`ribbon/lasermade-tools/make-preview.py`. Same geometry, same cut order, thicker
+`lasermade-tools/make-preview.py`. Same geometry, same cut order, thicker
 strokes, and the three inks that fail contrast on a light ground darkened.
 Rebuild them whenever a cut file changes — verified by comparing the path data,
 which must be identical to the source.
@@ -476,20 +476,25 @@ while the sheet still holds it, black for the outlines.
 ## Commands
 
 ```sh
+G=~/LaserMadeMusic/GIT/lasermade-tools
+
 python3 ribbon_bore.py                 # cut file + the checks
 python3 ribbon_bore.py --no-write      # the checks alone
 python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
+python3 ribbon_bore.py --port --out=x-ported.svg   # with the mouthpiece slot;
+                                       # the name must carry "ported" or it
+                                       # refuses, so it cannot overwrite the
+                                       # plain sheets
 python3 ribbon_view.py --shape=serpentine    # the page you turn
 
 for f in ribbon-*.svg; do
-  python3 $ribbon/G/make-preview.py "$f"       # previews/<name>, readable on a page
+  python3 $G/make-preview.py "$f"       # previews/<name>, readable on a page
 done
 
-G=~/LaserMadeMusic/GIT/lasermade-tools
-python3 $ribbon/G/md2html.py README.md index.html
-python3 $ribbon/G/doc-audit.py README.md --html index.html \
-    --rebuild "python3 $ribbon/G/md2html.py {md} {out}" --links
-python3 $ribbon/G/svg-stroke-check.py --dir . --quiet
+python3 $G/md2html.py README.md index.html
+python3 $G/doc-audit.py README.md --html index.html \
+    --rebuild "python3 $G/md2html.py {md} {out}" --links
+python3 $G/svg-stroke-check.py --dir . --quiet
 ```
 
 **Read the audit output before pushing.** It ends with a pass/fail tally.
