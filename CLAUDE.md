@@ -448,8 +448,16 @@ An embed follows `prefers-color-scheme`, because it sits inside somebody
 else's page. It cannot see an explicit theme toggle on the host — a frame is
 its own document — so it matches by default and not after a manual switch.
 
-**Nothing gates it.** The lesson from the stretched-lattice fork applies —
-a render can be wrong while every check passes. Look at the page after changing
+**all-gates.sh gates it since 2026-09-10**, by running the command above into a
+temp file and comparing. It had drifted: the published copy predated `curve`,
+the field naming which curve each shape's vertices sit on, so the file on the
+site was not the file this generator draws. Inert -- the embed is canvas-only
+and never reads that field -- but it was the only artefact crossing two
+repositories and the only one nothing watched.
+
+That gate compares bytes, which is not the same as looking. The lesson from the
+stretched-lattice fork still applies -- a render can be wrong while every check
+passes. Look at the page after changing
 it.
 
 ## Previews, because a cut file is invisible on a page
