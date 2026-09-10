@@ -1368,7 +1368,12 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     boxes = allslots
     pairs = [(i, j) for i in range(len(boxes)) for j in range(i + 1, len(boxes))]
     bad = sum(1 for i, j in pairs if not apart(boxes[i], boxes[j]))
-    note(bad == 0, 'no two slots overlap',
+    # `pairs` in the verdict, for the reason this function's own docstring gives:
+    # a check that measured nothing printed the same clean run as one that
+    # measured everything. Three of the notes here -- this one, the kerf one
+    # below and the panel one after it -- compared a failure count to zero with
+    # nothing asserting there had been anything to count.
+    note(bool(pairs) and bad == 0, 'no two slots overlap',
          f'{len(pairs)} pairs, {bad} overlapping')
 
     # --- and OVERLAP is the wrong question. Two holes 0.03mm apart do not
@@ -1393,9 +1398,13 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
         worst = min(worst, g)
         if g - BURN < MIN_FEATURE:
             tight += 1
-    note(tight == 0, 'the ply between two holes survives the kerf',
+    # With no pair to measure, `worst` stayed at infinity and the note passed
+    # reading "narrowest infmm drawn, infmm left after a 0.13mm kerf" -- a
+    # sentence that cannot be true of any drawing.
+    note(bool(pairs) and tight == 0, 'the ply between two holes survives the kerf',
          f'narrowest {worst:.3f}mm drawn, {worst - BURN:.3f}mm left after a '
-         f'{BURN:g}mm kerf, against {MIN_FEATURE:g}mm needed')
+         f'{BURN:g}mm kerf, against {MIN_FEATURE:g}mm needed'
+         if pairs else 'no two holes to measure between')
 
     # --- the panels have to fit round the bend as SOLIDS, not as lines
     # The airway check compares two offsets of one polyline and cannot fail;
@@ -1433,7 +1442,7 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
                 npair += 1
                 if overlap(rs[i], rs[j]):
                     jam += 1
-    note(jam == 0, 'no two wall panels share plan area',
+    note(npair > 0 and jam == 0, 'no two wall panels share plan area',
          f'{npair} pairs on {len(rects)} walls, {jam} jamming')
 
     # --- and the same question asked of the walls as SOLIDS, which can fail
