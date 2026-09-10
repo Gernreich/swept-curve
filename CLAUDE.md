@@ -265,6 +265,23 @@ The knock-on is that there is no flange left to engrave on, so the cheek's
 panel numbers moved **into the channel**, which is the floor of the bore. Two
 checks hold that: no engraved point off its own part, and none inside a slot.
 
+## The flat gate applies here, with one flag
+
+`flat-part-check.py` reads these sheets since stroke inheritance was fixed on
+2026-09-09, and it is worth running -- it is what found the port cutting into a
+tab slot, which every check in this file had passed. Run it as
+
+    python3 $G/flat-part-check.py --dir . --min-edge 1.5
+
+**The flag is not optional.** Its default floor is 3.0mm because it was written
+for a bullroarer's cord hole, which is under string tension and tears out; a
+cheek slot is not. Without it every ported cheek fails at 1.66mm against 3.00
+and the noise hides anything real. With it they pass 18 checks, 0 failed.
+
+Two of its checks do not apply to these files at all. *holes are inside the
+outline* assumes one part per sheet, and a panels sheet carries twenty; *hole is
+big enough* then measures the gaps between parts. Read those two as noise here.
+
 ## Every check, audited against geometry it should reject
 
 Done 2026-09-08, after the dspiral halftest was cut and its panel corners

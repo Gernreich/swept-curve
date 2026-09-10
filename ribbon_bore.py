@@ -1050,6 +1050,12 @@ def items_for(parts, cheekpoly, cline):
                 # is 0.065mm clear of the edge and the glyph, 2mm tall, is not
                 # -- so nothing slid and nine points were engraved into the
                 # hole, which is what the gate then caught.
+                # Approximate on purpose: it samples the label's box rather
+                # than its strokes, so a sliver of overlap smaller than the
+                # sample spacing could slip through. That is safe because it is
+                # not the gate -- "no engraving lands in a slot" tests every
+                # ink point that was actually drawn, and would catch it. This
+                # only has to be good enough to decide where to put the label.
                 def _fouls(px, py, h=2.0, n=1):
                     # label()'s own extent, and it is NOT symmetric: the glyphs
                     # span +-total/2 but the baseline tick runs on to
