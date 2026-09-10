@@ -125,6 +125,10 @@ def play():
     return PLAY_BY_BORE.get(round(BORE, 3), PLAY_UNMEASURED)
 TOOTH = 2 * THICK    # Boxes.py FingerJointSettings; does not scale
 SHOULDER = 2.0       # least material either side of a tooth
+# The narrowest rib of ply the gate will pass, the same 1.5mm bore_split.py,
+# check.py and flat-part-check.py all use. Measured AFTER the kerf, since two
+# lines 0.1mm apart are one line once the laser has been down both.
+MIN_FEATURE = 1.5
 
 CUT, INNER, MARK = '#000000', '#ff8000', '#0000ff'
 OUT = None           # --out=PATH, for trying a change without touching the file
@@ -903,7 +907,13 @@ def port_hole(cline):
     m = math.hypot(ux, uy)
     ux, uy = ux / m, uy / m
     nx, ny = -uy, ux
-    half = BORE / 2 + BURN / 2          # the hole is a hole: kerf goes under
+    # The sign was wrong here and the comment beside it said so: a hole is
+    # drawn UNDER size, because the kerf opens it. slot() subtracts BURN/2 and
+    # this added it, so the port was drawn 10.13mm for a 10mm bore and cut
+    # 10.26 -- a quarter of a millimetre over, with each edge 0.065mm nearer
+    # whatever it sits beside. Found 2026-09-09 by flat-part-check, which had
+    # never been able to read these files.
+    half = BORE / 2 - BURN / 2          # the hole is a hole: kerf goes under
     # a bore back from the tip, not half a bore: centred at BORE/2 the hole
     # ran to the very end of the cheek and two of its corners fell outside
     mid = (a[0] + ux * BORE, a[1] + uy * BORE)
@@ -1217,6 +1227,32 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     bad = sum(1 for i, j in pairs if not apart(boxes[i], boxes[j]))
     note(bad == 0, 'no two slots overlap',
          f'{len(pairs)} pairs, {bad} overlapping')
+
+    # --- and OVERLAP is the wrong question. Two holes 0.03mm apart do not
+    # overlap and are still one hole once the laser has been through: the kerf
+    # is 0.13mm and takes half from each edge. This check passed every ported
+    # cheek in the project while the port sat 0.029mm from its neighbouring
+    # slot, which flat-part-check found the moment it could read the files.
+    # Ask for material, not for absence of intersection.
+    def _sd(p1, p2, q1, q2):
+        def ps(q, a, b):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            L2 = dx * dx + dy * dy
+            u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((q[0] - a[0]) * dx
+                                                       + (q[1] - a[1]) * dy) / L2))
+            return math.hypot(q[0] - (a[0] + u * dx), q[1] - (a[1] + u * dy))
+        return min(ps(p1, q1, q2), ps(p2, q1, q2), ps(q1, p1, p2), ps(q2, p1, p2))
+    tight, worst = 0, float('inf')
+    for i, j in pairs:
+        A, B = allslots[i], allslots[j]
+        g = min(_sd(A[a], A[(a + 1) % len(A)], B[b], B[(b + 1) % len(B)])
+                for a in range(len(A)) for b in range(len(B)))
+        worst = min(worst, g)
+        if g - BURN < MIN_FEATURE:
+            tight += 1
+    note(tight == 0, 'the ply between two holes survives the kerf',
+         f'narrowest {worst:.3f}mm drawn, {worst - BURN:.3f}mm left after a '
+         f'{BURN:g}mm kerf, against {MIN_FEATURE:g}mm needed')
 
     # --- the panels have to fit round the bend as SOLIDS, not as lines
     # The airway check compares two offsets of one polyline and cannot fail;
