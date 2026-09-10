@@ -132,9 +132,10 @@ MIN_FEATURE = 1.5
 
 CUT, INNER, MARK = '#000000', '#ff8000', '#0000ff'
 OUT = None           # --out=PATH, for trying a change without touching the file
-PORT = False         # --port: a bore-square opening through the cheek at the
+PORT = False         # --port: a 7 x 14mm opening through the cheek at the
                      # mouth, so a mouthpiece or a bell can go in at 90
-                     # degrees to the plane the bore is wound in
+                     # degrees to the plane the bore is wound in. NOT
+                     # bore-square: see PORT_ACROSS for why it cannot be
 BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
 
 # --shape. 'coupon' is the 180 degree test piece; 'serpentine' is a run of
@@ -985,11 +986,13 @@ def in_poly(poly, x, y):
 
 
 def port_hole(cline):
-    """A square opening through the cheek at the mouth, for a mouthpiece.
+    """A slot through the cheek at the mouth, for a mouthpiece.
 
     The airway is bounded top and bottom by the cheeks, so the only way out of
-    the plane is through one. This cuts a bore-square hole in the last BORE of
-    the run and the bore turns 90 degrees into z there. Both cheeks carry it,
+    the plane is through one. This cuts a PORT_ACROSS x PORT_ALONG hole -- 7 x
+    14mm, not bore-square, for the reason set out beside PORT_ACROSS -- a bore
+    back from the tip, and the bore turns 90 degrees into z there. It is 98mm2
+    against the bore's own 100, so the air barely knows. Both cheeks carry it,
     because they are one part cut twice and that is worth more than saving a
     hole: you get a socket right through, plug the side you are not using.
 

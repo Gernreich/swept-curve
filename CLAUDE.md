@@ -291,6 +291,10 @@ fail is a check nobody has tested.
 
 **Effective — observed to fail on bad geometry:**
 
+- *the ply between two holes survives the kerf* — 0.030mm where 1.5mm is
+  needed, on every ported cheek in the project. The best-evidenced check here:
+  it is not a mutation that makes it fail but the shipped design, and it is
+  what refuses a port that would break into a tab slot.
 - *the two walls stand a bore apart* — 3mm on a hairpin tighter than its own wall
 - *no two wall panels share plan area* — one jamming pair per mitre, all eight designs
 - *the cheek outline does not cross itself* — four packed spirals and a tight dspiral
