@@ -1656,7 +1656,12 @@ def main(write=True):
     print(f'\n  {len(parts)} wall panels + 2 cheeks = {len(parts) + 2} parts, '
           f'{len(written)} sheet{"s" if len(written) > 1 else ""}')
     for name, w, h, k, note in written:
-        print(f'    {name:<62}{k:>3} parts  {w:.0f} x {h:.0f}mm')
+        # The note was carried all the way here and then dropped. It goes into
+        # the sheet's own <title> and <desc>, so it was not lost -- but one of
+        # the two notes is "CUT THIS SHEET TWICE", which is the single thing an
+        # operator has to know before starting, and the terminal listing said
+        # only how many parts were on it and how big it was.
+        print(f'    {name:<62}{k:>3} parts  {w:.0f} x {h:.0f}mm  {note}')
     bad = 0
     print()
     for ok, what, detail in checks(c, inn, out, parts, cheekpoly,
