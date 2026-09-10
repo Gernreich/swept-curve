@@ -164,6 +164,23 @@ LOBES, LOBE_R, RISE, LEAD = 3, 71.754, 90.0, 20.0
 #
 # Applied only when --port is set, so every plain design keeps the length it
 # was cut at.
+# The port is a SLOT, not a square, and that is the whole trick. The tab slots
+# run up both walls at wall_off the entire length of the bore, so what a port
+# has to clear is measured ACROSS the run and nothing else -- a bore-square
+# 10 x 10 passes within 0.16mm of one wherever it is put, on every shape here.
+# Length ALONG the run costs no clearance at all, so it is free, and it buys
+# back the area that narrowing takes away:
+#
+#     across  along   clearance   opening
+#         10     10      0.16mm     100mm2   the old square, uncuttable
+#          7      7      1.66mm      49mm2
+#          7     14      1.66mm      98mm2   this
+#        6.6     20      1.86mm     132mm2
+#
+# 7 x 14 is 98mm2 against the bore's own 100, so the air sees no restriction
+# worth the name, and every panel keeps its tab. A mouthpiece has to plug in
+# 7 x 14 or seat over the hole; it will not take a 10mm square spigot.
+PORT_ACROSS, PORT_ALONG, PORT_FROM_TIP = 7.0, 14.0, 10.0
 # TRIED AND REJECTED, 2026-09-09. It does clear the port: the coupon goes from
 # 0.030mm of ply to 2.931mm and passes every check. But the lead is part of the
 # centreline, so lengthening it moves the whole coil -- the spiral's cheek
@@ -990,15 +1007,16 @@ def port_hole(cline):
     # 10.26 -- a quarter of a millimetre over, with each edge 0.065mm nearer
     # whatever it sits beside. Found 2026-09-09 by flat-part-check, which had
     # never been able to read these files.
-    half = BORE / 2 - BURN / 2          # the hole is a hole: kerf goes under
+    ha = PORT_ACROSS / 2 - BURN / 2    # the hole is a hole: kerf goes under
+    hl = PORT_ALONG / 2 - BURN / 2
     # a bore back from the tip, not half a bore: centred at BORE/2 the hole
     # ran to the very end of the cheek and two of its corners fell outside
-    mid = (a[0] + ux * BORE, a[1] + uy * BORE)
-    return [(mid[0] + ux * half + nx * half, mid[1] + uy * half + ny * half),
-            (mid[0] + ux * half - nx * half, mid[1] + uy * half - ny * half),
-            (mid[0] - ux * half - nx * half, mid[1] - uy * half - ny * half),
-            (mid[0] - ux * half + nx * half, mid[1] - uy * half + ny * half),
-            (mid[0] + ux * half + nx * half, mid[1] + uy * half + ny * half)]
+    mid = (a[0] + ux * PORT_FROM_TIP, a[1] + uy * PORT_FROM_TIP)
+    return [(mid[0] + ux * hl + nx * ha, mid[1] + uy * hl + ny * ha),
+            (mid[0] + ux * hl - nx * ha, mid[1] + uy * hl - ny * ha),
+            (mid[0] - ux * hl - nx * ha, mid[1] - uy * hl - ny * ha),
+            (mid[0] - ux * hl + nx * ha, mid[1] - uy * hl + ny * ha),
+            (mid[0] + ux * hl + nx * ha, mid[1] + uy * hl + ny * ha)]
 
 
 def items_for(parts, cheekpoly, cline):
@@ -1016,6 +1034,7 @@ def items_for(parts, cheekpoly, cline):
     for k in range(1):
         def cheek_marks(dx, dy, _p=parts, _c=cline):
             m = []
+            _dropped = []
             hole = [(q[0] + dx, q[1] + dy) for q in port_hole(_c)] if PORT else None
             for q in _p:
                 mx, my = q['mid'][0] + dx, q['mid'][1] + dy
@@ -1024,17 +1043,51 @@ def items_for(parts, cheekpoly, cline):
                 # into the channel: with WEB at 2mm there is no flange to
                 # write on, and the channel is the floor of the bore
                 lx, ly = mx - ox * off, my - oy * off
-                if hole is not None and in_poly(hole, lx, ly):
+                # The GLYPH has to clear the hole, not its anchor. Testing
+                # the anchor alone worked only while the port was wider than
+                # the label's offset: at 10mm across, an anchor 3.5mm off the
+                # centreline sat inside and the slide fired. At 7mm the anchor
+                # is 0.065mm clear of the edge and the glyph, 2mm tall, is not
+                # -- so nothing slid and nine points were engraved into the
+                # hole, which is what the gate then caught.
+                def _fouls(px, py, h=2.0, n=1):
+                    # label()'s own extent, and it is NOT symmetric: the glyphs
+                    # span +-total/2 but the baseline tick runs on to
+                    # total/2 + 0.38h past them. A +-h/2 box missed the tick,
+                    # which is precisely what was being engraved into the port.
+                    if hole is None:
+                        return False
+                    w, gap = h * 0.62, h * 0.18
+                    total = n * w + (n - 1) * gap
+                    lo, hi = -total / 2, total / 2 + h * 0.38
+                    ca, sa = math.cos(q['ang']), math.sin(q['ang'])
+                    for i in range(5):
+                        u = lo + (hi - lo) * i / 4
+                        for v in (-h / 2, 0.0, h / 2):
+                            if in_poly(hole, px + u * ca - v * sa,
+                                       py + u * sa + v * ca):
+                                return True
+                    return False
+                if _fouls(lx, ly, n=len(q['tag'])):
                     # this one sits in the opening. Slide it along its own
                     # panel until it clears - the alternative, giving the port
                     # a bore of extra lead, moves the whole coil and was what
                     # made the cheek cross itself.
-                    for step in (1, 2, 3):
-                        cx = math.cos(q['ang']) * BORE * step
-                        cy = math.sin(q['ang']) * BORE * step
-                        if not in_poly(hole, lx + cx, ly + cy):
+                    # Along the panel first, then back the other way: on a
+                    # short panel -- the coupon's run 12 to 19mm -- a whole
+                    # bore forward is off the end of it.
+                    for d in (BORE, 2 * BORE, 3 * BORE,
+                              -BORE, BORE / 2, -BORE / 2, -2 * BORE):
+                        cx, cy = math.cos(q['ang']) * d, math.sin(q['ang']) * d
+                        if not _fouls(lx + cx, ly + cy, n=len(q['tag'])):
                             lx, ly = lx + cx, ly + cy
                             break
+                    else:
+                        # Nowhere clear. An unnumbered slot beats a number
+                        # engraved into a hole; the panel carries the same tag
+                        # on its own sheet. Counted, not silent.
+                        _dropped.append(q['tag'])
+                        continue
                 m += label(q['tag'], lx, ly, 2.0, q['ang'])
             # a little way ALONG the first segment, not at its start: the
             # band begins there and half the glyph hung off the end. A
@@ -1051,6 +1104,10 @@ def items_for(parts, cheekpoly, cline):
             gy = a0[1] + (a1[1] - a0[1]) * t + dy
             m += label('0', gx, gy, 2.6,
                        math.atan2(a1[1] - a0[1], a1[0] - a0[0]))
+            if _dropped:
+                print(f'  note: {len(_dropped)} cheek label(s) left off, '
+                      f'{", ".join(_dropped)} -- no clear spot beside the port. '
+                      f'The panels carry the same tags.')
             return m
         cheek_slots = [sl for q in parts for sl in slots_for(q)]
         if PORT:

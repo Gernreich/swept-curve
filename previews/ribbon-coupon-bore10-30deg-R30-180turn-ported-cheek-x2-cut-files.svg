@@ -11,9 +11,9 @@
 <title>Ribbon bore, coupon - the cheek - CUT THIS SHEET TWICE - 10mm square bore, 30 degree facets</title>
 <desc>1 user unit = 1mm. the cheek - CUT THIS SHEET TWICE. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 16 wall panels in all, numbered along the flow. The airway is exact along every facet and 3.5% over at each mitre. 3mm ply, slots cut for a 2.94mm sheet at 0.13mm kerf, 0.025mm play per side taken out of the slot and never off the tab. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
   <g id="numbers" fill="none" stroke="#0000ff" stroke-width="0.200">
-    <path d="M 77.050,26.968 L 77.490,27.240 L 75.490,27.240"/>
-    <path d="M 75.490,26.943 L 75.490,27.563"/>
-    <path d="M 75.490,28.156 L 75.490,28.596"/>
+    <path d="M 77.050,36.968 L 77.490,37.240 L 75.490,37.240"/>
+    <path d="M 75.490,36.943 L 75.490,37.563"/>
+    <path d="M 75.490,38.156 L 75.490,38.596"/>
     <path d="M 75.345,30.973 L 75.706,31.326 L 75.577,31.805 L 75.088,31.931 L 74.741,31.838 L 73.838,30.569 L 73.581,31.527"/>
     <path d="M 73.466,31.956 L 73.353,32.381"/>
     <path d="M 69.073,43.372 L 68.372,44.073 L 68.130,43.042"/>
@@ -71,7 +71,7 @@
     <path d="M 26.013,53.173 L 21.827,48.987 L 23.814,47.000 L 28.000,51.186 Z"/>
     <path d="M 15.228,37.734 L 13.696,32.016 L 16.410,31.289 L 17.943,37.007 Z"/>
     <path d="M 12.095,20.789 L 12.095,14.869 L 14.905,14.869 L 14.905,20.789 Z"/>
-    <path d="M 74.935,25.065 L 85.065,25.065 L 85.065,14.935 L 74.935,14.935 L 74.935,25.065 Z"/>
+    <path d="M 76.565,26.935 L 83.435,26.935 L 83.435,13.065 L 76.565,13.065 L 76.565,26.935 Z"/>
   </g>
   <g id="outlines" fill="none" stroke="#000000" stroke-width="0.200">
     <path d="M 70.000,10.000 L 70.000,23.683 L 67.015,34.824 L 59.824,42.015 L 50.000,44.647 L 40.176,42.015 L 32.985,34.824 L 30.000,23.683 L 30.000,10.000 L 10.000,10.000 L 10.000,26.317 L 15.053,45.176 L 29.824,59.947 L 50.000,65.353 L 70.176,59.947 L 84.947,45.176 L 90.000,26.317 L 90.000,10.000 Z"/>
