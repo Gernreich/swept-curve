@@ -594,8 +594,27 @@ def main():
     out = [x for x in a if x.startswith('--out=')]
     hm = [x for x in a if x.startswith('--home=')]
     embed = '--embed' in a
-    path = out[0].split('=', 1)[1] if out else os.path.join(
-        here, stem + ('-embed.html' if embed else '.html'))
+    # THE PAGE BELONGS BESIDE ITS CUT FILES, not at the root of swept-curve.
+    # The default was `here`, which is where the traced and torus pages ship and
+    # nowhere any ordinary shape's page lives: every one of the seven sits in
+    # <shape>/<stem>/ with the sheets it describes. So a bare run dropped an
+    # unshipped duplicate at the root, one directory up from the real page and
+    # beside the one root page that is real. Found by running the file with no
+    # arguments, which is the only way anyone would meet it.
+    #
+    # The design directory has to EXIST. ribbon_bore.py makes it when it writes
+    # the sheets, so its absence means this is a shape-and-parameter combination
+    # nothing has cut -- and inventing a directory for a viewer is how strays get
+    # made in the first place. Say so and ask for --out instead.
+    design = os.path.join(here, B.SHAPE, stem)
+    if out:
+        path = out[0].split('=', 1)[1]
+    elif os.path.isdir(design):
+        path = os.path.join(design, stem + ('-embed.html' if embed else '.html'))
+    else:
+        sys.exit(f'ribbon_view: no cut files at {os.path.relpath(design)}, so '
+                 f'there is nowhere this page belongs.\n'
+                 f'  Draw the design first, or name the file with --out=PATH.')
     open(path, 'w').write(build(title, embed,
                                 hm[0].split('=', 1)[1] if hm else
                                 'https://gernreich.github.io/trumpet/'))
