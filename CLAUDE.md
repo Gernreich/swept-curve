@@ -291,10 +291,12 @@ fail is a check nobody has tested.
 
 **Effective — observed to fail on bad geometry:**
 
-- *the ply between two holes survives the kerf* — 0.030mm where 1.5mm is
-  needed, on every ported cheek in the project. The best-evidenced check here:
-  it is not a mutation that makes it fail but the shipped design, and it is
-  what refuses a port that would break into a tab slot.
+- *the ply between two holes survives the kerf* — 0.030mm where 1.5mm was
+  needed, on every ported cheek in the project **as it stood on 2026-09-09**.
+  The best-evidenced check here: it was not a mutation that made it fail but
+  the shipped design, and it is what refuses a port that would break into a
+  tab slot. **It no longer fails anything shipped** — see the note on the
+  round port's zero margin below, which is why.
 - *the two walls stand a bore apart* — 3mm on a hairpin tighter than its own wall
 - *no two wall panels share plan area* — one jamming pair per mitre, all eight designs
 - *the cheek outline does not cross itself* — four packed spirals and a tight dspiral
@@ -340,7 +342,26 @@ kind. On 2026-09-09 it was found passing a real defect: the port sat 0.029mm
 from a slot on all ten ported cheeks, which is not an overlap and IS one hole
 once a 0.13mm kerf has been down both edges. Overlap is not the question;
 surviving material is. *the ply between two holes survives the kerf* now asks
-that, and it is what refuses every ported design today.
+that, and it is what decides where a port may sit.
+
+**The round port is placed hard against that limit, by construction.** `port()`
+keeps a tooth only where the gap clears `MIN_FEATURE + BURN`, so the surviving
+tooth lands exactly on the minimum: every round-ported design — coupon,
+serpentine, opposed and the R35to113 spiral — reports 1.650mm drawn, 1.500mm
+left, against 1.5mm needed. A margin of **zero**, and it passes only because
+the comparison carries a 1e-9 slack; without it the sum came out
+1.6499999999999986 and the design was refused over 1.3e-15mm.
+
+The square port is nothing like as tight, because `--merge-lead` gives it a
+whole facet to sit in: 2.2 to 4.5mm of margin across the seven square-ported
+designs, the volute narrowest at 3.736mm and the R36to144 spiral widest at
+5.950mm.
+
+**So a change to `MIN_FEATURE`, `BURN` or `THICK` is a change to whether the
+four round-ported designs draw at all**, and they will fail together rather
+than one at a time. The square-ported seven have room to absorb it. Measure
+after any such change rather than assuming the check is quiet because nothing
+is close to it.
 
 A check can be worse than unproven. This one was actively wrong, and it took a
 different tool -- `flat-part-check`, which had never been pointed at these files
@@ -518,11 +539,18 @@ G=~/LaserMadeMusic/GIT/lasermade-tools
 
 # The ply is 3.0 and the kerf 0.15 by default, from 2026-09-13, and
 # bore_split.py's SHEET and KERF are the same two numbers from the same day.
-# They have to agree: one instrument, one machine. A BARE run reproduces every
-# sheet in this tree; the sheets in each cut-files/old/ were drawn at 2.94 and
-# 0.13 and need --sheet=2.94 --kerf=0.13 to come back.
-python3 ribbon_bore.py                 # cut file + the checks
-python3 ribbon_bore.py --no-write      # the checks alone
+# They have to agree: one instrument, one machine. Every sheet in this tree
+# comes back at THOSE DEFAULTS -- no --sheet or --kerf needed; the sheets in
+# each cut-files/old/ were drawn at 2.94 and 0.13 and need
+# --sheet=2.94 --kerf=0.13 to come back. Verified both directions 2026-09-13.
+#
+# "at the default ply and kerf" is NOT the same as a bare `ribbon_bore.py`.
+# Every shipped sheet is --narrow, so the bare run reproduces none of them: it
+# draws a FULL-WIDTH coupon and, having no --out, drops two files named like
+# cut files into THIS DIRECTORY rather than into any cut-files/ -- which is
+# where two strays came from on 2026-09-13. Use --no-write to run the checks,
+# or --out to send a trial somewhere harmless.
+python3 ribbon_bore.py --no-write      # the checks alone, writes nothing
 python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
 python3 ribbon_bore.py --port --out=x-ported.svg   # with the mouthpiece slot;
                                        # the name must carry "ported" or it
