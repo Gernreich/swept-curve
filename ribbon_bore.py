@@ -53,6 +53,25 @@ THICK = 3.0          # ply, NOMINAL: what the design is dimensioned on
 # four shapes over.
 SHEET = 2.94
 WEB = 2.0            # material left outboard of a slot; the cheek's thin part
+# --narrow: put the cheek's edge ON the mortice's outboard edge, so there is no
+# web at all and the band is only as wide as the duct. It was done by hand in
+# Inkscape first, on the dspiral halftest, by dragging the rim onto the slot
+# corners; this is that edit as an option, and it lands in the same place
+# because both take their figure from the same slot_half().
+#
+# It is NOT --web=0. WEB leaves THICK/2 outboard of the wall's CENTRELINE,
+# which is the wall's true face at 8.0mm, while the drawn mortice ends at
+# 7.905mm - the face less half the kerf, because the hole is drawn BURN under
+# size. --web=0 therefore leaves a 0.095mm rib that no laser can cut, and the
+# hand edit did not leave one. --narrow follows the mortice instead, so it
+# tracks --kerf and --sheet rather than restating a number they set.
+#
+# What it costs, and it is not small: the mortice loses its outboard face. A
+# tab is then held across its thickness on one side only, by the cheek's inner
+# lip and by glue. Nothing here decides whether that is a good trade - it is
+# an option because the author cut one - but it is why every slot on a narrow
+# sheet reads as open, and why the sheet says so in its own description.
+NARROW = False
 
 # Where a wall's CENTRELINE sits, and where the cheek's edge does.
 #
@@ -71,7 +90,22 @@ def wall_off():
     return BORE / 2 + THICK / 2
 
 
+def slot_half():
+    """Half the mortice across the band, from the wall's centreline.
+
+    Where the DRAWN slot edge falls, which is not where the wall's face falls:
+    the hole is drawn BURN under size, so this is half a kerf inboard of it.
+    slot() and a narrow cheek_off() both read it here rather than each writing
+    the expression out, because the whole point of --narrow is that the two
+    agree to the last micron, and two copies of an expression do not stay
+    equal through a --kerf.
+    """
+    return (SHEET - SLOT_TIGHTEN) / 2 - BURN / 2
+
+
 def cheek_off():
+    if NARROW:
+        return wall_off() + slot_half()
     return wall_off() + THICK / 2 + WEB
 
 
@@ -182,6 +216,35 @@ LOBES, LOBE_R, RISE, LEAD = 3, 71.754, 90.0, 20.0
 # worth the name, and every panel keeps its tab. A mouthpiece has to plug in
 # 7 x 14 or seat over the hole; it will not take a 10mm square spigot.
 PORT_ACROSS, PORT_ALONG, PORT_FROM_TIP = 7.0, 14.0, 10.0
+# --port-square: the bore-square port the table above calls uncuttable, at
+# BORE x BORE. It is cuttable after all, but only once the thing in its way is
+# gone. The table measures clearance against the tab slots of the LEAD panel,
+# which carries one tooth dead centre, exactly where the port wants to be. Take
+# the lead panel out and merge it into its neighbour - they are collinear, so
+# the merge is exact and the airway does not change - and the nearest slot is
+# 9.7mm away instead of 0.16mm.
+#
+# So this flag does not overrule that table, it removes its premise. The guard
+# in teeth_kept() still stands: ask for a square port on a design that still
+# has its lead panels and it refuses, naming the panel whose only tab the port
+# would take. That refusal is the table, enforced.
+#
+# The SIZE is BORE, not a literal 10, so --bore carries it. The KERF is already
+# a variable here: port_hole() draws the hole BURN under size, so the opening
+# comes out BORE exactly at any --kerf, and the drawn square is BORE - BURN --
+# 9.87mm at the measured 0.13, 9.83 at 0.17. Never hard-code the 9.87: it is
+# the answer for one kerf, and the kerf is the number most likely to change.
+PORT_SQUARE = False
+# --port-square implies this: the square port needs the lead panel's tooth out
+# of the way, and folding the lead into the facet it already lies on is the
+# only move that buys the room without moving the coil. Separately settable so
+# a merged lead can be drawn and looked at without a port.
+MERGE_LEAD = False
+# --cap: one plate that closes the duct's open end, on the panels sheet. Only
+# meaningful with --port, which is what gives the air somewhere else to go, so
+# it refuses on its own rather than sealing a bore with no way in. Off by
+# default because every ported sheet in this repo was cut without one.
+CAP = False
 # TRIED AND REJECTED, 2026-09-09. It does clear the port: the coupon goes from
 # 0.030mm of ply to 2.931mm and passes every check. But the lead is part of the
 # centreline, so lengthening it moves the whole coil -- the spiral's cheek
@@ -774,6 +837,36 @@ def panel(L, cs=None):
     return out
 
 
+def cap():
+    """The plate that closes the duct's open end, flat, centred on the origin.
+
+    A ported bore does not breathe through its mouth: the mouthpiece goes into
+    the port and the run simply stops a bore further on, so the end is a hole
+    the size of the airway pointing out of the coil. Air takes it. This closes
+    it, and it is the only part here that is not a wall or a cheek.
+
+    It is the END FACE of the assembly, which is band() across - the cheek's
+    own width, so it follows --narrow and --bore without being told - by
+    BORE + 2*THICK through the stack, which is the two cheeks with the airway
+    between them. On a narrow 10mm bore that is 15.81 x 16.0. NOT square: the
+    band is 15.81 because it is the wall offset plus half a mortice, and the
+    stack is 16.0 because it is two 3mm cheeks and a 10mm bore. The two numbers
+    are close and have nothing to do with each other, and a square cap leaves
+    0.095mm of the end face bare top and bottom. That lands on cheek edge, not
+    on the airway, so a square one seals - it is just not the face.
+
+    Kerf goes OVER, as it does on a panel: this is material kept, so the drawn
+    rectangle is BURN bigger than the part and the cut part is the face exactly.
+
+    It is glued, not tabbed. Nothing in the cheeks mortices it, and cutting
+    mortices for it would put two more holes in the narrow rim right where the
+    port already is.
+    """
+    e = BURN / 2
+    hw, hh = band() / 2 + e, (BORE + 2 * THICK) / 2 + e
+    return [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
+
+
 def teeth_kept(part, portpoly):
     """This part's teeth, less any the port would cut into.
 
@@ -781,7 +874,12 @@ def teeth_kept(part, portpoly):
     drop it from the cheek, or a slot opens on nothing. That is why this is
     computed once, in build(), and read from the part by both.
     """
-    cs = teeth(part['len'])
+    # 'cs' is set only by merge_lead(), which pins a merged panel's teeth to
+    # where its surviving half already had them. Recomputing from the new
+    # length would re-space them over the whole merged panel and move every
+    # mortice with them, which is the one thing a merge must not do to a
+    # design whose other sheet is already cut.
+    cs = part['cs'] if 'cs' in part else teeth(part['len'])
     if not portpoly:
         return cs
     # A panel whose ONLY tooth clashes would come out with no tab at all, held
@@ -807,6 +905,21 @@ def teeth_kept(part, portpoly):
             f'it sits, so the room has to come from somewhere: narrow the port '
             f'(7mm clears at the mouth by 1.66mm), or accept a glued panel.')
     return out
+
+
+def pt_seg(q, a, b):
+    """Distance from a point to a segment.
+
+    At module level because checks() needs it twice over the same rim, once to
+    ask whether a mortice corner sits on it and once to measure the web, and
+    those two have to be the same measurement or --narrow could pass one and
+    fail the other over the same micron.
+    """
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    L2 = dx * dx + dy * dy
+    u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((q[0] - a[0]) * dx
+                                               + (q[1] - a[1]) * dy) / L2))
+    return math.hypot(q[0] - (a[0] + u * dx), q[1] - (a[1] + u * dy))
 
 
 def seg_gap(p1, p2, q1, q2):
@@ -842,7 +955,7 @@ def slot(mid, ang):
     # width off the DRAWN tooth, depth off the MEASURED sheet: the tab's width
     # is a line on the panel, its thickness is the plywood itself
     hw = (TOOTH + 2 * play() - SLOT_TIGHTEN) / 2 - e
-    hh = (SHEET - SLOT_TIGHTEN) / 2 - e
+    hh = slot_half()
     box = [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
     return [(mid[0] + p[0] * math.cos(ang) - p[1] * math.sin(ang),
              mid[1] + p[0] * math.sin(ang) + p[1] * math.cos(ang))
@@ -887,6 +1000,67 @@ def label(text, cx, cy, h, ang=0.0):
     a = rot((total / 2 + tg, h / 2), ang)
     b = rot((total / 2 + tg + tl, h / 2), ang)
     out.append(path([(cx + a[0], cy + a[1]), (cx + b[0], cy + b[1])], close=False))
+    return out
+
+
+def merge_lead(parts):
+    """Fold each wall's lead panel into its neighbour, keeping the neighbour.
+
+    The mouth lead and the facet after it are COLLINEAR - centreline() makes
+    the lead by extending the first segment's own direction - so this joins two
+    panels that already lie on one line. No airway moves, no mitre changes, and
+    the merged length is the exact sum.
+
+    It exists for --port-square. The port wants the middle of the lead and the
+    lead's one tooth is already there; the room has to come from the teeth, and
+    this is where it comes from.
+
+    What it deliberately does NOT do is re-space the teeth or renumber the
+    panels. teeth() reads a panel's length alone, so a 43.2mm merged panel
+    would get three teeth at -12, 0, +12 where its 23.2mm half had two at -6,
+    +6 - and one of those three lands at 9.6mm along the duct, inside a port
+    that spans 3.07 to 12.94. Every mortice in the cheek would move with them.
+    The tags are worse: build() numbers by position, so dropping two panels
+    renumbers all 36 that remain, and a panel already cut would read a number
+    that now means a different panel.
+
+    So the surviving half keeps its tag and keeps its teeth where they are.
+    They move only because the panel's midpoint moves: half the lead's length
+    along the run, which is what turns [-6, +6] into [+4, +16].
+    """
+    out, by_wall = [], {}
+    for p in parts:
+        by_wall.setdefault(p['wall'], []).append(p)
+    dropped = []
+    for wall, ps in by_wall.items():
+        ps = sorted(ps, key=lambda q: q['n'])
+        lead, nxt = ps[0], ps[1]
+        # Refuse rather than silently fold a mitre flat: if these two are not
+        # collinear the merge would cut a corner off the airway.
+        d = abs((nxt['ang'] - lead['ang'] + math.pi) % (2 * math.pi) - math.pi)
+        if math.degrees(d) > 1e-6:
+            raise ValueError(
+                f'{wall} panels {lead["n"]} and {nxt["n"]} meet at '
+                f'{math.degrees(d):.3f} degrees, not in line, so merging them '
+                f'would move the airway. --merge-lead only folds a straight '
+                f'lead into the facet it already lies on.')
+        half = lead['len'] / 2
+        ux, uy = math.cos(nxt['ang']), math.sin(nxt['ang'])
+        # the far end stays put and the panel grows backwards, so the midpoint
+        # slides half the lead's length against the run
+        nxt['label_mid'] = nxt['mid']
+        nxt['mid'] = (nxt['mid'][0] - ux * half, nxt['mid'][1] - uy * half)
+        nxt['cs'] = [c + half for c in teeth(nxt['len'])]
+        nxt['len'] = lead['len'] + nxt['len']
+        dropped.append(f'{wall} {lead["tag"]}')
+    keep = {id(p) for w in by_wall.values() for p in w}
+    for p in parts:
+        if any(p['wall'] == w and p['n'] == 1 for w in by_wall):
+            continue
+        out.append(p)
+    print(f'  --merge-lead: folded the lead panel into its neighbour on both '
+          f'walls, dropping {", ".join(dropped)}; every other panel keeps its '
+          f'number and its teeth')
     return out
 
 
@@ -959,6 +1133,9 @@ def build():
             parts.append({'kind': 'panel', 'wall': name, 'n': i, 'len': L,
                           'mid': mid, 'ang': ang, 'out': (nx, ny), 'tag': tag})
             report.append((tag, name, L))
+    if MERGE_LEAD:
+        parts = merge_lead(parts)
+        report = [(q['tag'], q['wall'], q['len']) for q in parts]
     # The teeth are settled here, once, because a tooth and its mortice have to
     # agree and only this function has both the parts and the port.
     portpoly = port_hole(c) if PORT else None
@@ -990,9 +1167,12 @@ def port_hole(cline):
 
     The airway is bounded top and bottom by the cheeks, so the only way out of
     the plane is through one. This cuts a PORT_ACROSS x PORT_ALONG hole -- 7 x
-    14mm, not bore-square, for the reason set out beside PORT_ACROSS -- a bore
-    back from the tip, and the bore turns 90 degrees into z there. It is 98mm2
-    against the bore's own 100, so the air barely knows. Both cheeks carry it,
+    14mm by default, not bore-square, for the reason set out beside
+    PORT_ACROSS, or BORE x BORE under --port-square once the lead panel that
+    stood in its way is gone -- a bore back from the tip, and the bore turns 90
+    degrees into z there. It is 98mm2 against the bore's own 100 at 7 x 14, and
+    the bore's own 100 exactly when square, so the air barely knows either way.
+    Both cheeks carry it,
     because they are one part cut twice and that is worth more than saving a
     hole: you get a socket right through, plug the side you are not using.
 
@@ -1040,7 +1220,13 @@ def items_for(parts, cheekpoly, cline):
             _dropped = []
             hole = [(q[0] + dx, q[1] + dy) for q in port_hole(_c)] if PORT else None
             for q in _p:
-                mx, my = q['mid'][0] + dx, q['mid'][1] + dy
+                # 'label_mid' is set only by merge_lead(): a merged panel's
+                # midpoint slides half a lead along the run, and the number
+                # would slide with it, off the mortices it names and onto a
+                # stretch of cheek that carried no number before. Pinning it
+                # keeps every label on a sheet already cut exactly where it was.
+                anchor = q['label_mid'] if 'label_mid' in q else q['mid']
+                mx, my = anchor[0] + dx, anchor[1] + dy
                 ox, oy = q['out']
                 off = THICK / 2 + 1.5
                 # into the channel: with WEB at 2mm there is no flange to
@@ -1133,6 +1319,17 @@ def items_for(parts, cheekpoly, cline):
         def panel_marks(dx, dy, _t=q['tag'], _w=w, _h=h2):
             return label(_t, _w / 2 + dx, _h + dy, 3.2)
         pan.append({'outline': poly, 'slots': [], 'marks': panel_marks})
+    if CAP:
+        # On the PANELS sheet, and that is not a detail. The cheek sheet is cut
+        # twice and sheet() says in bold that nothing else may be on it; one
+        # cap put there comes back as two, and the sheet stops meaning "run
+        # this file twice and you are done".
+        cw, ch = band() + BURN, BORE + 2 * THICK + BURN
+        poly = [(px + cw / 2, py + ch / 2) for px, py in cap()]
+        # No number. Every tag in this file is a position along the flow and
+        # the cap has none; borrowing the next hex would give it a name that
+        # reads like a panel. It is the only square on the sheet.
+        pan.append({'outline': poly, 'slots': [], 'marks': lambda dx, dy: []})
     return out, pan
 
 
@@ -1235,7 +1432,19 @@ def sheet(parts, cheekpoly, cline, path_out, write=True):
             f'airway is exact along every facet and {over:.1f}% over at each '
             f'mitre. {THICK:g}mm ply, slots cut for a {SHEET:g}mm sheet at '
             f'{BURN:g}mm kerf, {play():g}mm play per '
-            f'side taken out of the slot and never off the tab. blue #0000ff '
+            f'side taken out of the slot and never off the tab. '
+            # The one thing about a narrow sheet an operator cannot see in the
+            # drawing and must not find out at the bench.
+            + (f'NARROW: the cheek is only as wide as the duct, so every '
+               f'mortice is open at the rim and each tab is held across its '
+               f'thickness on one side only. ' if NARROW else '')
+            # The cap carries no number, so the sheet has to say what the one
+            # square on it is and that it is glued rather than tabbed.
+            + (f'The plain {band():g} x {BORE + 2 * THICK:g}mm rectangle on '
+               f'the panels sheet is the end cap: it glues over the open end '
+               f'of the duct so the air turns into the port, it carries no '
+               f'number, and ONE is needed. ' if CAP else '')
+            + f'blue #0000ff '
             f'engraves, orange #ff8000 cuts the slots first, black #000000 '
             f'frees the parts.</desc>\n'
             + grp(marks, MARK, 'numbers') + grp(holes, INNER, 'slots')
@@ -1343,11 +1552,25 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
          f'(wall face to wall face)')
 
     # --- every slot has to be in the cheek, or a tab has nothing to enter
-    allslots = [sl for p in parts for sl in slots_for(p)]
-    if PORT:
-        allslots = allslots + [port_hole(c)]
-    off = sum(1 for sl in allslots for pt in sl
-              if not inside(cheekpoly, *pt))
+    # Two lists, because the port is a hole and not a mortice. Everything that
+    # asks "is this hole clear of the edge" wants both; the one thing that asks
+    # "does this mortice lie ON the edge" wants only the mortices.
+    mortices = [sl for p in parts for sl in slots_for(p)]
+    allslots = mortices + ([port_hole(c)] if PORT else [])
+    # A narrow cheek puts two corners of every mortice ON the rim, and inside()
+    # is an even-odd ray cast, which answers a point on the boundary either way
+    # depending on which side of a vertex the ray leaves. Run as it stands it
+    # called 170 of 220 slots outside the cheek they are flush with. On the rim
+    # is not outside it: a tab still has a hole to enter. So under --narrow a
+    # corner within half a kerf of the rim counts as in, and a corner genuinely
+    # beyond it still does not.
+    def held(pt):
+        if inside(cheekpoly, *pt):
+            return True
+        return NARROW and min(
+            pt_seg(pt, cheekpoly[i - 1], cheekpoly[i])
+            for i in range(len(cheekpoly))) <= BURN / 2
+    off = sum(1 for sl in allslots for pt in sl if not held(pt))
     note(off == 0 and allslots, 'every slot corner is inside its cheek',
          f'{4 * len(allslots)} corners on {len(allslots)} slots, {off} outside')
 
@@ -1538,18 +1761,46 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     # geometry pinched the web at a tight mitre. The number it prints is the
     # same 2.05mm on every shape here - WEB plus half the kerf - but now it is
     # the narrowest one actually in the cheek.
-    def pt_seg(q, a, b):
-        dx, dy = b[0] - a[0], b[1] - a[1]
-        L2 = dx * dx + dy * dy
-        u = 0.0 if L2 == 0 else max(0.0, min(1.0, ((q[0] - a[0]) * dx
-                                                   + (q[1] - a[1]) * dy) / L2))
-        return math.hypot(q[0] - (a[0] + u * dx), q[1] - (a[1] + u * dy))
-    web = min((pt_seg(q, ring[i], ring[i + 1])
-               for sl in allslots for q in sl for i in range(len(ring) - 1)),
-              default=0.0)
-    note(web >= 1.5, 'the web outboard of a slot is cuttable',
-         f'narrowest slot to rim {web:.3f}mm against 1.5mm needed, '
-         f'band {band():g}mm wide')
+    def to_rim(sl):
+        return min(pt_seg(q, ring[i], ring[i + 1])
+                   for q in sl for i in range(len(ring) - 1))
+    per_slot = [to_rim(sl) for sl in allslots]
+    web = min(per_slot, default=0.0)
+    if NARROW:
+        # There is no web to be cuttable, so asking whether it is would be a
+        # check that cannot fail, and this file has a section about those. The
+        # thing that CAN go wrong on a narrow sheet is the rim drifting off the
+        # mortice it is supposed to lie on - a --kerf that moved slot_half()
+        # while cheek_off() was computed from something else would show here as
+        # a web of a few hundredths, and a rib nobody can cut is exactly what
+        # --narrow exists to avoid. So measure the flushness instead. Half a
+        # kerf is the tolerance because anything under it is inside one cut.
+        #
+        # The WORST mortice, not the closest one. Written against `web` it read
+        # "the nearest of 220 slots touches the rim", which one slot satisfies
+        # for all of them and which nothing this file can draw would fail. Per
+        # slot and then the largest is the statement that has to hold: EVERY
+        # mortice on the rim, so a cheek_off() that drifted off slot_half()
+        # shows up whichever slot it drifted at.
+        #
+        # Mortices only. With the port in the list the ported spiral reported
+        # 4.4700mm and failed a sheet whose every mortice was flush, because a
+        # mouthpiece opening sits in the middle of the band and has no business
+        # touching the rim. It is not unchecked, though: it keeps the web the
+        # full-width sheet asks of it, 2.095mm nearer the rim than before.
+        gap = max(to_rim(sl) for sl in mortices) if mortices else 0.0
+        note(gap <= BURN / 2, 'the rim is flush with every mortice',
+             f'furthest of {len(mortices)} mortices {gap:.4f}mm from the rim '
+             f'against {BURN / 2:g}mm allowed, band {band():g}mm wide, '
+             f'and every mortice open at the rim')
+        if PORT:
+            pw = to_rim(port_hole(c))
+            note(pw >= 1.5, 'the port keeps a cuttable web',
+                 f'port to rim {pw:.3f}mm against 1.5mm needed')
+    else:
+        note(web >= 1.5, 'the web outboard of a slot is cuttable',
+             f'narrowest slot to rim {web:.3f}mm against 1.5mm needed, '
+             f'band {band():g}mm wide')
 
     big = [n for n, w, h, _, _ in written if w > BED_W or h > BED_H]
     note(not big and len(written) > 0, 'every sheet fits the P2S bed',
@@ -1644,6 +1895,39 @@ def main(write=True):
                 f'--port with --out={OUT} would write the ported sheets under '
                 f'a name that does not say so, over the unported twin. Put '
                 f'"ported" in the --out name.')
+    if MERGE_LEAD and not PORT_SQUARE:
+        # A merged lead is two panels fewer and two longer, which is a
+        # different part set from the plain design under a name that would not
+        # say so. --port-square does not need this because "square" already
+        # means merged - it is the only reason the merge exists.
+        stem = stem[:-4] + '-merged.svg'
+        if OUT and 'merged' not in os.path.basename(OUT):
+            raise ValueError(
+                f'--merge-lead with --out={OUT} would write a sheet with two '
+                f'panels merged under a name that does not say so, over the '
+                f'unmerged twin. Put "merged" in the --out name.')
+    if PORT_SQUARE:
+        # Same rule again, and the same reason: a square-ported cheek takes a
+        # mouthpiece the 7 x 14 one will not, and the two sheets are otherwise
+        # hard to tell apart. "square" sits between "ported" and "narrow", so
+        # the tail still sorts.
+        stem = stem[:-4] + '-square.svg'
+        if OUT and 'square' not in os.path.basename(OUT):
+            raise ValueError(
+                f'--port-square with --out={OUT} would write the square-'
+                f'ported sheets under a name that does not say so, over the '
+                f'7 x 14 twin. Put "square" in the --out name.')
+    if NARROW:
+        # Same argument as --port, and the mistake would be worse: a narrow
+        # cheek differs from its twin by one contour and by nothing an
+        # operator can see in a thumbnail, while the joint it makes is a
+        # different joint. It gets its own name, and --out has to say so.
+        stem = stem[:-4] + '-narrow.svg'
+        if OUT and 'narrow' not in os.path.basename(OUT):
+            raise ValueError(
+                f'--narrow with --out={OUT} would write the narrow sheets '
+                f'under a name that does not say so, over the full-width '
+                f'twin. Put "narrow" in the --out name.')
     out_path = OUT or os.path.join(
         os.path.dirname(os.path.abspath(__file__)), stem)
     written, ink, cut_slots = sheet(parts, cheekpoly, c, out_path, write)
@@ -1653,7 +1937,9 @@ def main(write=True):
                   f'{turn:g} deg, but its numbers would then read mirrored '
                   f'and face into the bore)' if turn is not None
                   else '  (a flipped cheek meets no tab at any angle)'))
-    print(f'\n  {len(parts)} wall panels + 2 cheeks = {len(parts) + 2} parts, '
+    print(f'\n  {len(parts)} wall panels + 2 cheeks'
+          + (' + 1 end cap' if CAP else '')
+          + f' = {len(parts) + 2 + (1 if CAP else 0)} parts, '
           f'{len(written)} sheet{"s" if len(written) > 1 else ""}')
     for name, w, h, k, note in written:
         # The note was carried all the way here and then dropped. It goes into
@@ -1694,7 +1980,8 @@ if __name__ == '__main__':
                        ('ds-facets', int), ('ds-cross-r', float),
                        ('vol-r0', float), ('vol-step', float),
                        ('vol-semis', int), ('vol-cross-r', float),
-                       ('sheet', float), ('kerf', float)):
+                       ('sheet', float), ('kerf', float),
+                       ('port-from-tip', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
             continue
@@ -1710,7 +1997,8 @@ if __name__ == '__main__':
          'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R',
          'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
          'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R',
-         'sheet': 'SHEET', 'kerf': 'BURN'}[flag]
+         'sheet': 'SHEET', 'kerf': 'BURN',
+         'port-from-tip': 'PORT_FROM_TIP'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
                    'lobe-r': 'LOBE_R', 'rise': 'RISE', 'lead': 'LEAD',
@@ -1727,7 +2015,8 @@ if __name__ == '__main__':
                    'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
                    'vol-semis': 'VOL_SEMIS',
                    'vol-cross-r': 'VOL_CROSS_R',
-                   'sheet': 'SHEET', 'kerf': 'BURN'}[flag]] = v
+                   'sheet': 'SHEET', 'kerf': 'BURN',
+         'port-from-tip': 'PORT_FROM_TIP'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
         if not any(x.startswith('--lobe-r=') for x in a):
@@ -1746,6 +2035,21 @@ if __name__ == '__main__':
         FACET = FACET_BY_SHAPE[SHAPE]
     PORT = '--port' in a
     DS_HALF = '--ds-half' in a
+    NARROW = '--narrow' in a
+    PORT_SQUARE = '--port-square' in a
+    MERGE_LEAD = '--merge-lead' in a or PORT_SQUARE
+    CAP = '--cap' in a
+    if CAP and not PORT:
+        raise SystemExit('error: --cap without --port closes the only opening '
+                         'the bore has. The cap exists so a PORTED bore stops '
+                         'breathing through its mouth; with no port there is '
+                         'nothing left to breathe through.')
+    if PORT_SQUARE:
+        # After --bore has been read, so --bore=12 gives a 12mm square port.
+        PORT_ACROSS = PORT_ALONG = BORE
+        if not PORT:
+            raise SystemExit('error: --port-square without --port draws no '
+                             'port at all. Pass both.')
     try:
         sys.exit(main(write='--no-write' not in a))
     except ValueError as e:

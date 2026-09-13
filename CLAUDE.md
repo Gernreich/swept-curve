@@ -300,6 +300,21 @@ fail is a check nobody has tested.
 - *the cheek outline does not cross itself* — four packed spirals and a tight dspiral
 - *every slot corner is inside its cheek* — the wave at a R25 trough
 - *the web outboard of a slot is cuttable* — the same wave, and any WEB under 1.5
+- *panels merged by `--merge-lead` keep their own teeth and numbers* — not a
+  check but a rule, and the reason `merge_lead()` is forty lines rather than
+  four. `teeth()` reads a panel's length alone, so the 43.2mm merged panel
+  would get three teeth at -12, 0, +12 where its 23.2mm half had two at -6, +6,
+  and one of the three lands at 9.6mm along the duct, inside a port spanning
+  3.07 to 12.94. Tags are worse: `build()` numbers by position, so dropping two
+  panels renumbers all 36 that remain and a panel already cut reads a number
+  that now means a different one. The label is pinned separately from the
+  midpoint, or it slides half a lead off the mortices it names.
+- *the rim is flush with every mortice* — `--narrow` only, in place of the web
+  check, which under `--narrow` could not fail. Watched fail twice: pushing
+  `cheek_off()` 0.2mm off `slot_half()` reported 0.2000mm against 0.065 allowed,
+  and `--shape=serpentine --narrow` reports 1.2182mm, because a narrow rim cuts
+  into twelve mortices on the tight lobe. The serpentine cannot be cut narrow,
+  and the two checks that say so both refuse it and write nothing.
 - *every engraved point is on its own part* — found 18 points off, the two cheek labels
 - *no engraving lands in a slot* — see the section above; it has been wrong twice
   and was caught both times by the count printed beside the verdict
@@ -493,6 +508,48 @@ python3 ribbon_bore.py --port --out=x-ported.svg   # with the mouthpiece slot;
                                        # the name must carry "ported" or it
                                        # refuses, so it cannot overwrite the
                                        # plain sheets
+python3 ribbon_bore.py --port --port-square --out=x-ported-square.svg
+                                       # a BORE x BORE port instead of 7 x 14.
+                                       # Implies --merge-lead, because the
+                                       # lead panel's one tooth sits where the
+                                       # port wants to be; folding the lead
+                                       # into the facet it is already collinear
+                                       # with is what buys the room, and unlike
+                                       # a longer --lead it moves no coil.
+                                       # Size is BORE and the kerf is taken off
+                                       # at draw time, so the opening is BORE
+                                       # exactly at any --kerf. Never write the
+                                       # 9.87 down: it is one kerf's answer
+python3 ribbon_bore.py --merge-lead --out=x-merged.svg   # the merge on its own,
+                                       # to look at. Names itself "-merged";
+                                       # --port-square does not, because
+                                       # "square" already means merged
+python3 ribbon_bore.py --port --cap --out=x-ported.svg
+                                       # one end cap on the PANELS sheet, the
+                                       # band by the stack: 15.81 x 16 narrow,
+                                       # 20 x 16 not. A ported bore breathes
+                                       # through the port, so the open end
+                                       # needs closing or the air takes it.
+                                       # Glued, unnumbered, and NOT square -
+                                       # the band and the stack are unrelated
+                                       # numbers that happen to be close.
+                                       # Refuses without --port, which would
+                                       # seal the only opening. It goes on the
+                                       # panels sheet because the cheek sheet
+                                       # is cut twice and would give you two
+python3 ribbon_bore.py --port --port-from-tip=8 --out=x-ported.svg
+                                       # move the port along the lead; the
+                                       # default 10 is a bore back from the tip
+python3 ribbon_bore.py --narrow --out=x-narrow.svg   # the cheek trimmed flush
+                                       # to the mortices: no web, band 15.81
+                                       # instead of 20, and every slot open at
+                                       # the rim. Same naming rule as --port,
+                                       # and for a stronger reason - the two
+                                       # sheets differ by one contour and make
+                                       # different joints. It is NOT --web=0,
+                                       # which leaves an uncuttable 0.095mm
+                                       # rib; --narrow follows the drawn slot
+                                       # edge, so it tracks --kerf and --sheet
 python3 ribbon_view.py --shape=serpentine    # the page you turn
 
 for f in ribbon-*.svg; do
