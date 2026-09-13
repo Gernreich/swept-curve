@@ -483,6 +483,15 @@ strokes, and the three inks that fail contrast on a light ground darkened.
 Rebuild them whenever a cut file changes — verified by comparing the path data,
 which must be identical to the source.
 
+`previews/old/` mirrors each design's `cut-files/old/`, and holds the forty
+previews of the full-width sheets the narrow ones replaced on 2026-09-13. They
+were not deleted for the same reason the sheets were not: a preview is the only
+readable picture of what a superseded sheet cut, and the folder it renders is
+still on disk. They are out of `previews/` rather than gone because
+`all-gates.sh` walks every `previews/` directory and asks each file for its cut
+file — a preview whose sheet has moved reads as stale, correctly, and forty of
+them drowned the one real staleness the gate existed to report.
+
 ## Colour is the cut order
 
 Shared across all these repositories: **blue engraves, then green → orange →
@@ -557,8 +566,14 @@ python3 ribbon_bore.py --narrow --out=x-narrow.svg   # the cheek trimmed flush
                                        # edge, so it tracks --kerf and --sheet
 python3 ribbon_view.py --shape=serpentine    # the page you turn
 
-for f in ribbon-*.svg; do
-  python3 $G/make-preview.py "$f"       # previews/<name>, readable on a page
+# Every current sheet, from every design folder, into the ONE previews/ here.
+# `ribbon-*.svg` matched nothing once the sheets moved down into per-design
+# cut-files/ folders, and make-preview.py's default output is previews/ beside
+# ITS SOURCE -- so the bare loop wrote eleven scattered previews/ directories
+# and left the real one stale. The output path is given explicitly for that
+# reason, and -not -path '*/old/*' keeps superseded sheets out.
+for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*'); do
+  python3 $G/make-preview.py "$f" "previews/$(basename $f)"
 done
 
 python3 $G/md2html.py README.md index.html
