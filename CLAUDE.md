@@ -501,6 +501,11 @@ while the sheet still holds it, black for the outlines.
 ```sh
 G=~/LaserMadeMusic/GIT/lasermade-tools
 
+# The ply is 3.0 and the kerf 0.15 by default, from 2026-09-13, and
+# bore_split.py's SHEET and KERF are the same two numbers from the same day.
+# They have to agree: one instrument, one machine. A BARE run reproduces every
+# sheet in this tree; the sheets in each cut-files/old/ were drawn at 2.94 and
+# 0.13 and need --sheet=2.94 --kerf=0.13 to come back.
 python3 ribbon_bore.py                 # cut file + the checks
 python3 ribbon_bore.py --no-write      # the checks alone
 python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt

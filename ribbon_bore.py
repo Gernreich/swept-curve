@@ -122,8 +122,17 @@ def cheek_off():
 
 def band():
     return 2 * cheek_off()
-BURN = 0.13          # kerf, MEASURED 2026-09-09; the FULL width the laser
-                     # takes out, centred on the line. It was 0.1 by assumption.
+# 0.15 from 2026-09-13, on the author's instruction, and bore_split.py's KERF
+# is the same number from the same day. They have to agree: the two generators
+# cut parts of one instrument on one machine, and a bore whose cheeks were
+# drawn at one kerf and whose blocks were drawn at another is a bore whose
+# joints are out by the difference.
+#
+# Until this date the sheets on disk were drawn with an explicit --kerf=0.15
+# while the default here still read 0.13, so a bare run did NOT reproduce them.
+# The default is the number the tree was drawn at, or it is a trap.
+BURN = 0.15          # kerf, the FULL width the laser takes out, centred on the
+                     # line. 0.1 by assumption, then 0.13 measured 2026-09-09.
 # NOTE the difference from bore_split.py, which calls its own constant BURN and
 # means the RADIUS, because it hands the number to Boxes.py and Boxes offsets
 # each side of a line by burn. This file draws its own outlines and offsets by
