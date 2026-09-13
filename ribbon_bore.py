@@ -51,7 +51,18 @@ THICK = 3.0          # ply, NOMINAL: what the design is dimensioned on
 # 2.05mm to 1.106mm. The bore's walls being 0.06mm thinner than drawn opens the
 # airway to 10.06mm, which is the harmless direction and not worth re-solving
 # four shapes over.
-SHEET = 2.94
+#
+# 3.0 from 2026-09-13, on the author's instruction, for stock that measures it.
+# The 2.94 above was one caliper reading of one batch and it is kept in the
+# prose because the reasoning is what matters, not the number: SHEET is the
+# MATERIAL and belongs only in the depth of the hole it passes through. Moving
+# it 2.94 -> 3.0 deepens every mortice by 0.06 and changes nothing else.
+#
+# IT ALSO MAKES EVERY SHEET IN THIS REPO CUT BEFORE THIS DATE STALE. Those were
+# drawn for 2.94mm ply; a 3.0mm tab will not enter their slots. Redraw the
+# design you are cutting rather than reaching for a file already on disk, and
+# pass --sheet=2.94 if you go back to the old stock.
+SHEET = 3.0
 WEB = 2.0            # material left outboard of a slot; the cheek's thin part
 # --narrow: put the cheek's edge ON the mortice's outboard edge, so there is no
 # web at all and the band is only as wide as the duct. It was done by hand in
@@ -767,11 +778,29 @@ def offset(poly, d):
 
 
 def meet(s, t):
-    """Where two segments' infinite lines cross, or None if they are parallel."""
+    """Where two segments' infinite lines cross, or None if they are parallel.
+
+    The parallel test is RELATIVE. d is the cross product of the two direction
+    vectors, so it carries their lengths: on 37mm segments a truly collinear
+    pair gives d around 1e-11, which an absolute 1e-12 threshold calls
+    "crossing" and then divides by. Dividing by 1e-11 is how a mitre ends up
+    31.69mm from the vertex it belongs to.
+
+    That is not hypothetical. The serpentine's centreline turns 0.000 degrees
+    at v4, where its two lobes meet, and at a cheek offset of 7.905mm - which
+    is exactly --narrow on 2.94mm ply at a 0.13mm kerf - v4's mitre landed
+    31.69mm out. It put twelve mortices outside the cheek. At 7.895 and 7.925
+    the same vertex is exact, because the noise fell the other side of the
+    threshold: the failure moved with the last decimal of the ply.
+    Dividing by the segment lengths makes d the sine of the angle between
+    them, which is scale-free, and 1e-9 of that is 6e-8 of a degree.
+    """
     (x1, y1), (x2, y2) = s
     (x3, y3), (x4, y4) = t
     d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
-    if abs(d) < 1e-12:
+    lu = math.hypot(x2 - x1, y2 - y1)
+    lv = math.hypot(x4 - x3, y4 - y3)
+    if lu == 0.0 or lv == 0.0 or abs(d) < 1e-9 * lu * lv:
         return None
     a = x1 * y2 - y1 * x2
     b = x3 * y4 - y3 * x4
@@ -845,25 +874,29 @@ def cap():
     the size of the airway pointing out of the coil. Air takes it. This closes
     it, and it is the only part here that is not a wall or a cheek.
 
-    It is the END FACE of the assembly, which is band() across - the cheek's
-    own width, so it follows --narrow and --bore without being told - by
-    BORE + 2*THICK through the stack, which is the two cheeks with the airway
-    between them. On a narrow 10mm bore that is 15.81 x 16.0. NOT square: the
-    band is 15.81 because it is the wall offset plus half a mortice, and the
-    stack is 16.0 because it is two 3mm cheeks and a 10mm bore. The two numbers
-    are close and have nothing to do with each other, and a square cap leaves
-    0.095mm of the end face bare top and bottom. That lands on cheek edge, not
-    on the airway, so a square one seals - it is just not the face.
+    SQUARE, at 2*THICK + BORE a side: the stack, which is the two cheeks with
+    the airway between them, taken in both directions. 16 x 16 on a 3mm sheet
+    and a 10mm bore.
+
+    Only one of those two sides is the face it covers. Through the stack it is
+    exact. Across the band it is not: the band is band() - 15.81 narrow, 20 not
+    - which is the wall offset plus half a mortice and has nothing to do with
+    the stack. So on a narrow cheek the cap stands 0.095mm proud each side, and
+    on a full-width one it falls 2mm short each side. Neither leaks: the airway
+    is BORE wide and centred, so there is 2.9mm of cheek edge either side of it
+    even at the narrow band, and the cap covers the opening with room to spare
+    whichever way the error runs. Square is a choice about the part, not about
+    the seal - one number to cut to, and it follows --bore and the ply.
 
     Kerf goes OVER, as it does on a panel: this is material kept, so the drawn
-    rectangle is BURN bigger than the part and the cut part is the face exactly.
+    square is BURN bigger than the part and the cut part is 2*THICK + BORE.
 
     It is glued, not tabbed. Nothing in the cheeks mortices it, and cutting
     mortices for it would put two more holes in the narrow rim right where the
     port already is.
     """
     e = BURN / 2
-    hw, hh = band() / 2 + e, (BORE + 2 * THICK) / 2 + e
+    hw = hh = (2 * THICK + BORE) / 2 + e
     return [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
 
 
@@ -895,7 +928,13 @@ def teeth_kept(part, portpoly):
         g = min(seg_gap(S[i], S[(i + 1) % len(S)],
                         portpoly[j], portpoly[(j + 1) % len(portpoly)])
                 for i in range(len(S)) for j in range(len(portpoly)))
-        if g >= MIN_FEATURE + BURN:
+        # A NANOMETRE of slack, and it is not a loosening of the gate. The
+        # coupon's ported lead lands on this limit exactly: 1.500000mm of ply
+        # after the kerf, against the 1.5mm asked for. At 3.0mm ply and a
+        # 0.15mm kerf the sum came out 1.6499999999999986 against 1.65 and the
+        # design was refused over 1.3e-15mm, which is not a distance. The
+        # comparison has to be decidable; the limit is unchanged.
+        if g >= MIN_FEATURE + BURN - 1e-9:
             out.append(c)
     if cs and not out:
         raise ValueError(
@@ -1324,7 +1363,7 @@ def items_for(parts, cheekpoly, cline):
         # twice and sheet() says in bold that nothing else may be on it; one
         # cap put there comes back as two, and the sheet stops meaning "run
         # this file twice and you are done".
-        cw, ch = band() + BURN, BORE + 2 * THICK + BURN
+        cw = ch = 2 * THICK + BORE + BURN
         poly = [(px + cw / 2, py + ch / 2) for px, py in cap()]
         # No number. Every tag in this file is a position along the flow and
         # the cap has none; borrowing the next hex would give it a name that
@@ -1440,10 +1479,10 @@ def sheet(parts, cheekpoly, cline, path_out, write=True):
                f'thickness on one side only. ' if NARROW else '')
             # The cap carries no number, so the sheet has to say what the one
             # square on it is and that it is glued rather than tabbed.
-            + (f'The plain {band():g} x {BORE + 2 * THICK:g}mm rectangle on '
-               f'the panels sheet is the end cap: it glues over the open end '
-               f'of the duct so the air turns into the port, it carries no '
-               f'number, and ONE is needed. ' if CAP else '')
+            + (f'The plain {2 * THICK + BORE:g}mm square on the panels '
+               f'sheet is the end cap: it glues over the open end of the duct '
+               f'so the air turns into the port, it carries no number, and '
+               f'ONE is needed. ' if CAP else '')
             + f'blue #0000ff '
             f'engraves, orange #ff8000 cuts the slots first, black #000000 '
             f'frees the parts.</desc>\n'
@@ -1619,7 +1658,10 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
         g = min(_sd(A[a], A[(a + 1) % len(A)], B[b], B[(b + 1) % len(B)])
                 for a in range(len(A)) for b in range(len(B)))
         worst = min(worst, g)
-        if g - BURN < MIN_FEATURE:
+        # the same nanometre as teeth_kept(), and for the same design: the
+        # coupon's ported lead leaves 1.500000mm against 1.5mm asked for, and
+        # the two have to agree or one refuses what the other kept
+        if g - BURN < MIN_FEATURE - 1e-9:
             tight += 1
     # With no pair to measure, `worst` stayed at infinity and the note passed
     # reading "narrowest infmm drawn, infmm left after a 0.13mm kerf" -- a
@@ -1869,8 +1911,13 @@ def main(write=True):
         stem = (f'ribbon-spiral-bore{BORE:g}-{FACET:g}deg-'
                 f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}mm.svg')
     elif SHAPE == 'dspiral':
+        # 'half-' for --ds-half, because the two are different bores of the
+        # same family and the length alone does not say which: the shipped
+        # test piece has been called half-196mm since it was cut, and without
+        # this the generator named it 196mm and wrote a second set beside it.
         stem = (f'ribbon-dspiral-bore{BORE:g}-{FACET:g}deg-'
-                f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-{L:.0f}mm.svg')
+                f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-'
+                + ('half-' if DS_HALF else '') + f'{L:.0f}mm.svg')
     elif SHAPE == 'volute':
         stem = (f'ribbon-volute-bore{BORE:g}-{FACET:g}deg-'
                 f'R{VOL_R0:.0f}-step{VOL_STEP:.0f}-{L:.0f}mm.svg')
