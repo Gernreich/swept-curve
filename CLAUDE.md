@@ -492,6 +492,12 @@ still on disk. They are out of `previews/` rather than gone because
 file — a preview whose sheet has moved reads as stale, correctly, and forty of
 them drowned the one real staleness the gate existed to report.
 
+Every `old/` in this repository is gitignored as of 2026-09-13, this one
+included. They are a local archive on the working disk, not part of what the
+repository ships, and a fresh clone has none of them — so the pictures above
+are the only readable record of the full-width sheets, and they are one disk
+deep.
+
 ## Colour is the cut order
 
 Shared across all these repositories: **blue engraves, then green → orange →
