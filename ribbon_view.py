@@ -13,10 +13,11 @@ the wall faces at +-bore/2 and the cheeks at +-bore/2. That is why it exists:
 the bore came out 3mm narrow for a week because nothing drew the space inside
 it, and a picture of the plywood alone would not have shown that.
 
-It also draws the two cheek plates at full band width, because the airway on
-its own reads as a much thinner object than the part you cut. Eight faces, not
-four: the six airway faces, then 'ply, top' and 'ply, bottom'. Colour by face
-to tell them apart.
+It draws the airway ALONE. It also drew the two cheek plates at full band
+width for a while, so the picture would not read as a thinner object than the
+part you cut, but a solid slab above and below the passage is what you look
+through to see the passage, and it hid the shape this page exists to show.
+Six faces, not eight. Colour by face to tell them apart.
 
 Nothing here gates anything. check the cut files with ribbon_bore.py; this is
 for looking.
@@ -67,24 +68,12 @@ def data_for():
         Q.append({'v': [p + 3, q + 3, q + 2, p + 2], 'f': 1, 's': i})   # outer
         Q.append({'v': [p + 1, p + 2, q + 2, q + 1], 'f': 2, 's': i})   # top
         Q.append({'v': [p + 0, q + 0, q + 3, p + 3], 'f': 3, 's': i})   # bottom
-    # The plywood, not just the passage. The airway above is 10mm across; the
-    # cheek that carries it is 20mm across and sits 3mm proud of it top and
-    # bottom, and a render of the airway alone reads as a much thinner object
-    # than the part you cut. These are the two cheek plates, at full band width.
-    half = B.band() / 2.0
-    e = B.offset(c, half)
-    g = B.offset(c, -half)
-    if sum(B.seglen(p, q) for p, q in zip(e, e[1:])) > \
-       sum(B.seglen(p, q) for p, q in zip(g, g[1:])):
-        e, g = g, e
-    base = len(V)
-    for i in range(len(c)):
-        V += [[e[i][0], e[i][1], h + B.THICK], [g[i][0], g[i][1], h + B.THICK],
-              [e[i][0], e[i][1], -h - B.THICK], [g[i][0], g[i][1], -h - B.THICK]]
-    for i in range(len(c) - 1):
-        p, q = base + 4 * i, base + 4 * (i + 1)
-        Q.append({'v': [p + 0, p + 1, q + 1, q + 0], 'f': 6, 's': i})   # top ply
-        Q.append({'v': [p + 2, q + 2, q + 3, p + 3], 'f': 7, 's': i})   # bottom ply
+    # The two cheek plates used to be drawn here as well, at full band width,
+    # 3mm proud of the airway top and bottom -- faces 6 and 7, 'ply, top' and
+    # 'ply, bottom'. They are gone (2026-09-13): every view of the inside was
+    # through a slab of ply, which is the one thing this page must not do.
+    # What they were there for -- that the part is 20mm across where the
+    # passage is 10 -- the numbers panel says in words, and the cut files show.
 
     n = len(c) - 1
     if not shut:
@@ -131,13 +120,13 @@ def data_for():
         'over': round(100 * (1 / math.cos(math.radians(B.FACET) / 2) - 1), 2),
         'pal': wheel(n),
         'shut': shut,
-        # always eight, in face-index order; the key shows only the ones the
+        # always six, in face-index order; the key shows only the ones the
         # quads actually use, so a closed ring drops mouth and far end by
         # itself rather than by shifting every index after them
         'faces': ['inner wall', 'outer wall', 'top cheek', 'bottom cheek',
-                  'mouth', 'far end', 'ply, top', 'ply, bottom'],
+                  'mouth', 'far end'],
         'facecol': ['#5aa9e6', '#3d7ebd', '#c9d6e3', '#8fa3b8',
-                    '#1c1c20', '#e0457b', '#d8cbb2', '#b9a888'],
+                    '#1c1c20', '#e0457b'],
     }
 
 
@@ -496,8 +485,12 @@ def main():
     # across here instead of through FLAGS. That makes three things this second
     # copy has lacked that the generator had; the two notes above are the others.
     B.DS_HALF = '--ds-half' in a
+    # --trace belongs in this set too. It was not, so the guard rejected the
+    # one flag whose handler sits forty lines below it and the traced page
+    # could not be redrawn at all -- the check meant to stop a page and its
+    # sheets being built from different numbers stopped a page being built.
     known = ({f'--{f}' for f, _ in FLAGS}
-             | {'--out', '--home', '--embed', '--ds-half'})
+             | {'--out', '--home', '--embed', '--ds-half', '--trace'})
     for x in a:
         if x.startswith('--') and x.split('=', 1)[0] not in known:
             sys.exit(f'ribbon_view: {x.split("=", 1)[0]} is not a flag here. '

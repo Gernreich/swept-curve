@@ -442,7 +442,7 @@ check should not be sitting there looking cuttable. It also means a copy of
 this script tried out in this folder writes to, and then deletes, the real cut
 file. That happened. Use `--out` for trials.
 
-## `ribbon_view.py` draws the airway, and the ply around it
+## `ribbon_view.py` draws the airway, and nothing else
 
 One self-contained page per design, beside the cut files it belongs to, so the
 thing you cut and the thing you turn around cannot drift apart. Same flags as
@@ -453,10 +453,23 @@ whole reason it exists: the bore was cut 3mm narrow for a week and nothing here
 drew the space inside it. A picture of the plywood alone would not have shown
 it; a picture of the airway would.
 
-**The two cheek plates were added later**, at full band width, because the
-airway on its own reads as a much thinner object than the part you cut. So a
-current page has eight faces, not four — `ply, top` and `ply, bottom` after the
-six airway ones. A page with only four was drawn before that and is stale.
+**The two cheek plates were drawn for a while and are gone again**
+(2026-09-13). They were added at full band width because the airway on its own
+reads as a much thinner object than the part you cut — and then every look
+inside was a look through a solid slab of ply, which is the one thing this page
+must not make hard. A current page has six faces: the four wall-and-cheek ones,
+plus `mouth` and `far end` where the bore is not a closed ring. `ply, top` and
+`ply, bottom` in a key mean a page drawn between those two dates. What they
+were there for — 20mm of band around a 10mm passage — the numbers panel says in
+words and the cut files show to scale.
+
+**`--trace` was not in the `known` flag set**, so the guard that refuses an
+unknown flag refused the one flag whose own handler sits forty lines below it:
+the traced page could not be redrawn at all, and the copy in the repo had gone
+stale by a whole field (`curve`) before anyone tried. Fixed and redrawn the same
+day. A guard listing what is allowed has to be edited when something is added,
+and this is the second thing in this file that a second copy of the argument
+handling has quietly lost.
 
 It reuses `offset()` for the wall faces rather than reading the cut files, so
 it cannot disagree with the generator about where anything is. It is *not* the
