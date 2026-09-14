@@ -311,6 +311,16 @@ pass on panel corners that jam at every mitre.
   panels renumbers all 36 that remain and a panel already cut reads a number
   that now means a different one. The label is pinned separately from the
   midpoint, or it slides half a lead off the mortices it names.
+- *`--port-both` has four panels a wall to fold* — watched to fail at three and
+  to pass at four, but ONLY by calling `merge_lead()` directly with a made-up
+  wall. No shape reaches it from the command line: the coupon's lead bends 15
+  degrees, so the collinearity refusal fires first, and the shortest double
+  spiral that builds at all — `--ds-half --ds-facets=1`, 160.6mm — still has
+  panels to spare. Keep it: without it the two folds meet in the middle and the
+  second reads a length the first has already changed, re-spacing the teeth of
+  a panel whose mortices are settled. But do not read it as evidence the way
+  the checks above are read. What has been watched is the function, not a
+  design.
 - *the rim is flush with every mortice* — `--narrow` only, in place of the web
   check, which under `--narrow` could not fail. Watched fail twice: pushing
   `cheek_off()` 0.2mm off `slot_half()` reported 0.2000mm against 0.065 allowed,
@@ -353,7 +363,7 @@ the comparison carries a 1e-9 slack; without it the sum came out
 The square port is nothing like as tight, because `--merge-lead` gives it a
 whole facet to sit in: 2.2 to 4.5mm of margin across the eight square-ported
 designs, the volute narrowest at 3.736mm and the R36to144 spiral widest at
-5.950mm. The eighth is the 956mm double spiral, which is square-ported at BOTH
+5.950mm. The eighth is the 1000mm double spiral, which is square-ported at BOTH
 ends and reports the same 4.672mm at each -- `--port-both` folds the tail lead
 as well, so its far port gets the whole facet the mouth's does.
 
