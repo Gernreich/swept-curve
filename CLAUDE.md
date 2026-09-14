@@ -18,6 +18,13 @@ A laser-cutting build repository. `ribbon_bore.py` is the generator and the
 authority; the SVG beside it is its output and is regenerated, not edited.
 Everything is 3mm birch on an xTool P2S.
 
+`ribbon_bore.py` draws its own sheets rather than going through Boxes.py, but it
+keeps Boxes.py's tooth: `TOOTH = 2 * THICK` at line 180, the figure Boxes.py's
+`FingerJointSettings` uses, and it does not scale with the bore.
+**Boxes.py is Florian Festi's**,
+GPL-3.0-or-later, at <https://github.com/florianfesti/boxes>. It is an external
+dependency -- a checkout of it, not a copy in this repository.
+
 This is the **third** way these repositories cut a bore, and the three are not
 variations on each other:
 
@@ -105,7 +112,7 @@ for its quantity buys you.
 The inner wall is the centreline offset inward by `bore/2`, so there is no bore
 at all below `R = bore/2`. **But the tooth runs out long before the geometry
 does.** A Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
-the same fact that forced `pin_width()` in `bore_split.py` to floor at the
+the same fact that forces `pin_width()` in `bore_split.py` to floor at the
 tooth. At the 10mm bore and 30° facets:
 
     R 15   inner panel 5.09mm   shorter than one tooth
