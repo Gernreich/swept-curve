@@ -1,19 +1,16 @@
 # CLAUDE.md
 
 
-**The README is gone.** Every `README.md` and `index.html` under `trumpet/` was
-removed on 2026-09-05, pending one new writeup for the trumpet as a whole once
-the renaming and reorganising is finished. Git has them all. Until it exists,
-this file is the documentation, and any recipe below that renders or audits a
-README is waiting on that writeup rather than describing something present.
+**There is no README in this folder.** The swept curve has its own section in the
+repository's writeup at `../../../../README.md`. This file is the note that sits
+beside the generator.
 
 **Every sheet kept here is 10mm.** `--bore` is untouched and takes any value; nothing
 is shipped at another.
 
-**The octagonal work left this repository on 2026-09-05** - the torus and the traced
-octagonal trumpet, their two viewer pages, and the trace they were drawn from. They are
-not in git at all now. `--shape=torus` and `--trace=` stay, because they are general and
-the next closed ring or measured curve will want them.
+**Nothing octagonal is kept here** - no torus, no traced octagonal trumpet, no viewer
+page or trace for either. `--shape=torus` and `--trace=` stay, because they are general
+and the next closed ring or measured curve will want them.
 
 ## Working in this repository
 
@@ -83,26 +80,25 @@ curve, which nothing here does.
 ## The walls are offset to their FACES, not their centrelines
 
 `wall_off()` is `(BORE + THICK)/2`. A wall is `THICK` thick and its slot is
-centred on the offset line, so offsetting to `BORE/2` puts the wall *faces* at
-`(BORE - THICK)/2` and the airway comes out **`BORE - THICK`** wide. This
-generator did exactly that until 2026-09-03: a bore asked to be 10 x 10 was cut
-**7 x 10**, 70mm2 against 100. Reported by the author from a measurement of a
-finished part.
+centred on the offset line, so offsetting to `BORE/2` instead puts the wall
+*faces* at `(BORE - THICK)/2` and the airway comes out **`BORE - THICK`** wide:
+a bore asked to be 10 x 10 cuts **7 x 10**, 70mm2 against 100, and only a
+measurement of a finished part tells you.
 
-**The check did not catch it because the check was wrong in the same way.** It
-measured the distance between the two offset polylines and called that the
-bore. It now subtracts one wall thickness and is named *the airway is the bore
+**A check can be wrong in the same way.** One that measures the distance between
+the two offset polylines and calls that the bore agrees with that error exactly.
+The check here subtracts one wall thickness and is named *the airway is the bore
 along every facet*, which is the thing that matters — a check named for the
 quantity it measures is harder to write against the wrong one.
 
-The height was right throughout: a panel's shoulders bear on the cheeks' inner
-faces, so shoulder-to-shoulder is the bore. Only the width was wrong, which is
-why the measured section was 10 x 7 and not 7 x 7.
+The height is not at risk: a panel's shoulders bear on the cheeks' inner faces,
+so shoulder-to-shoulder is the bore. Only the width is, which is why such a
+section measures 10 x 7 and not 7 x 7.
 
-`wall_off()`, `cheek_off()` and `band()` are **functions**. They were constants
-for one run, and a `--bore` on the command line kept the default figure — caught
-immediately by the corrected airway check reporting the whole difference as error,
-which is what a check named for its quantity buys you.
+`wall_off()`, `cheek_off()` and `band()` are **functions**, not constants. As
+constants a `--bore` on the command line keeps the default figure — and the
+airway check reports the whole difference as error, which is what a check named
+for its quantity buys you.
 
 ## What limits a bend, and it is not what you would guess
 
@@ -174,7 +170,7 @@ approach and the angle between its openings recorded beside them.
 faces out of the tube, so the mouth faces back along the run and the bell
 forwards; they are opposed when the turns cancel. 180 degrees is the wrong
 answer and puts both openings on the same heading - `--shape=opposed` exists
-because that mistake was made and cut. The volute's openings come out 135
+to get it right. The volute's openings come out 135
 degrees apart, and its bore comes within 7.75mm of itself, which is why it is
 drawn and not cut.
 
@@ -202,9 +198,9 @@ last station is the first.
 ## The cheek gets its own file, and that file is cut twice
 
 The two cheeks are the same part, so one file run twice is the whole job -
-**but only if nothing else is on that sheet.** `pack()` used to fill the second
-cheek's sheet with panels, so cutting one sheet twice left you thirteen panels
-short with nothing to notice it but counting. `items_for()` emits ONE cheek and
+**but only if nothing else is on that sheet.** A `pack()` that fills the second
+cheek's sheet with panels leaves you thirteen panels short when you cut one sheet
+twice, with nothing to notice it but counting. `items_for()` emits ONE cheek and
 `sheet()` packs cheeks and panels as separate groups:
 
     ...-cheek-x2-cut-files.svg     one cheek. Cut it twice.
@@ -214,13 +210,13 @@ short with nothing to notice it but counting. `items_for()` emits ONE cheek and
 so the count of copies lives in the name, where a reader looking at a folder
 finds it.
 
-It also nests better: the serpentine went from three sheets to two, because the
-panels no longer have to fit around a cheek.
+It also nests better: the serpentine takes two sheets rather than three, because
+the panels do not have to fit around a cheek.
 
 ## One sheet per bedful
 
 `pack()` row-wraps into `BED - 2 x margin`, not into the bed. Filling to the
-edge produced a sheet **600 x 307 on a 600 x 308 bed** — passes a fits-the-bed
+edge gives a sheet **600 x 307 on a 600 x 308 bed** — which passes a fits-the-bed
 check and cannot be positioned on a real machine. A part bigger than the usable
 area is a refusal, not a smaller sheet.
 
@@ -247,12 +243,11 @@ any angle. The instruction is the same either way, because a flipped cheek
 carries its numbers mirrored and facing into the bore - so one cheek always has
 its numbers on the inside, which is the cheaper of the two mistakes.
 
-That was documented backwards until 2026-09-03, on the strength of a test that
-zipped two sorted point lists. **Sorting is unstable under a small
-perturbation**: two nearly equal points swap order and every pair after them is
-compared with the wrong partner. A 0.025mm difference read as 20.7mm of error
-and answered the question the wrong way round. `flippable()` matches nearest
-points as a bijection instead.
+**`flippable()` matches nearest points as a bijection**, and must not zip two
+sorted point lists. Sorting is unstable under a small perturbation: two nearly
+equal points swap order and every pair after them is compared with the wrong
+partner, so a 0.025mm difference reads as 20.7mm of error and answers the
+question the wrong way round.
 
 ## The cheek stops 2mm outboard of its slots
 
@@ -267,9 +262,9 @@ checks hold that: no engraved point off its own part, and none inside a slot.
 
 ## The flat gate applies here, with one flag
 
-`flat-part-check.py` reads these sheets since stroke inheritance was fixed on
-2026-09-09, and it is worth running -- it is what found the port cutting into a
-tab slot, which every check in this file had passed. Run it as
+`flat-part-check.py` reads these sheets, and it is worth running -- it is what
+catches a port cutting into a tab slot, which every check in this file passes.
+Run it as
 
     python3 $G/flat-part-check.py --dir . --min-edge 1.5
 
@@ -282,21 +277,19 @@ Two of its checks do not apply to these files at all. *holes are inside the
 outline* assumes one part per sheet, and a panels sheet carries twenty; *hole is
 big enough* then measures the gaps between parts. Read those two as noise here.
 
-## Every check, audited against geometry it should reject
+## Every check, against geometry it should reject
 
-Done 2026-09-08, after the dspiral halftest was cut and its panel corners
-jammed at every mitre with eleven checks passing. The method: give each check
-something it ought to fail, and see whether it does. A check nobody has watched
-fail is a check nobody has tested.
+The method: give each check something it ought to fail, and see whether it does.
+A check nobody has watched fail is a check nobody has tested. Eleven checks can
+pass on panel corners that jam at every mitre.
 
 **Effective — observed to fail on bad geometry:**
 
-- *the ply between two holes survives the kerf* — 0.030mm where 1.5mm was
-  needed, on every ported cheek in the project **as it stood on 2026-09-09**.
-  The best-evidenced check here: it was not a mutation that made it fail but
-  the shipped design, and it is what refuses a port that would break into a
-  tab slot. **It no longer fails anything shipped** — see the note on the
-  round port's zero margin below, which is why.
+- *the ply between two holes survives the kerf* — the best-evidenced check here,
+  because what made it fail was a shipped design rather than a mutation: 0.030mm
+  where 1.5mm was needed. It is what refuses a port that would break into a tab
+  slot. Nothing shipped fails it — see the note on the round port's zero margin
+  below, which is why.
 - *the two walls stand a bore apart* — 3mm on a hairpin tighter than its own wall
 - *no two wall panels share plan area* — one jamming pair per mitre, all eight designs
 - *the cheek outline does not cross itself* — four packed spirals and a tight dspiral
@@ -336,13 +329,11 @@ fail is a check nobody has tested.
 - *every sheet fits the P2S bed* — `sheet()` raises on an oversized part first.
   Every attempt to make a sheet overflow tripped that instead.
 
-**Asks the wrong question:** *no two slots overlap*. The audit first recorded
-this as merely unreached -- eighteen mutations and none got to it. That was too
-kind. On 2026-09-09 it was found passing a real defect: the port sat 0.029mm
-from a slot on all ten ported cheeks, which is not an overlap and IS one hole
-once a 0.13mm kerf has been down both edges. Overlap is not the question;
-surviving material is. *the ply between two holes survives the kerf* now asks
-that, and it is what decides where a port may sit.
+**Asks the wrong question:** *no two slots overlap*. Eighteen mutations never
+reach it, and it passes a real defect: a port 0.029mm from a slot is not an
+overlap, and IS one hole once a kerf has been down both edges. Overlap is not
+the question; surviving material is. *the ply between two holes survives the
+kerf* asks that, and it is what decides where a port may sit.
 
 **The round port is placed hard against that limit, by construction.** `port()`
 keeps a tooth only where the gap clears `MIN_FEATURE + BURN`, so the surviving
@@ -371,7 +362,7 @@ different tool -- `flat-part-check`, which had never been pointed at these files
 itself: two offsets of one polyline, a guard with its own precondition, a
 constant with a constant. **A check earns its place by being watched to fail.**
 
-## volute.py and ribbon_view.py, audited too
+## volute.py and ribbon_view.py, checked the same way
 
 **`volute.py`.** Two of its four checks are failing on the shipped design right
 now — *the bore stays clear of itself* at 7.75mm against the 20mm band, and
@@ -453,23 +444,22 @@ whole reason it exists: the bore was cut 3mm narrow for a week and nothing here
 drew the space inside it. A picture of the plywood alone would not have shown
 it; a picture of the airway would.
 
-**The two cheek plates were drawn for a while and are gone again**
-(2026-09-13). They were added at full band width because the airway on its own
-reads as a much thinner object than the part you cut — and then every look
-inside was a look through a solid slab of ply, which is the one thing this page
-must not make hard. A current page has six faces: the four wall-and-cheek ones,
-plus `mouth` and `far end` where the bore is not a closed ring. `ply, top` and
-`ply, bottom` in a key mean a page drawn between those two dates. What they
-were there for — 20mm of band around a 10mm passage — the numbers panel says in
-words and the cut files show to scale.
+**The page draws the airway and not the cheek plates.** Drawing the plates at
+full band width answers a real objection — the airway on its own reads as a much
+thinner object than the part you cut — but it makes every look inside a look
+through a solid slab of ply, which is the one thing this page must not make
+hard. A page has six faces: the four wall-and-cheek ones, plus `mouth` and
+`far end` where the bore is not a closed ring. `ply, top` and `ply, bottom` in a
+key belong to no page this generator draws. What the plates would say — 20mm of
+band around a 10mm passage — the numbers panel says in words and the cut files
+show to scale.
 
-**`--trace` was not in the `known` flag set**, so the guard that refuses an
-unknown flag refused the one flag whose own handler sits forty lines below it:
-the traced page could not be redrawn at all, and the copy in the repo had gone
-stale by a whole field (`curve`) before anyone tried. Fixed and redrawn the same
-day. A guard listing what is allowed has to be edited when something is added,
-and this is the second thing in this file that a second copy of the argument
-handling has quietly lost.
+**A flag missing from the `known` set is refused by the guard that reads it.**
+`--trace` has its own handler forty lines below that guard, and leaving it out
+of `known` makes the traced page impossible to redraw at all — while the copy in
+the repository goes stale without anyone finding out. A guard listing what is
+allowed has to be edited when something is added, and this is the second thing
+in this file that a second copy of the argument handling can quietly lose.
 
 It reuses `offset()` for the wall faces rather than reading the cut files, so
 it cannot disagree with the generator about where anything is. It is *not* the
@@ -497,17 +487,13 @@ An embed follows `prefers-color-scheme`, because it sits inside somebody
 else's page. It cannot see an explicit theme toggle on the host — a frame is
 its own document — so it matches by default and not after a manual switch.
 
-**all-gates.sh gates it since 2026-09-10**, by running the command above into a
-temp file and comparing. It had drifted: the published copy predated `curve`,
-the field naming which curve each shape's vertices sit on, so the file on the
-site was not the file this generator draws. Inert -- the embed is canvas-only
-and never reads that field -- but it was the only artefact crossing two
-repositories and the only one nothing watched.
+**all-gates.sh gates it**, by running the command above into a temp file and
+comparing. It is the only artefact crossing two repositories, so without that
+gate the published copy drifts from what this generator draws and nothing
+reports it.
 
-That gate compares bytes, which is not the same as looking. The lesson from the
-stretched-lattice fork still applies -- a render can be wrong while every check
-passes. Look at the page after changing
-it.
+That gate compares bytes, which is not the same as looking: a render can be
+wrong while every check passes. Look at the page after changing it.
 
 ## Previews, because a cut file is invisible on a page
 
@@ -517,16 +503,15 @@ strokes, and the three inks that fail contrast on a light ground darkened.
 Rebuild them whenever a cut file changes — verified by comparing the path data,
 which must be identical to the source.
 
-`previews/old/` mirrors each design's `cut-files/old/`, and holds the forty
-previews of the full-width sheets the narrow ones replaced on 2026-09-13. They
-were not deleted for the same reason the sheets were not: a preview is the only
-readable picture of what a superseded sheet cut, and the folder it renders is
-still on disk. They are out of `previews/` rather than gone because
-`all-gates.sh` walks every `previews/` directory and asks each file for its cut
-file — a preview whose sheet has moved reads as stale, correctly, and forty of
-them drowned the one real staleness the gate existed to report.
+`previews/old/` mirrors each design's `cut-files/old/` and holds the previews of
+the superseded sheets. They are kept for the same reason the sheets are: a
+preview is the only readable picture of what a superseded sheet cut. They sit
+out of `previews/` rather than in it because `all-gates.sh` walks every
+`previews/` directory and asks each file for its cut file — a preview whose
+sheet has moved reads as stale, correctly, and a pile of them would drown the
+one real staleness the gate exists to report.
 
-Every `old/` in this repository is gitignored as of 2026-09-13, this one
+Every `old/` in this repository is gitignored, this one
 included. They are a local archive on the working disk, not part of what the
 repository ships, and a fresh clone has none of them — so the pictures above
 are the only readable record of the full-width sheets, and they are one disk
@@ -550,18 +535,17 @@ while the sheet still holds it, black for the outlines.
 ```sh
 G=~/LaserMadeMusic/GIT/lasermade-tools
 
-# The ply is 3.0 and the kerf 0.15 by default, from 2026-09-13, and
-# bore_split.py's SHEET and KERF are the same two numbers from the same day.
-# They have to agree: one instrument, one machine. Every sheet in this tree
-# comes back at THOSE DEFAULTS -- no --sheet or --kerf needed; the sheets in
-# each cut-files/old/ were drawn at 2.94 and 0.13 and need
-# --sheet=2.94 --kerf=0.13 to come back. Verified both directions 2026-09-13.
+# The ply is 3.0 and the kerf 0.15 by default, and bore_split.py's SHEET and
+# KERF are the same two numbers. They have to agree: one instrument, one
+# machine. Every sheet in this tree comes back at THOSE DEFAULTS -- no --sheet
+# or --kerf needed; the sheets in each cut-files/old/ were drawn at 2.94 and
+# 0.13 and need --sheet=2.94 --kerf=0.13 to come back.
 #
 # "at the default ply and kerf" is NOT the same as a bare `ribbon_bore.py`.
 # Every shipped sheet is --narrow, so the bare run reproduces none of them: it
 # draws a FULL-WIDTH coupon and, having no --out, drops two files named like
 # cut files into THIS DIRECTORY rather than into any cut-files/ -- which is
-# where two strays came from on 2026-09-13. Use --no-write to run the checks,
+# where a stray sheet in this folder comes from. Use --no-write to run the checks,
 # or --out to send a trial somewhere harmless.
 python3 ribbon_bore.py --no-write      # the checks alone, writes nothing
 python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
