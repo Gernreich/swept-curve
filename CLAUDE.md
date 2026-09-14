@@ -351,13 +351,15 @@ the comparison carries a 1e-9 slack; without it the sum came out
 1.6499999999999986 and the design was refused over 1.3e-15mm.
 
 The square port is nothing like as tight, because `--merge-lead` gives it a
-whole facet to sit in: 2.2 to 4.5mm of margin across the seven square-ported
+whole facet to sit in: 2.2 to 4.5mm of margin across the eight square-ported
 designs, the volute narrowest at 3.736mm and the R36to144 spiral widest at
-5.950mm.
+5.950mm. The eighth is the 956mm double spiral, which is square-ported at BOTH
+ends and reports the same 4.672mm at each -- `--port-both` folds the tail lead
+as well, so its far port gets the whole facet the mouth's does.
 
 **So a change to `MIN_FEATURE`, `BURN` or `THICK` is a change to whether the
 four round-ported designs draw at all**, and they will fail together rather
-than one at a time. The square-ported seven have room to absorb it. Measure
+than one at a time. The square-ported eight have room to absorb it. Measure
 after any such change rather than assuming the check is quiet because nothing
 is close to it.
 
@@ -572,12 +574,31 @@ python3 ribbon_bore.py --port --port-square --out=x-ported-square.svg
                                        # at draw time, so the opening is BORE
                                        # exactly at any --kerf. Never write the
                                        # 9.87 down: it is one kerf's answer
+python3 ribbon_bore.py --port --port-both --port-square \
+    --out=x-ported-both-square.svg     # the SAME port at both ends, not just
+                                       # the mouth. Both ends are leads built
+                                       # by the same tail(), so the far end
+                                       # takes one on the mouth's terms; only
+                                       # the count changes. Names itself
+                                       # "-both" and --out must say so -- a
+                                       # two-port cheek is one more hole and,
+                                       # under --port-square, two more panels
+                                       # folded away, and nobody counts holes
+                                       # in a thumbnail. --merge-lead folds the
+                                       # TAIL lead too under this flag, or the
+                                       # far port lands on that lead's only
+                                       # tooth and teeth_kept() refuses --
+                                       # correctly. --cap then makes TWO caps,
+                                       # because two ends are open
 python3 ribbon_bore.py --merge-lead --out=x-merged.svg   # the merge on its own,
                                        # to look at. Names itself "-merged";
                                        # --port-square does not, because
                                        # "square" already means merged
 python3 ribbon_bore.py --port --cap --out=x-ported.svg
-                                       # one end cap on the PANELS sheet, the
+                                       # ONE CAP PER PORTED END -- one here,
+                                       # two under --port-both, and caps() is
+                                       # a function for the reason band() is.
+                                       # On the PANELS sheet, the
                                        # band by the stack: 15.81 x 16 narrow,
                                        # 20 x 16 not. A ported bore breathes
                                        # through the port, so the open end

@@ -255,10 +255,27 @@ PORT_ACROSS, PORT_ALONG, PORT_FROM_TIP = 7.0, 14.0, 10.0
 # 9.87mm at the measured 0.13, 9.83 at 0.17. Never hard-code the 9.87: it is
 # the answer for one kerf, and the kerf is the number most likely to change.
 PORT_SQUARE = False
+# --port-both: the same port at BOTH ends of the run, not just the mouth. A
+# duct has two ends and both are leads made the same way -- tail() extends the
+# end segment's own direction -- so the far end takes a port on exactly the
+# terms the mouth does: collinear lead, PORT_FROM_TIP back from the tip, drawn
+# BURN under size. Nothing about the hole changes; only how many there are.
+#
+# It is a SEPARATE flag and not the default, because two ports make a part the
+# one-port sheet is not: two more holes in a cheek that is cut twice, and under
+# --port-square two more panels folded away. The stem says "both" for the same
+# reason it says "ported" and "square" -- the sheets are otherwise told apart
+# only by counting holes in a thumbnail.
+PORT_BOTH = False
 # --port-square implies this: the square port needs the lead panel's tooth out
 # of the way, and folding the lead into the facet it already lies on is the
 # only move that buys the room without moving the coil. Separately settable so
 # a merged lead can be drawn and looked at without a port.
+#
+# --port-both needs the SAME thing at the far end, so MERGE_LEAD folds the tail
+# lead as well when both ends are ported. A merge that did only the mouth would
+# leave the far port sitting on the tail lead's one tooth, which is the case
+# teeth_kept() refuses -- the refusal would be correct and the fix is here.
 MERGE_LEAD = False
 # --cap: one plate that closes the duct's open end, on the panels sheet. Only
 # meaningful with --port, which is what gives the air somewhere else to go, so
@@ -875,6 +892,18 @@ def panel(L, cs=None):
     return out
 
 
+def caps():
+    """How many end caps this design needs: one per ported end, else none.
+
+    A function and not a constant, for the same reason band() is: --port-both
+    is read after this line and a constant would keep the one-cap answer. A
+    sheet that drew one cap for two open ends would be short exactly one part,
+    with nothing to notice it but counting -- which is the mistake items_for()
+    already records about cheeks.
+    """
+    return (2 if PORT_BOTH else 1) if CAP else 0
+
+
 def cap():
     """The plate that closes the duct's open end, flat, centred on the origin.
 
@@ -909,8 +938,13 @@ def cap():
     return [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
 
 
-def teeth_kept(part, portpoly):
-    """This part's teeth, less any the port would cut into.
+def teeth_kept(part, portpolys):
+    """This part's teeth, less any a port would cut into.
+
+    `portpolys` is the list from port_holes(): none, the mouth's, or both
+    ends'. A tooth has to clear EVERY port, so the worst gap over the list is
+    the one that decides -- with one port that is the old single-hole test,
+    unchanged.
 
     A tooth and its mortice are one thing: drop it from the panel and you must
     drop it from the cheek, or a slot opens on nothing. That is why this is
@@ -922,7 +956,7 @@ def teeth_kept(part, portpoly):
     # mortice with them, which is the one thing a merge must not do to a
     # design whose other sheet is already cut.
     cs = part['cs'] if 'cs' in part else teeth(part['len'])
-    if not portpoly:
+    if not portpolys:
         return cs
     # A panel whose ONLY tooth clashes would come out with no tab at all, held
     # by glue and its neighbours. That is a real cost and not one to take
@@ -935,8 +969,9 @@ def teeth_kept(part, portpoly):
     for c in cs:
         S = slot((mx + c * ca, my + c * sa), part['ang'])
         g = min(seg_gap(S[i], S[(i + 1) % len(S)],
-                        portpoly[j], portpoly[(j + 1) % len(portpoly)])
-                for i in range(len(S)) for j in range(len(portpoly)))
+                        P[j], P[(j + 1) % len(P)])
+                for P in portpolys
+                for i in range(len(S)) for j in range(len(P)))
         # A NANOMETRE of slack, and it is not a loosening of the gate. The
         # coupon's ported lead lands on this limit exactly: 1.500000mm of ply
         # after the kerf, against the 1.5mm asked for. At 3.0mm ply and a
@@ -1079,36 +1114,59 @@ def merge_lead(parts):
     out, by_wall = [], {}
     for p in parts:
         by_wall.setdefault(p['wall'], []).append(p)
-    dropped = []
+    dropped, gone = [], set()
     for wall, ps in by_wall.items():
         ps = sorted(ps, key=lambda q: q['n'])
-        lead, nxt = ps[0], ps[1]
-        # Refuse rather than silently fold a mitre flat: if these two are not
-        # collinear the merge would cut a corner off the airway.
-        d = abs((nxt['ang'] - lead['ang'] + math.pi) % (2 * math.pi) - math.pi)
-        if math.degrees(d) > 1e-6:
-            raise ValueError(
-                f'{wall} panels {lead["n"]} and {nxt["n"]} meet at '
-                f'{math.degrees(d):.3f} degrees, not in line, so merging them '
-                f'would move the airway. --merge-lead only folds a straight '
-                f'lead into the facet it already lies on.')
-        half = lead['len'] / 2
-        ux, uy = math.cos(nxt['ang']), math.sin(nxt['ang'])
-        # the far end stays put and the panel grows backwards, so the midpoint
-        # slides half the lead's length against the run
-        nxt['label_mid'] = nxt['mid']
-        nxt['mid'] = (nxt['mid'][0] - ux * half, nxt['mid'][1] - uy * half)
-        nxt['cs'] = [c + half for c in teeth(nxt['len'])]
-        nxt['len'] = lead['len'] + nxt['len']
-        dropped.append(f'{wall} {lead["tag"]}')
-    keep = {id(p) for w in by_wall.values() for p in w}
+        # The mouth lead folds FORWARD into the panel after it; under
+        # --port-both the tail lead folds BACKWARD into the panel before it.
+        # Same fold either way: the survivor keeps its tag and its teeth, and
+        # only the sign of the slide differs, because a panel that grows
+        # backwards moves its midpoint against the run and one that grows
+        # forwards moves it along.
+        folds = [(ps[0], ps[1], -1.0)]
+        if PORT_BOTH:
+            # Four distinct panels, or the two folds meet in the middle and
+            # the second one reads a length the first has already changed --
+            # re-spacing the teeth of a panel whose mortices are settled. A
+            # wall that short cannot carry a port at each end anyway.
+            if len(ps) < 4:
+                raise ValueError(
+                    f'--port-both needs at least four panels on each wall to '
+                    f'fold a lead into a neighbour at both ends, and {wall} '
+                    f'has {len(ps)}.')
+            folds.append((ps[-1], ps[-2], +1.0))
+        for lead, nxt, sgn in folds:
+            # Refuse rather than silently fold a mitre flat: if these two are
+            # not collinear the merge would cut a corner off the airway.
+            d = abs((nxt['ang'] - lead['ang'] + math.pi)
+                    % (2 * math.pi) - math.pi)
+            if math.degrees(d) > 1e-6:
+                raise ValueError(
+                    f'{wall} panels {lead["n"]} and {nxt["n"]} meet at '
+                    f'{math.degrees(d):.3f} degrees, not in line, so merging '
+                    f'them would move the airway. --merge-lead only folds a '
+                    f'straight lead into the facet it already lies on.')
+            half = lead['len'] / 2
+            ux, uy = math.cos(nxt['ang']), math.sin(nxt['ang'])
+            # one end stays put and the panel grows the other way, so the
+            # midpoint slides half the lead's length; the teeth are pinned to
+            # where they already are, which is that slide taken back out
+            nxt['label_mid'] = nxt['mid']
+            nxt['mid'] = (nxt['mid'][0] + sgn * ux * half,
+                          nxt['mid'][1] + sgn * uy * half)
+            nxt['cs'] = [c - sgn * half for c in teeth(nxt['len'])]
+            nxt['len'] = lead['len'] + nxt['len']
+            dropped.append(f'{wall} {lead["tag"]}')
+            gone.add((wall, lead['n']))
     for p in parts:
-        if any(p['wall'] == w and p['n'] == 1 for w in by_wall):
+        if (p['wall'], p['n']) in gone:
             continue
         out.append(p)
-    print(f'  --merge-lead: folded the lead panel into its neighbour on both '
-          f'walls, dropping {", ".join(dropped)}; every other panel keeps its '
-          f'number and its teeth')
+    print(f'  --merge-lead: folded the '
+          + ('lead panel at each END' if PORT_BOTH else 'lead panel')
+          + f' into its neighbour on both walls, dropping '
+          f'{", ".join(dropped)}; every other panel keeps its number and its '
+          f'teeth')
     return out
 
 
@@ -1186,9 +1244,9 @@ def build():
         report = [(q['tag'], q['wall'], q['len']) for q in parts]
     # The teeth are settled here, once, because a tooth and its mortice have to
     # agree and only this function has both the parts and the port.
-    portpoly = port_hole(c) if PORT else None
+    portpolys = port_holes(c)
     for q in parts:
-        q['teeth'] = teeth_kept(q, portpoly)
+        q['teeth'] = teeth_kept(q, portpolys)
     return c, inn, out, parts, report
 
 
@@ -1210,8 +1268,12 @@ def in_poly(poly, x, y):
     return ins
 
 
-def port_hole(cline):
-    """A slot through the cheek at the mouth, for a mouthpiece.
+def port_hole(cline, end=0):
+    """A slot through the cheek at an end of the run, for a mouthpiece.
+
+    `end` is 0 for the mouth and -1 for the far end. Both are leads built by
+    the same tail() in centreline(), so the far end differs only in which two
+    stations give the direction: the tip and the station after it, walking in.
 
     The airway is bounded top and bottom by the cheeks, so the only way out of
     the plane is through one. This cuts a PORT_ACROSS x PORT_ALONG hole -- 7 x
@@ -1227,7 +1289,7 @@ def port_hole(cline):
     It is a slot, not an outline cut, so it is taken in the orange stage while
     the sheet still holds the cheek - the same reason the tab slots are.
     """
-    a, b = cline[0], cline[1]
+    a, b = (cline[0], cline[1]) if end == 0 else (cline[-1], cline[-2])
     ux, uy = b[0] - a[0], b[1] - a[1]
     m = math.hypot(ux, uy)
     ux, uy = ux / m, uy / m
@@ -1250,6 +1312,20 @@ def port_hole(cline):
             (mid[0] + ux * hl + nx * ha, mid[1] + uy * hl + ny * ha)]
 
 
+def port_holes(cline):
+    """Every port on this design, mouth first. Empty without --port.
+
+    ONE place decides how many there are. The hole is read by six callers --
+    the teeth, the cheek's slots, its labels, two checks and the narrow-rim
+    web -- and a port that some of them knew about and others did not would be
+    a hole cut where a tooth still is. `port_hole(c) if PORT else None` was
+    that shape of thing repeated six times; this is it written once.
+    """
+    if not PORT:
+        return []
+    return [port_hole(cline, 0)] + ([port_hole(cline, -1)] if PORT_BOTH else [])
+
+
 def items_for(parts, cheekpoly, cline):
     """(the cheek, the panels), each as (outline, slots, labeller).
 
@@ -1266,7 +1342,31 @@ def items_for(parts, cheekpoly, cline):
         def cheek_marks(dx, dy, _p=parts, _c=cline):
             m = []
             _dropped = []
-            hole = [(q[0] + dx, q[1] + dy) for q in port_hole(_c)] if PORT else None
+            holes = [[(q[0] + dx, q[1] + dy) for q in P]
+                     for P in port_holes(_c)]
+
+            def _fouls_at(px, py, ang, h=2.0, n=1):
+                """Does a label of n glyphs, h tall, at this angle, hit a port?
+
+                Pulled out of the per-panel test below so the cheek's own '0'
+                can ask it too. With a port at each end the '0' no longer has
+                a lead that is guaranteed clear, and a placement that cannot
+                be tested is a placement that gets engraved into the hole.
+                """
+                if not holes:
+                    return False
+                w, gap = h * 0.62, h * 0.18
+                total = n * w + (n - 1) * gap
+                lo, hi = -total / 2, total / 2 + h * 0.38
+                ca, sa = math.cos(ang), math.sin(ang)
+                for P in holes:
+                    for i in range(5):
+                        u = lo + (hi - lo) * i / 4
+                        for v in (-h / 2, 0.0, h / 2):
+                            if in_poly(P, px + u * ca - v * sa,
+                                       py + u * sa + v * ca):
+                                return True
+                return False
             for q in _p:
                 # 'label_mid' is set only by merge_lead(): a merged panel's
                 # midpoint slides half a lead along the run, and the number
@@ -1293,24 +1393,12 @@ def items_for(parts, cheekpoly, cline):
                 # not the gate -- "no engraving lands in a slot" tests every
                 # ink point that was actually drawn, and would catch it. This
                 # only has to be good enough to decide where to put the label.
-                def _fouls(px, py, h=2.0, n=1):
-                    # label()'s own extent, and it is NOT symmetric: the glyphs
-                    # span +-total/2 but the baseline tick runs on to
-                    # total/2 + 0.38h past them. A +-h/2 box missed the tick,
-                    # which is precisely what was being engraved into the port.
-                    if hole is None:
-                        return False
-                    w, gap = h * 0.62, h * 0.18
-                    total = n * w + (n - 1) * gap
-                    lo, hi = -total / 2, total / 2 + h * 0.38
-                    ca, sa = math.cos(q['ang']), math.sin(q['ang'])
-                    for i in range(5):
-                        u = lo + (hi - lo) * i / 4
-                        for v in (-h / 2, 0.0, h / 2):
-                            if in_poly(hole, px + u * ca - v * sa,
-                                       py + u * sa + v * ca):
-                                return True
-                    return False
+                # label()'s own extent, and it is NOT symmetric: the glyphs
+                # span +-total/2 but the baseline tick runs on to
+                # total/2 + 0.38h past them. A +-h/2 box missed the tick,
+                # which is precisely what was being engraved into the port.
+                def _fouls(px, py, h=2.0, n=1, _a=q['ang']):
+                    return _fouls_at(px, py, _a, h, n)
                 if _fouls(lx, ly, n=len(q['tag'])):
                     # this one sits in the opening. Slide it along its own
                     # panel until it clears - the alternative, giving the port
@@ -1336,25 +1424,35 @@ def items_for(parts, cheekpoly, cline):
             # band begins there and half the glyph hung off the end. A
             # quarter of the way in also clears panel 1's label, which sits
             # at the segment's midpoint offset across.
-            a0, a1 = _c[0], _c[1]
-            t = 0.22
-            if PORT:
-                # the port takes the mouth end of the lead, where the cheek's
-                # own '0' used to sit; put it on the tail lead instead
-                a0, a1 = _c[-1], _c[-2]
-                t = 0.22
-            gx = a0[0] + (a1[0] - a0[0]) * t + dx
-            gy = a0[1] + (a1[1] - a0[1]) * t + dy
-            m += label('0', gx, gy, 2.6,
-                       math.atan2(a1[1] - a0[1], a1[0] - a0[0]))
+            # With one port the tail lead is clear by construction and 0.22
+            # along it is the answer. With a port at EACH end nothing is clear
+            # by construction, so the candidates are tried and tested rather
+            # than picked: the tail lead first, to keep the one-port sheets
+            # byte-identical, then the mouth lead, then further in along each.
+            ends = [(_c[-1], _c[-2]), (_c[0], _c[1])] if PORT else [(_c[0], _c[1])]
+            placed = False
+            for a0, a1 in ends:
+                ang = math.atan2(a1[1] - a0[1], a1[0] - a0[0])
+                for t in (0.22, 0.12, 0.35, 0.5, 0.75):
+                    gx = a0[0] + (a1[0] - a0[0]) * t + dx
+                    gy = a0[1] + (a1[1] - a0[1]) * t + dy
+                    if not _fouls_at(gx, gy, ang, 2.6, 1):
+                        m += label('0', gx, gy, 2.6, ang)
+                        placed = True
+                        break
+                if placed:
+                    break
+            if not placed:
+                # Same rule as a panel's tag: an unnumbered cheek beats a
+                # number in a hole, and it is counted rather than silent.
+                _dropped.append('0')
             if _dropped:
                 print(f'  note: {len(_dropped)} cheek label(s) left off, '
                       f'{", ".join(_dropped)} -- no clear spot beside the port. '
                       f'The panels carry the same tags.')
             return m
         cheek_slots = [sl for q in parts for sl in slots_for(q)]
-        if PORT:
-            cheek_slots.append(port_hole(cline))
+        cheek_slots.extend(port_holes(cline))
         out.append({'outline': cheekpoly,
                     'slots': cheek_slots,
                     'marks': cheek_marks})
@@ -1367,7 +1465,7 @@ def items_for(parts, cheekpoly, cline):
         def panel_marks(dx, dy, _t=q['tag'], _w=w, _h=h2):
             return label(_t, _w / 2 + dx, _h + dy, 3.2)
         pan.append({'outline': poly, 'slots': [], 'marks': panel_marks})
-    if CAP:
+    for _ in range(caps()):
         # On the PANELS sheet, and that is not a detail. The cheek sheet is cut
         # twice and sheet() says in bold that nothing else may be on it; one
         # cap put there comes back as two, and the sheet stops meaning "run
@@ -1488,10 +1586,20 @@ def sheet(parts, cheekpoly, cline, path_out, write=True):
                f'thickness on one side only. ' if NARROW else '')
             # The cap carries no number, so the sheet has to say what the one
             # square on it is and that it is glued rather than tabbed.
-            + (f'The plain {2 * THICK + BORE:g}mm square on the panels '
+            # The one-cap sentence is REPRODUCED WORD FOR WORD, not
+            # regenerated from a count. Every shipped ported sheet carries it,
+            # and all-gates.sh compares those sheets byte for byte -- a tidier
+            # phrasing that says the same thing rewrites twenty-two files that
+            # were cut from. Only the two-cap case is new text.
+            + ('' if not CAP else
+               f'The plain {2 * THICK + BORE:g}mm square on the panels '
                f'sheet is the end cap: it glues over the open end of the duct '
                f'so the air turns into the port, it carries no number, and '
-               f'ONE is needed. ' if CAP else '')
+               f'ONE is needed. ' if caps() == 1 else
+               f'The two plain {2 * THICK + BORE:g}mm squares on the panels '
+               f'sheet are the end caps: each glues over one open end of the '
+               f'duct so the air turns into its port, they carry no number, '
+               f'and BOTH are needed. ')
             + f'blue #0000ff '
             f'engraves, orange #ff8000 cuts the slots first, black #000000 '
             f'frees the parts.</desc>\n'
@@ -1604,7 +1712,7 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     # asks "is this hole clear of the edge" wants both; the one thing that asks
     # "does this mortice lie ON the edge" wants only the mortices.
     mortices = [sl for p in parts for sl in slots_for(p)]
-    allslots = mortices + ([port_hole(c)] if PORT else [])
+    allslots = mortices + port_holes(c)
     # A narrow cheek puts two corners of every mortice ON the rim, and inside()
     # is an even-odd ray cast, which answers a point on the boundary either way
     # depending on which side of a vertex the ray leaves. Run as it stands it
@@ -1845,9 +1953,13 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
              f'against {BURN / 2:g}mm allowed, band {band():g}mm wide, '
              f'and every mortice open at the rim')
         if PORT:
-            pw = to_rim(port_hole(c))
+            # the WORST of them, so a second port cannot hide behind the
+            # first: with --port-both this is two numbers reported as one
+            ports = port_holes(c)
+            pw = min(to_rim(P) for P in ports)
             note(pw >= 1.5, 'the port keeps a cuttable web',
-                 f'port to rim {pw:.3f}mm against 1.5mm needed')
+                 f'{len(ports)} port(s), narrowest port to rim {pw:.3f}mm '
+                 f'against 1.5mm needed')
     else:
         note(web >= 1.5, 'the web outboard of a slot is cuttable',
              f'narrowest slot to rim {web:.3f}mm against 1.5mm needed, '
@@ -1951,6 +2063,18 @@ def main(write=True):
                 f'--port with --out={OUT} would write the ported sheets under '
                 f'a name that does not say so, over the unported twin. Put '
                 f'"ported" in the --out name.')
+    if PORT_BOTH:
+        # Same rule a third time. A two-port cheek differs from the one-port
+        # sheet by one more hole and, under --port-square, by two more panels
+        # folded away - and an operator picking a file out of a folder cannot
+        # count holes in a thumbnail. "both" sits straight after "ported",
+        # before "square", so the tail still sorts.
+        stem = stem[:-4] + '-both.svg'
+        if OUT and 'both' not in os.path.basename(OUT):
+            raise ValueError(
+                f'--port-both with --out={OUT} would write the two-port '
+                f'sheets under a name that does not say so, over the one-port '
+                f'twin. Put "both" in the --out name.')
     if MERGE_LEAD and not PORT_SQUARE:
         # A merged lead is two panels fewer and two longer, which is a
         # different part set from the plain design under a name that would not
@@ -1994,8 +2118,10 @@ def main(write=True):
                   f'and face into the bore)' if turn is not None
                   else '  (a flipped cheek meets no tab at any angle)'))
     print(f'\n  {len(parts)} wall panels + 2 cheeks'
-          + (' + 1 end cap' if CAP else '')
-          + f' = {len(parts) + 2 + (1 if CAP else 0)} parts, '
+          # Same rule: the one-cap line is the shipped sheets' own wording.
+          + ('' if not CAP else ' + 1 end cap' if caps() == 1
+             else f' + {caps()} end caps')
+          + f' = {len(parts) + 2 + caps()} parts, '
           f'{len(written)} sheet{"s" if len(written) > 1 else ""}')
     for name, w, h, k, note in written:
         # The note was carried all the way here and then dropped. It goes into
@@ -2093,8 +2219,12 @@ if __name__ == '__main__':
     DS_HALF = '--ds-half' in a
     NARROW = '--narrow' in a
     PORT_SQUARE = '--port-square' in a
+    PORT_BOTH = '--port-both' in a
     MERGE_LEAD = '--merge-lead' in a or PORT_SQUARE
     CAP = '--cap' in a
+    if PORT_BOTH and not PORT:
+        raise SystemExit('error: --port-both without --port draws no port at '
+                         'all, at either end. Pass both.')
     if CAP and not PORT:
         raise SystemExit('error: --cap without --port closes the only opening '
                          'the bore has. The cap exists so a PORTED bore stops '
