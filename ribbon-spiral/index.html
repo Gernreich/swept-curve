@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The spiral bore</title>
+<style>
+:root{--bg:#fbfbfa;--fg:#1a1c1e;--mut:#5b6067;--line:#e2e4e7;--card:#fff;--accent:#1d4ed8;
+--codebg:#f4f5f7;--thbg:#f0f1f3;--mark:#fff8c4}
+@media (prefers-color-scheme:dark){:root{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa1a9;--line:#2b2f34;
+--card:#1b1e22;--accent:#7aa2f7;--codebg:#22262b;--thbg:#23272c;--mark:#4a411c}}
+:root[data-theme=dark]{--bg:#15171a;--fg:#e6e8ea;--mut:#9aa1a9;--line:#2b2f34;--card:#1b1e22;
+--accent:#7aa2f7;--codebg:#22262b;--thbg:#23272c;--mark:#4a411c}
+:root[data-theme=light]{--bg:#fbfbfa;--fg:#1a1c1e;--mut:#5b6067;--line:#e2e4e7;--card:#fff;
+--accent:#1d4ed8;--codebg:#f4f5f7;--thbg:#f0f1f3;--mark:#fff8c4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+font:16px/1.62 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+-webkit-text-size-adjust:100%}
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:44px;max-width:1180px;
+margin:0 auto;padding:40px 28px 96px}
+nav{position:sticky;top:28px;align-self:start;max-height:calc(100vh - 56px);overflow:auto;
+border-right:1px solid var(--line);padding-right:16px;font-size:13.5px;line-height:1.45}
+nav b{display:block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);
+margin:0 0 12px}
+nav a{display:block;color:var(--mut);text-decoration:none;padding:3px 0;border-radius:4px}
+nav a:hover{color:var(--accent)}
+nav a.l1{color:var(--fg);font-weight:640;margin-top:11px}
+nav a.l2{padding-left:12px}
+main{min-width:0}
+h1{font-size:1.62rem;line-height:1.25;letter-spacing:-.015em;margin:2.4em 0 .5em;
+padding-bottom:.32em;border-bottom:2px solid var(--line)}
+main>h1:first-child{margin-top:0;border-bottom:none;font-size:1.95rem}
+h2{font-size:1.16rem;margin:2em 0 .5em;letter-spacing:-.01em}
+h3{font-size:1.02rem;font-weight:650;margin:1.7em 0 .45em}
+p{margin:.85em 0}
+ul,ol{margin:.85em 0;padding-left:1.35em}
+li{margin:.3em 0}
+hr{border:0;border-top:1px solid var(--line);margin:2.6em 0}
+figure{margin:1.6em 0}
+/* A paragraph holding two or more images is a gallery. Left to inline layout they
+   wrap at whatever fits, which put three bells on one row and the fourth alone
+   underneath - directly above the caption, so it read as the caption for that one
+   picture rather than for the set. Flex lets them share the row instead. */
+p:has(img + img){display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;
+justify-content:center}
+p:has(img + img) img{flex:1 1 140px;min-width:0;width:auto;max-width:100%;height:auto;
+border:1px solid var(--line);border-radius:10px}
+figure svg,figure img{display:block;width:100%;max-width:100%;height:auto;
+border:1px solid var(--line);border-radius:10px}
+a{color:var(--accent)}
+code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+background:var(--codebg);padding:.1em .32em;border-radius:4px;
+border:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+pre{background:var(--codebg);border:1px solid var(--line);border-radius:9px;
+padding:14px 16px;overflow-x:auto;margin:1.1em 0}
+pre code{background:none;border:0;padding:0;font-size:12.8px;line-height:1.62;white-space:pre}
+blockquote{margin:1.15em 0;padding:.7em 1.1em;border-left:4px solid var(--accent);
+background:var(--codebg);border-radius:0 7px 7px 0}
+blockquote p{margin:0}
+.tw{overflow-x:auto;margin:1.15em 0;border:1px solid var(--line);border-radius:9px;
+background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+/* honour align="center" on gallery cells: a presentation attribute loses to any
+   CSS rule, so the line above would silently left-align every thumbnail caption */
+td[align=center],th[align=center]{text-align:center}
+th{background:var(--thbg);font-weight:630;white-space:nowrap;font-size:13px;
+letter-spacing:.01em}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:color-mix(in srgb,var(--thbg) 45%,transparent)}
+td code,th code{white-space:nowrap}
+/* A walk inside a link is one token: breaking it mid-walk put "N" at the end of one
+   line and "N5 U" at the start of the next, which reads as two things. */
+a code{white-space:nowrap}
+.tog{position:fixed;top:14px;right:14px;z-index:9;background:var(--card);color:var(--mut);
+border:1px solid var(--line);border-radius:7px;padding:6px 11px;font-size:12.5px;cursor:pointer}
+.tog:hover{color:var(--accent)}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:20px;padding:26px 18px 72px}
+nav{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line);
+padding:0 0 16px;columns:2;column-gap:20px}}
+@media print{nav,.tog{display:none}.wrap{display:block;max-width:none;padding:0}
+pre,.tw{break-inside:avoid}h1{break-after:avoid}}
+</style>
+</head>
+<body>
+<button class="tog" type="button">theme</button>
+<div class="wrap">
+<nav><b>Contents</b><a class="l1" href="#the-spiral-bore">The spiral bore</a><a class="l2" href="#the-cheek-is-the-whole-drawing">The cheek is the whole drawing</a><a class="l2" href="#glued-up-and-not-airtight">Glued up, and not airtight</a><a class="l2" href="#the-numbers">The numbers</a><a class="l2" href="#three-sheets-and-which-one-was-cut">Three sheets, and which one was cut</a><a class="l2" href="#rebuild-it">Rebuild it</a><a class="l2" href="#the-rest">The rest</a></nav>
+<main>
+<h1 id="the-spiral-bore">The spiral bore</h1>
+<p><strong>The second design here that exists in wood</strong>, and the only one that is not a lattice walk. A rectangle swept along a flat coil: <strong>1000mm of centreline</strong> in 17 facets of 45°, winding out from <strong>R34.7 to R112.9</strong> with a straight lead in and out. Two faces of the tube are flat and two are faceted, which is what a swept curve buys — the section grows <strong>+8.2%</strong> at a mitre where a 90° lattice corner grows 41.4%.</p>
+<p>Its viewer is a page of its own: drag to rotate, and the slider reveals the spiral a facet at a time. <strong><a href="../parts/bore/concept/swept-curve/spiral/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html">Turn it →</a></strong></p>
+<h2 id="the-cheek-is-the-whole-drawing">The cheek is the whole drawing</h2>
+<p>The cheek sheet has been cut, and cut twice, because the two cheeks are the same part and both go on the same way up.</p>
+<figure><img src="../parts/bore/concept/swept-curve/spiral/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-as-cut_web.jpg" alt="The two cheek plates as cut, one lying on the other on a scratched workbench: a faceted band of pale masked ply winding a little over two turns out from a small centre to a straight tail, both rims crenellated with open notches, a number engraved beside each notch, and a small square hole at the inner end"></figure>
+<p>The band is a single closed outline of 40 vertices, 216.50 × 218.51mm on a 236.50 × 238.51mm sheet, and it carries <strong>149 mortices</strong> for 36 wall panels. Every one of those mortices is open at the rim, which is what <code>--narrow</code> buys: the cheek is no wider than the duct, so each tab is held across its thickness on one side only. The square hole near the inner end is the port — a 10mm square, drawn 9.85mm because the 0.15mm kerf opens it the rest of the way, and square rather than round because <code>--port-square</code> asks for the bore's own section. The wall panels that stand in the mortices are a second sheet, 574.95 × 96.60mm, and are not in the photograph.</p>
+<p><strong>36 panels and not 38</strong>, because the square port is what makes the lead panel go away. Each wall's lead is 20mm and carries a single tooth, dead centre, right where the port wants to be; <code>--port-square</code> folds that panel into the facet it already lies on — they are collinear, so nothing about the airway moves — and two panels with one tooth each leave the drawing. The plain sheet beside it, with no port at all, is 38 panels and 151 mortices.</p>
+<h2 id="glued-up-and-not-airtight">Glued up, and not airtight</h2>
+<p>Both sheets are cut now, and the bore is glued up — the wall panels standing in the mortices between the two cheeks, a mouthpiece on the straight tail and a bell on the port at the inner end.</p>
+<figure><img src="../parts/bore/concept/swept-curve/spiral/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-glued-up_web.jpg" alt="The spiral glued up on a dark wood floor: a pale ply band winding a little over two turns, cornered at every facet, both rims crenellated with tabs and a number engraved beside each one; a straight tail leaves the outer end and carries a dark, glossy mouthpiece, and a bell engraved 10. stands on a dark ribbed throat at the inner end"></figure>
+<p>It is not airtight. A glue-up with this many joints — a mitre at every facet and a tab at every mortice — leaves air gaps all along both rims, and they are closed the same way they are closed on the built instrument: <strong>several coats of shellac</strong>, which seal the ply and fill the gaps in the same pass. <strong><a href="../three-turn/">The three-turn trumpet</a></strong> is the colour it is because it has had them. This spiral is still bare ply.</p>
+<h2 id="the-numbers">The numbers</h2>
+<div class='tw'><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>curve</td><td>a compass spiral, stepping its arc radius facet by facet</td></tr><tr><td>centreline</td><td>1000.0mm</td></tr><tr><td>facets</td><td>17 at 45°, plus a straight lead in and out</td></tr><tr><td>bend radius</td><td>R34.662 at the centre out to R112.903 at the rim</td></tr><tr><td>R / bore</td><td>3.5 at the tightest</td></tr><tr><td>airway</td><td>10 × 10mm square, 100mm²</td></tr><tr><td>section at a mitre</td><td>+8.2%</td></tr><tr><td>play</td><td>0.025mm per side</td></tr><tr><td>parts</td><td>36 wall panels + 2 cheeks + 1 end cap = 39, over 2 sheets</td></tr><tr><td>the cheek</td><td>237 × 239mm — <strong>cut this sheet twice</strong></td></tr><tr><td>the wall panels</td><td>575 × 97mm</td></tr></tbody></table></div>
+<h2 id="three-sheets-and-which-one-was-cut">Three sheets, and which one was cut</h2>
+<p>The design ships three variants, each as a cheek sheet and a panel sheet, in <code>../parts/bore/concept/swept-curve/spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/</code>:</p>
+<div class='tw'><table><thead><tr><th></th><th>port</th><th>panels</th><th>mortices</th><th>panel sheet</th></tr></thead><tbody><tr><td><code>-narrow</code></td><td>none</td><td>38</td><td>151</td><td>579 × 97mm</td></tr><tr><td><code>-ported-narrow</code></td><td>round, 7 × 14mm</td><td>38 + a cap</td><td>151</td><td>579 × 97mm</td></tr><tr><td><strong><code>-ported-square-narrow</code></strong></td><td><strong>square, 10 × 10mm</strong></td><td><strong>36 + a cap</strong></td><td><strong>149</strong></td><td><strong>575 × 97mm</strong></td></tr></tbody></table></div>
+<p>The square-ported one is what the photographs show. A round port needs no lead panel moved and so keeps all 38; the square one asks for the bore's own section and pays two panels for it.</p>
+<h2 id="rebuild-it">Rebuild it</h2>
+<p>The generator is <code>ribbon_bore.py</code>, in <code>../parts/bore/concept/swept-curve/</code>. Report only, writing nothing:</p>
+<pre><code>python3 ribbon_bore.py --shape=spiral --port --port-square --cap --narrow</code></pre>
+<p>Every number on this page comes off that report. Writing needs an <code>--out</code> whose name says <code>narrow</code>, which the generator insists on so a sheet cannot overwrite its full-width twin:</p>
+<pre><code>cd parts/bore/concept/swept-curve &amp;&amp; python3 ribbon_bore.py \
+    --shape=spiral --port --port-square --cap --narrow \
+    --out=spiral/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg</code></pre>
+<p><strong>These sheets were cut.</strong> Both of them reproduce byte-identically from the line above, which is what makes the numbers here measurements rather than notes.</p>
+<h2 id="the-rest">The rest</h2>
+<p><strong><a href="../three-turn/">the three-turn trumpet</a></strong> · <strong><a href="../coiled/">the coiled trumpet</a></strong> · <strong><a href="../switchback/">the switchback trumpet</a></strong> · <strong><a href="../greek-spiral/">the greek spiral</a></strong> · <strong><a href="../ends/">the bell and the mouthpiece</a></strong></p>
+</main>
+</div>
+<script>
+var r=document.documentElement,b=document.querySelector('.tog');
+function set(t){r.setAttribute('data-theme',t);try{localStorage.setItem('ctg-theme',t)}catch(e){}
+b.textContent=t==='dark'?'\u2600 light':'\u263e dark';}
+var saved=null;try{saved=localStorage.getItem('ctg-theme')}catch(e){}
+set(saved||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+b.addEventListener('click',function(){set(r.getAttribute('data-theme')==='dark'?'light':'dark')});
+</script>
+</body>
+</html>
