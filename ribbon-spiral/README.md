@@ -105,6 +105,6 @@ above, which is what makes the numbers here measurements rather than notes.
 
 ## The rest
 
-**[the three-turn trumpet](../three-turn/)** · **[the coiled trumpet](../coiled/)**
+**[the three-turn trumpet](../three-turn/)**
 · **[the switchback trumpet](../switchback/)** · **[the greek spiral](../greek-spiral/)**
 · **[the bell and the mouthpiece](../ends/)**

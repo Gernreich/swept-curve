@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """An interactive view of a ribbon bore: drag to turn.
 
-    python3 ribbon_view.py                       # the coupon
+    python3 ribbon_view.py                       # the double spiral
     python3 ribbon_view.py --shape=serpentine    # and so on, same flags
 
 Writes one self-contained HTML page beside the cut files it belongs to, so a
@@ -184,13 +184,13 @@ def data_for():
     # so its four vertices are already coincident with station 0's
 
     # The spiral has no single bend radius - that is the point of it - so it
-    # reports the range it sweeps. Falling through to RADIUS printed the
-    # coupon's R30 on a bore whose arcs run R34.7 to R112.9.
+    # reports the range it sweeps. Falling through to RADIUS printed R30, the
+    # old coupon's radius, on a bore whose arcs run R34.7 to R112.9.
     # dspiral and volute have no single bend radius either, and both quote
     # their tightest arc, as ribbon_bore does. Neither was in this list: the
-    # double spiral read R30 because DS_CROSS_R and the coupon's RADIUS are
-    # both 30, so the fall-through was right by coincidence, and the volute
-    # inherited that 30 against arcs of R22, R64 and R94.
+    # double spiral read R30 because DS_CROSS_R was that same 30, so the
+    # fall-through was right by coincidence, and the volute inherited it
+    # against arcs of R22, R64 and R94.
     R = (B.WAVE_TROUGH_R if B.SHAPE == 'wave'
          else B.SPIRAL_RI if B.SHAPE == 'spiral'
          else B.DS_CROSS_R if B.SHAPE == 'dspiral'
@@ -721,16 +721,15 @@ def main():
         title = ('Ribbon Opposed-Ends Bore, %gmm' % B.BORE
                  if B.SHAPE == 'opposed'
                  else f'Ribbon Serpentine, {B.BORE:g}mm Bore')
-    elif B.SHAPE == 'coupon':
-        stem = f'ribbon-coupon-bore{B.BORE:g}-{B.FACET:g}deg-R{B.RADIUS:g}'
-        title = f'Ribbon Coupon, {B.BORE:g}mm Bore'
     else:
         # This used to be the coupon's branch with no test on the shape, so a
         # shape added to the generator and not to this list came out headed
         # "Ribbon Coupon" over a picture of something else. The double spiral
         # did, and every check here passed while it did: the numbers panel is
         # built from the geometry and was right throughout. Only the drawing
-        # showed it.
+        # showed it. The coupon is gone (2026-09-14) and the branch it used to
+        # own is now nothing but this refusal, which is what it should always
+        # have been.
         sys.exit(f'ribbon_view: no title or filename for --shape={B.SHAPE}. '
                  f'Add it here as well as in ribbon_bore.centreline().')
     out = [x for x in a if x.startswith('--out=')]

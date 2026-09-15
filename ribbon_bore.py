@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A bore of constant cross-section swept along a planar curve.
 
-    python3 ribbon_bore.py                      # the 10mm 30-degree coupon
+    python3 ribbon_bore.py                      # the 10mm 30-degree double spiral
     python3 ribbon_bore.py --no-write           # the numbers, no file
 
 Sweep a rectangle along a curve that lies in a plane, with one axis normal to
@@ -26,7 +26,8 @@ bore/2, so its radius is R - bore/2 and there is no bore at all below
 R = bore/2. Long before that the inner panel gets too short to carry a finger:
 a Boxes.py tooth is 2 x thickness and does NOT scale with the bore, so at the
 10mm bore and 30 degrees the inner panel holds no tooth at all until R = 25mm.
-That is why this coupon is R 25 and not the R 15 it looks like it wants to be.
+R 25 is therefore the floor for a 10mm bore at 30 degree facets, whatever the
+shape wants to do.
 """
 import math
 import os
@@ -35,7 +36,6 @@ import sys
 BORE = 10.0          # the square section, mm
 FACET = 30.0         # degrees of turn per wall panel
 RADIUS = 30.0        # bend radius of the centreline; see the minimum below
-TAIL = 15.0          # straight lead-in and lead-out
 THICK = 3.0          # ply, NOMINAL: what the design is dimensioned on
 # What the sheet actually calipers, 2026-09-09. It is a second number and it
 # earns its keep: THICK carries the DRAWN dimensions -- the wall offsets, the
@@ -192,10 +192,15 @@ PORT = False         # --port: a 7 x 14mm opening through the cheek at the
                      # bore-square: see PORT_ACROSS for why it cannot be
 BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
 
-# --shape. 'coupon' is the 180 degree test piece; 'serpentine' is a run of
-# alternating half-circles joined by straight verticals, which is the drawn
-# shape generalised. LOBES/LOBE_R/RISE describe it.
-SHAPE = 'coupon'
+# --shape. 'dspiral' is the double spiral, the shape this file is aimed at and
+# the default; 'serpentine' is a run of alternating half-circles joined by
+# straight verticals, which is that shape generalised. LOBES/LOBE_R/RISE
+# describe it. The 180 degree 'coupon' that used to be the default is gone,
+# deleted 2026-09-14, and with it the fall-through that drew it: an unknown
+# --shape is now refused by name rather than quietly drawing a test piece.
+SHAPES = ('dspiral', 'serpentine', 'opposed', 'wave', 'spiral', 'volute',
+          'torus')
+SHAPE = 'dspiral'
 # Solved against this generator's own faceted centreline, not a smooth arc:
 # an inscribed chord is 1.14% short of the arc it spans, so a radius picked
 # from the arc comes out 11mm long over a metre. R here gives 1000.0mm.
@@ -300,8 +305,8 @@ MERGE_LEAD = False
 # it refuses on its own rather than sealing a bore with no way in. Off by
 # default because every ported sheet in this repo was cut without one.
 CAP = False
-# TRIED AND REJECTED, 2026-09-09. It does clear the port: the coupon goes from
-# 0.030mm of ply to 2.931mm and passes every check. But the lead is part of the
+# TRIED AND REJECTED, 2026-09-09. It does clear the port: the tightest design
+# then shipping went from 0.030mm of ply to 2.931mm and passed every check. But the lead is part of the
 # centreline, so lengthening it moves the whole coil -- the spiral's cheek
 # starts crossing itself, the volute puts 39 slot corners outside its cheek and
 # its web collapses to 0.080mm, and four more shapes lose a label into a slot.
@@ -361,7 +366,7 @@ FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0}
 DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 30.0
 # --ds-half: stop at the centre instead of carrying on into the second arm,
 # and run out from there. The crossover is the part of this shape that had
-# to be solved rather than chosen, so it is the part a coupon should test.
+# to be solved rather than chosen, so it is the part a test piece should prove.
 DS_HALF = False
 # 'volute' is the same idea drawn the way volute.py argued it should be: not a
 # smooth spiral sampled at facets, but a chain of semicircles whose radius holds
@@ -760,22 +765,12 @@ def centreline():
             spec.append(('a', 90, +1))
         spec.append(('s', LEAD))
         return flip(walk(spec))
-    n = int(round(180.0 / FACET))
-    if abs(n * FACET - 180.0) > 1e-9:
-        raise ValueError(f'--facet={FACET:g} does not divide 180 a whole '
-                         f'number of times; {n} facets would turn '
-                         f'{n * FACET:g} degrees.')
-    # The tails have to leave the arc along its TANGENT, or the first facet
-    # turns by something that is not FACET and the panel that sits on it is
-    # the wrong length. Attaching them at the arc's endpoints is not the same
-    # thing as attaching them tangentially, and the first attempt here did the
-    # former: it produced a 98mm panel on a coupon 78mm long.
-    pts = [(RADIUS, TAIL)]                        # lead in, running -y
-    for i in range(n + 1):                        # the turn, centred on origin
-        a = -i * math.radians(FACET)              # (R,0) -> (0,-R) -> (-R,0)
-        pts.append((RADIUS * math.cos(a), RADIUS * math.sin(a)))
-    pts.append((-RADIUS, TAIL))                   # lead out, running +y
-    return flip(pts)
+    # No fall-through. Every shape above returns; the 180 degree coupon used to
+    # sit here and be drawn by anything that reached the end, which meant a
+    # misspelt --shape produced a test piece rather than a complaint. Refusing
+    # by name is the same rule --trace and the port flags already follow.
+    raise ValueError(f'--shape={SHAPE} is not a shape here. '
+                     f'Known: {" ".join(sorted(SHAPES))}.')
 
 
 def walls(poly):
@@ -870,15 +865,16 @@ def path(pts, close=True):
 def teeth(L):
     """Where the tabs sit along a panel of length L, as offsets from centre.
 
-    One tooth was enough at the coupon's 10-16mm panels and is a hinge at 90mm:
+    One tooth is enough at 10-16mm panels and is a hinge at 90mm:
     a straight run held by a single 6mm tab in its middle pivots about it and
     the seam opens. Alternating tooth and gap of equal width, as Boxes.py does,
     so a panel gets as many as it has room for:
 
         n = floor((L - 2*SHOULDER + TOOTH) / (2*TOOTH))
 
-    which is 1 up to 17.9mm, 3 at 34mm and 7 at 90mm, and still 1 for every
-    panel on the coupon - so the coupon's cut file does not move.
+    which is 1 up to 17.9mm, 3 at 34mm and 7 at 90mm. It was written so that
+    every panel on the short test piece then shipping still took exactly one,
+    and that sheet's cut geometry did not move when this arrived.
     """
     n = max(1, int((L - 2 * SHOULDER + TOOTH) // (2 * TOOTH)))
     return [(i - (n - 1) / 2.0) * 2 * TOOTH for i in range(n)]
@@ -990,8 +986,8 @@ def teeth_kept(part, portpolys):
                         P[j], P[(j + 1) % len(P)])
                 for P in portpolys
                 for i in range(len(S)) for j in range(len(P)))
-        # A NANOMETRE of slack, and it is not a loosening of the gate. The
-        # coupon's ported lead lands on this limit exactly: 1.500000mm of ply
+        # A NANOMETRE of slack, and it is not a loosening of the gate. A
+        # round-ported lead lands on this limit exactly: 1.500000mm of ply
         # after the kerf, against the 1.5mm asked for. At 3.0mm ply and a
         # 0.15mm kerf the sum came out 1.6499999999999986 against 1.65 and the
         # design was refused over 1.3e-15mm, which is not a distance. The
@@ -1196,9 +1192,9 @@ def build():
     # Numbered straight through in hex rather than I1/O1: the glyph table is
     # the one the bore sections and bell rings use, and adding I and O to it
     # would put I beside 1 and O beside 0 on a part you read at the bench.
-    # The number identifies a panel, not its length. On the coupon the inner
-    # panels run 12.05-14.14mm and the outer 15.86-19.01mm, so length tells
-    # them apart; on the serpentine both walls run 19.14-90.00mm and it tells
+    # The number identifies a panel, not its length. On a tight design the
+    # inner and outer panels fall in different ranges and length tells them
+    # apart; on the serpentine both walls run 19.14-90.00mm and it tells
     # you nothing. Either way the cheek slot carries the same number.
     seq = 0
     cl = c
@@ -1430,8 +1426,8 @@ def items_for(parts, cheekpoly, cline):
                     # a bore of extra lead, moves the whole coil and was what
                     # made the cheek cross itself.
                     # Along the panel first, then back the other way: on a
-                    # short panel -- the coupon's run 12 to 19mm -- a whole
-                    # bore forward is off the end of it.
+                    # short panel -- and the tightest here run 12 to 19mm -- a
+                    # whole bore forward is off the end of it.
                     for d in (BORE, 2 * BORE, 3 * BORE,
                               -BORE, BORE / 2, -BORE / 2, -2 * BORE):
                         cx, cy = math.cos(q['ang']) * d, math.sin(q['ang']) * d
@@ -1857,8 +1853,8 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
         g = min(_sd(A[a], A[(a + 1) % len(A)], B[b], B[(b + 1) % len(B)])
                 for a in range(len(A)) for b in range(len(B)))
         worst = min(worst, g)
-        # the same nanometre as teeth_kept(), and for the same design: the
-        # coupon's ported lead leaves 1.500000mm against 1.5mm asked for, and
+        # the same nanometre as teeth_kept(), and for the same reason: a
+        # round-ported lead leaves 1.500000mm against 1.5mm asked for, and
         # the two have to agree or one refuses what the other kept
         if g - BURN < MIN_FEATURE - 1e-9:
             tight += 1
@@ -2139,9 +2135,15 @@ def main(write=True):
     elif SHAPE in ('serpentine', 'opposed'):
         stem = (f'ribbon-{SHAPE}-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:.0f}-{L:.0f}mm.svg')
+    elif SHAPE == 'torus':
+        stem = (f'ribbon-torus-bore{BORE:g}-{FACET:g}deg'
+                f'-R{RADIUS:g}.svg')
     else:
-        stem = (f'ribbon-coupon-bore{BORE:g}-{FACET:g}deg'
-                f'-R{RADIUS:g}-180turn.svg')
+        # Unreachable: centreline() refuses an unknown shape long before this.
+        # Named anyway rather than left as a silent fall-through, because a
+        # fall-through here is exactly what used to put the coupon's name on
+        # anything that reached the end of the chain.
+        raise ValueError(f'no filename rule for --shape={SHAPE}.')
     if PORT:
         # a ported design is a different part from its unported twin - same
         # coil, one hole, and radii solved separately - so it gets its own
@@ -2312,7 +2314,7 @@ if __name__ == '__main__':
             LOBE_R = OPPOSED_R
         if not any(x.startswith('--rise=') for x in a):
             RISE = OPPOSED_RISE
-    # FACET defaults to the coupon's 30, and the wave and the spirals are
+    # FACET defaults to 30, and the wave and the spirals are
     # 45 degree designs. A bare --shape=wave therefore built arcs that do not
     # close and reported six check failures, not one of which said "facet";
     # a bare --shape=spiral refused, because 17 facets turn 480 degrees at 30

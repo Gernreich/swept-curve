@@ -55,7 +55,7 @@ The centreline polyline IS the facet plan, so the only thing separating one
 shape from another is where its vertices were placed. Two constructions are in
 use, and they are not variants of each other.
 
-**Constant-radius arcs** — `coupon`, `serpentine`, `opposed`, `wave`, `spiral`,
+**Constant-radius arcs** — `serpentine`, `opposed`, `wave`, `spiral`,
 `volute`. The radius holds all the way across an arc and changes only at a join,
 where a mitre already expects a corner. `spiral` is the classical compass
 spiral: one arc per facet, the radius stepping by a fixed amount. **`volute` is
@@ -119,8 +119,8 @@ tooth. At the 10mm bore and 30° facets:
     R 20   inner panel 7.67mm   still no room for shoulders
     R 25   inner panel 10.26mm  fits, 2.13mm shoulders
 
-R 25 is why this coupon is R 25. Coarser facets need less radius, finer facets
-need more: 20° wants R 35, 15° wants R 45. `build()` refuses rather than
+R 25 is therefore the floor at this bore and this facet angle. Coarser facets
+need less radius, finer facets need more: 20° wants R 35, 15° wants R 45. `build()` refuses rather than
 drawing a panel that cannot hold its tab.
 
 ## A half-circle advances 2/pi of its own length
@@ -155,10 +155,11 @@ wrong.
 
 `teeth(L)` gives `floor((L - 2*SHOULDER + TOOTH) / (2*TOOTH))`, alternating
 tooth and gap of equal width. One tab in a 90mm straight run is a hinge: it
-pivots about the tab and the seam opens. Every coupon panel is short enough to
-want exactly one, so the coupon's cut geometry did not move when this arrived —
-checked by comparing the cut groups as position-independent shapes, which is
-the only comparison that means anything once the packer may have reordered
+pivots about the tab and the seam opens. It was written so that every panel on
+the short test piece then shipping still took exactly one and that sheet's cut
+geometry did not move — checked by comparing the cut groups as
+position-independent shapes, which is the only comparison that means anything
+once the packer may have reordered
 them.
 
 ## A traced centreline is kept with how it was taken
@@ -244,7 +245,7 @@ Outline, slots and engraving are identical - checked against the written files,
 not assumed.
 
 **Whether a flipped cheek would fit depends on the shape**, so `flippable()`
-reports it and does not guess. The coupon's U *is* congruent to its own mirror:
+reports it and does not guess. A simple U *is* congruent to its own mirror:
 turn it over, rotate 180 degrees, and every tab lands. The serpentine is not, at
 any angle. The instruction is the same either way, because a flipped cheek
 carries its numbers mirrored and facing into the bore - so one cheek always has
@@ -313,8 +314,8 @@ pass on panel corners that jam at every mitre.
   midpoint, or it slides half a lead off the mortices it names.
 - *`--port-both` has four panels a wall to fold* — watched to fail at three and
   to pass at four, but ONLY by calling `merge_lead()` directly with a made-up
-  wall. No shape reaches it from the command line: the coupon's lead bends 15
-  degrees, so the collinearity refusal fires first, and the shortest double
+  wall. No shape reaches it from the command line: any lead that bends into its
+  first facet trips the collinearity refusal first, and the shortest double
   spiral that builds at all — `--ds-half --ds-facets=1`, 160.6mm — still has
   panels to spare. Keep it: without it the two folds meet in the middle and the
   second reads a length the first has already changed, re-spacing the teeth of
@@ -354,9 +355,9 @@ kerf* asks that, and it is what decides where a port may sit.
 
 **The round port is placed hard against that limit, by construction.** `port()`
 keeps a tooth only where the gap clears `MIN_FEATURE + BURN`, so the surviving
-tooth lands exactly on the minimum: every round-ported design — coupon,
-serpentine, opposed and the R35to113 spiral — reports 1.650mm drawn, 1.500mm
-left, against 1.5mm needed. A margin of **zero**, and it passes only because
+tooth lands exactly on the minimum: every round-ported design — serpentine,
+opposed and the R35to113 spiral — reports 1.650mm drawn, 1.500mm left, against
+1.5mm needed. A margin of **zero**, and it passes only because
 the comparison carries a 1e-9 slack; without it the sum came out
 1.6499999999999986 and the design was refused over 1.3e-15mm.
 
@@ -562,8 +563,8 @@ G=~/LaserMadeMusic/GIT/lasermade-tools
 #
 # "at the default ply and kerf" is NOT the same as a bare `ribbon_bore.py`.
 # Every shipped sheet is --narrow, so the bare run reproduces none of them: it
-# draws a FULL-WIDTH coupon and, having no --out, drops two files named like
-# cut files into THIS DIRECTORY rather than into any cut-files/ -- which is
+# draws a FULL-WIDTH double spiral and, having no --out, drops two files named
+# like cut files into THIS DIRECTORY rather than into any cut-files/ -- which is
 # where a stray sheet in this folder comes from. Use --no-write to run the checks,
 # or --out to send a trial somewhere harmless.
 python3 ribbon_bore.py --no-write      # the checks alone, writes nothing
