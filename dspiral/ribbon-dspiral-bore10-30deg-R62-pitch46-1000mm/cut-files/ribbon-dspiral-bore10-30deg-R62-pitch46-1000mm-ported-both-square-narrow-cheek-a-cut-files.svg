@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="206.36mm" height="255.75mm" viewBox="0 0 206.36 255.75">
-<title>Ribbon bore, dspiral - the cheek - CUT THIS SHEET TWICE - 10mm square bore, 30 degree facets</title>
-<desc>1 user unit = 1mm. the cheek - CUT THIS SHEET TWICE. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 60 wall panels in all, numbered along the flow. The airway is exact along every facet and 3.5% over at each mitre. 3mm ply, slots cut for a 3mm sheet at 0.15mm kerf, 0.025mm play per side taken out of the slot and never off the tab. NARROW: the cheek is only as wide as the duct, so every mortice is open at the rim and each tab is held across its thickness on one side only. The two plain 16mm squares on the panels sheet are the end caps: each glues over one open end of the duct so the air turns into its port, they carry no number, and BOTH are needed. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
+<title>Ribbon bore, dspiral - cheek A - CUT THIS SHEET ONCE - carries the mouth port - 10mm square bore, 30 degree facets</title>
+<desc>1 user unit = 1mm. cheek A - CUT THIS SHEET ONCE - carries the mouth port. A duct of constant 10 x 10mm section swept along a planar curve; the two cheeks are the same part and both go on the same way up. 60 wall panels in all, numbered along the flow. The airway is exact along every facet and 3.5% over at each mitre. 3mm ply, slots cut for a 3mm sheet at 0.15mm kerf, 0.025mm play per side taken out of the slot and never off the tab. NARROW: the cheek is only as wide as the duct, so every mortice is open at the rim and each tab is held across its thickness on one side only. The two plain 16mm squares on the panels sheet are the end caps: each glues over one open end of the duct so the air turns into its port, they carry no number, and BOTH are needed. blue #0000ff engraves, orange #ff8000 cuts the slots first, black #000000 frees the parts.</desc>
   <g id="numbers" fill="none" stroke="#0000ff" stroke-width="0.2">
     <path d="M 78.788,220.143 L 78.409,220.476 L 77.941,220.312 L 77.852,219.815 L 77.971,219.475 L 79.304,218.671 L 78.368,218.343"/>
     <path d="M 77.949,218.196 L 77.534,218.050"/>
@@ -223,8 +223,8 @@
     <path d="M 126.324,36.827 L 127.178,37.127 L 127.840,35.239"/>
     <path d="M 127.495,36.221 L 126.875,36.003"/>
     <path d="M 126.543,34.785 L 126.128,34.639"/>
-    <path d="M 83.793,23.201 L 84.154,23.879 L 83.637,25.351 L 82.933,25.655 L 82.572,24.977 L 83.089,23.505 L 83.793,23.201"/>
-    <path d="M 84.086,26.059 L 84.626,26.248"/>
+    <path d="M 72.696,19.309 L 73.056,19.987 L 72.540,21.459 L 71.835,21.763 L 71.475,21.086 L 71.991,19.613 L 72.696,19.309"/>
+    <path d="M 72.989,22.167 L 73.528,22.357"/>
   </g>
   <g id="slots" fill="none" stroke="#ff8000" stroke-width="0.2">
     <path d="M 96.524,230.441 L 90.956,228.489 L 91.900,225.800 L 97.467,227.752 Z"/>
@@ -362,7 +362,6 @@
     <path d="M 125.784,33.926 L 120.216,31.974 L 121.159,29.284 L 126.727,31.237 Z"/>
     <path d="M 114.460,29.955 L 108.892,28.003 L 109.836,25.313 L 115.403,27.266 Z"/>
     <path d="M 130.359,228.690 L 127.099,237.985 L 136.395,241.244 L 139.654,231.949 L 130.359,228.690 Z"/>
-    <path d="M 76.000,27.065 L 79.260,17.770 L 69.965,14.510 L 66.705,23.805 L 76.000,27.065 Z"/>
   </g>
   <g id="outlines" fill="none" stroke="#000000" stroke-width="0.2">
     <path d="M 145.436,230.798 L 105.802,216.899 L 61.486,201.358 L 33.663,168.774 L 26.360,128.566 L 39.609,92.007 L 67.945,68.362 L 102.384,62.549 L 133.202,74.198 L 152.680,98.274 L 157.028,126.977 L 153.101,137.090 L 144.719,144.077 L 134.001,146.130 L 123.630,142.735 L 115.493,133.979 L 110.150,124.106 L 103.848,112.460 L 91.552,99.230 L 73.399,93.287 L 54.638,96.881 L 39.965,109.111 L 33.028,126.977 L 38.653,164.107 L 63.536,194.864 L 102.384,209.549 L 145.279,202.308 L 180.193,173.174 L 196.360,128.566 L 187.527,79.941 L 154.152,40.854 L 105.802,23.899 L 66.169,10.000 L 60.924,24.957 L 100.557,38.856 L 144.874,54.397 L 172.696,86.981 L 180.000,127.189 L 166.751,163.747 L 138.414,187.392 L 103.976,193.206 L 73.157,181.557 L 53.680,157.481 L 49.332,128.778 L 53.258,118.664 L 61.641,111.677 L 72.359,109.625 L 82.730,113.020 L 90.867,121.775 L 96.210,131.649 L 102.511,143.294 L 114.807,156.524 L 132.961,162.467 L 151.722,158.874 L 166.395,146.644 L 173.332,128.778 L 167.707,91.648 L 142.824,60.890 L 103.976,46.206 L 61.081,53.447 L 26.166,82.581 L 10.000,127.189 L 18.833,175.814 L 52.207,214.900 L 100.557,231.856 L 140.191,245.755 Z"/>

@@ -267,6 +267,24 @@ PORT_SQUARE = False
 # reason it says "ported" and "square" -- the sheets are otherwise told apart
 # only by counting holes in a thumbnail.
 PORT_BOTH = False
+# --port-per-cheek: the two ports split between the two cheeks rather than each
+# going through both. It changes no geometry -- same coil, same panels, same two
+# holes in the same two places -- only WHICH SHEET each hole is drawn on, and
+# that turns one sheet cut twice into two sheets cut once.
+#
+# The reason is what a port through both cheeks leaves you: a socket right
+# through, and the side you are not using is an open hole to plug. Two ports
+# make four such holes and two of them are waste. One port a cheek makes two
+# holes, both of them wanted, and nothing to plug.
+#
+# The consequence is worth saying out loud, because it is the instrument: the
+# mouthpiece goes into one FACE and the bell leaves the other. The openings no
+# longer sit in the plane of the coil at all, so the total-turning-zero argument
+# that puts the two RIM ends on opposite headings stops describing how the thing
+# is played -- those ends are the capped ones now.
+#
+# It needs --port-both, having nothing to split otherwise.
+PORT_PER_CHEEK = False
 # --port-square implies this: the square port needs the lead panel's tooth out
 # of the way, and folding the lead into the facet it already lies on is the
 # only move that buys the room without moving the coil. Separately settable so
@@ -1338,12 +1356,19 @@ def items_for(parts, cheekpoly, cline):
     part is finally placed, and placement is the packer's business.
     """
     out = []
-    for k in range(1):
-        def cheek_marks(dx, dy, _p=parts, _c=cline):
+    # ONE cheek, unless --port-per-cheek, when it is one per port and they are
+    # different parts. Everything else about them is identical, so the only
+    # thing that varies down this loop is which ports the sheet carries -- and
+    # the labels have to follow, or a number gets engraved into a hole that is
+    # on this sheet while the label dodged one that is not.
+    subsets = ([port_holes(cline)] if not PORT_PER_CHEEK
+               else [[P] for P in port_holes(cline)])
+    for k, mine in enumerate(subsets):
+        def cheek_marks(dx, dy, _p=parts, _c=cline, _mine=mine):
             m = []
             _dropped = []
             holes = [[(q[0] + dx, q[1] + dy) for q in P]
-                     for P in port_holes(_c)]
+                     for P in _mine]
 
             def _fouls_at(px, py, ang, h=2.0, n=1):
                 """Does a label of n glyphs, h tall, at this angle, hit a port?
@@ -1452,10 +1477,14 @@ def items_for(parts, cheekpoly, cline):
                       f'The panels carry the same tags.')
             return m
         cheek_slots = [sl for q in parts for sl in slots_for(q)]
-        cheek_slots.extend(port_holes(cline))
+        cheek_slots.extend(mine)
         out.append({'outline': cheekpoly,
                     'slots': cheek_slots,
-                    'marks': cheek_marks})
+                    'marks': cheek_marks,
+                    'note': ('the cheek - CUT THIS SHEET TWICE'
+                             if not PORT_PER_CHEEK else
+                             f'cheek {"AB"[k]} - CUT THIS SHEET ONCE - carries '
+                             f'the {"mouth" if k == 0 else "far end"} port')})
     pan = []
     for q in parts:
         w = q['len'] + BURN
@@ -1609,15 +1638,68 @@ def sheet(parts, cheekpoly, cline, path_out, write=True):
             open(path_here, 'w').write(body)
         written.append((os.path.basename(path_here), W, H, len(placed), note))
 
-    for gname, items, note in (
-            ('cheek-x2', cheeks, 'the cheek - CUT THIS SHEET TWICE'),
-            ('panels', panels, 'the wall panels')):
+    # Each cheek gets its OWN sheet, never two on one: the x2 sheet is cut
+    # twice and sheet() says in bold that nothing else may share it, and under
+    # --port-per-cheek the same rule applies for a sharper reason -- two
+    # different parts on one sheet would be cut in pairs and you would have two
+    # of each where you want one of each.
+    groups = ([('cheek-x2', cheeks, cheeks[0]['note'])] if len(cheeks) == 1
+              else [(f'cheek-{"ab"[i]}', [ck], ck['note'])
+                    for i, ck in enumerate(cheeks)])
+    for gname, items, note in groups + [('panels', panels, 'the wall panels')]:
         sheets = pack(items)
         for n, placed in enumerate(sheets, 1):
             tail = f'-sheet{n}' if len(sheets) > 1 else ''
             write_sheet(placed, f'{stem}-{gname}{tail}-cut-files{ext}', note,
                         n, len(sheets))
     return written, ink, cut_slots
+
+
+def rotatable(cheekpoly, parts, cline):
+    """Is cheek B cheek A turned half a turn? Worst mismatch in mm, or None.
+
+    REPORTED, NOT CHECKED, exactly as flippable() is: neither answer is a
+    fault. It matters because when the answer is yes the two sheets
+    --port-per-cheek writes are the same part twice, and you may cut either
+    one of them twice and turn one round instead -- at the price of engraved
+    numbers that read upside down on the one you turned. That is a choice for
+    whoever is at the machine, and it needs the number to make it.
+
+    The centre is the midpoint of the two ports, not the origin: a shape can be
+    point-symmetric about somewhere other than where its coordinates happen to
+    be centred, and assuming the origin would report a false no.
+
+    Matched as a bijection between nearest points, for the reason flippable()
+    spells out at length -- zipping two sorted lists answers this question
+    backwards under a perturbation of a few hundredths.
+    """
+    ports = port_holes(cline)
+    if len(ports) != 2:
+        return None
+    def ctr(P):
+        q = P[:4]
+        return (sum(x for x, _ in q) / 4, sum(y for _, y in q) / 4)
+    (ax, ay), (bx, by) = ctr(ports[0]), ctr(ports[1])
+    ox, oy = (ax + bx) / 2, (ay + by) / 2
+    def turned(pts):
+        return [(2 * ox - x, 2 * oy - y) for x, y in pts]
+    def worst(A, Bb):
+        rem, w = list(range(len(Bb))), 0.0
+        if len(A) != len(Bb):
+            return None
+        for q in A:
+            j = min(rem, key=lambda k: math.hypot(q[0] - Bb[k][0],
+                                                  q[1] - Bb[k][1]))
+            w = max(w, math.hypot(q[0] - Bb[j][0], q[1] - Bb[j][1]))
+            rem.remove(j)
+        return w
+    mort = [q for p in parts for sl in slots_for(p) for q in sl]
+    ws = [worst(cheekpoly, turned(cheekpoly)),
+          worst(mort, turned(mort)),
+          worst(ports[0][:4], turned(ports[1][:4]))]
+    if any(w is None for w in ws):
+        return None
+    return max(ws)
 
 
 def flippable(cheekpoly, parts):
@@ -1886,9 +1968,21 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     # actually marks is the edge of the panel standing in it
     over = sum(1 for x, y, _, f in ink
                if any(inside(sl, x, y) for sl, f2 in cut_slots if f2 == f))
-    note(over == 0 and len(cut_slots) == len(allslots),
+    # The count half of this verdict is the half that has earned its place: it
+    # is what said "16 slots on a sheet that has 32" and exposed a check
+    # comparing two spaces that could not overlap. So it is kept and made
+    # right rather than dropped. Under --port-per-cheek the mortices are drawn
+    # on BOTH cheek sheets and each carries one of the two ports, so the sheets
+    # hold mortices x 2 + 2 rather than mortices + 2. Written as the general
+    # sum, which is the unchanged figure when there is one cheek sheet.
+    ncheek = 2 if PORT_PER_CHEEK else 1
+    want = len(mortices) * ncheek + len(port_holes(c))
+    note(over == 0 and len(cut_slots) == want,
          'no engraving lands in a slot',
-         f'{len(ink)} points against {len(cut_slots)} slots, {over} inside one')
+         f'{len(ink)} points against {len(cut_slots)} slots '
+         f'({len(mortices)} mortices on {ncheek} cheek sheet(s) plus '
+         f'{len(port_holes(c))} port(s), so {want} expected), '
+         f'{over} inside one')
 
     # The cheek is one piece and it must not cross itself. Every other check
     # here asks about slots, panels or engraving, and all of them passed on a
@@ -2112,11 +2206,24 @@ def main(write=True):
         os.path.dirname(os.path.abspath(__file__)), stem)
     written, ink, cut_slots = sheet(parts, cheekpoly, c, out_path, write)
     turn = flippable(cheekpoly, parts)
-    print(f'\n  the two cheeks are identical, and go on the same way up.')
-    print('  ' + (f'  (geometrically one could be flipped and turned '
-                  f'{turn:g} deg, but its numbers would then read mirrored '
-                  f'and face into the bore)' if turn is not None
-                  else '  (a flipped cheek meets no tab at any angle)'))
+    if PORT_PER_CHEEK:
+        spin = rotatable(cheekpoly, parts, c)
+        print(f'\n  the two cheeks are DIFFERENT parts: cheek A carries the '
+              f'mouth port, cheek B the far one.')
+        print('  ' + (
+            f'  (they are the same part half a turn apart, to '
+            f'{spin:.0e}mm -- so one sheet cut twice with one turned round '
+            f'would do, at the price of numbers upside down on it)'
+            if spin is not None and spin < 1e-6 else
+            f'  (not the same part at any angle, so both sheets are needed)'))
+        print('    the mouthpiece enters one FACE and the bell leaves the '
+              'other; both rim ends are capped.')
+    else:
+        print(f'\n  the two cheeks are identical, and go on the same way up.')
+        print('  ' + (f'  (geometrically one could be flipped and turned '
+                      f'{turn:g} deg, but its numbers would then read mirrored '
+                      f'and face into the bore)' if turn is not None
+                      else '  (a flipped cheek meets no tab at any angle)'))
     print(f'\n  {len(parts)} wall panels + 2 cheeks'
           # Same rule: the one-cap line is the shipped sheets' own wording.
           + ('' if not CAP else ' + 1 end cap' if caps() == 1
@@ -2220,11 +2327,16 @@ if __name__ == '__main__':
     NARROW = '--narrow' in a
     PORT_SQUARE = '--port-square' in a
     PORT_BOTH = '--port-both' in a
+    PORT_PER_CHEEK = '--port-per-cheek' in a
     MERGE_LEAD = '--merge-lead' in a or PORT_SQUARE
     CAP = '--cap' in a
     if PORT_BOTH and not PORT:
         raise SystemExit('error: --port-both without --port draws no port at '
                          'all, at either end. Pass both.')
+    if PORT_PER_CHEEK and not PORT_BOTH:
+        raise SystemExit('error: --port-per-cheek without --port-both has one '
+                         'port and two cheeks, so there is nothing to split. '
+                         'It exists to put the two ports on different sheets.')
     if CAP and not PORT:
         raise SystemExit('error: --cap without --port closes the only opening '
                          'the bore has. The cap exists so a PORTED bore stops '

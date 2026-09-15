@@ -45,6 +45,84 @@ def wheel(n):
     return out
 
 
+def port_spans(c):
+    """Each port as (segment index, t0, t1) along that segment, mouth first.
+
+    THE PAGE DRAWS THE OPENING, NOT THE DRAWN LINE. port_hole() returns the
+    polygon the laser follows, which is BURN under size because the kerf opens
+    it; the hole in the finished part is PORT_ACROSS x PORT_ALONG exactly, and
+    that is the hole air goes through. So the centre comes from the same
+    PORT_FROM_TIP the generator uses and the size from the same two constants,
+    with the kerf deliberately left out. 0.15mm on a 10mm port, and drawing the
+    cut line here would be drawing the tool rather than the passage.
+    """
+    if not B.PORT:
+        return []
+    out = []
+    ends = [0] + ([-1] if B.PORT_BOTH else [])
+    for e in ends:
+        i = 0 if e == 0 else len(c) - 2
+        L = B.seglen(c[i], c[i + 1])
+        half = B.PORT_ALONG / 2
+        lo, hi = B.PORT_FROM_TIP - half, B.PORT_FROM_TIP + half
+        # measured from the TIP, which is station 0 at the mouth and the last
+        # station at the far end -- so the far end's t runs the other way
+        t0, t1 = (lo / L, hi / L) if e == 0 else (1 - hi / L, 1 - lo / L)
+        if not (0 <= t0 < t1 <= 1):
+            raise ValueError(
+                f'the port at {B.PORT_FROM_TIP:g}mm from the tip, '
+                f'{B.PORT_ALONG:g}mm long, does not fit inside the '
+                f'{L:.1f}mm lead it sits on. Lengthen --lead or move '
+                f'--port-from-tip.')
+        out.append((i, t0, t1))
+    return out
+
+
+def framed(V, a, d, h, i, t0, t1, s0, s1, top):
+    """The cheek face of segment i as eight quads around a rectangular hole.
+
+    Appends the grid's new corners to V and returns the quads. The centre cell
+    is the port and is simply not emitted -- a hole in this drawing is absence,
+    because the page draws the airway's boundary and not the 3mm of ply the
+    hole is cut through.
+
+    Cells of no area are dropped, which is what makes a BORE-wide square port
+    work: PORT_ACROSS equals the bore, so s0 is 0 and s1 is 1, the two side
+    columns collapse, and the face comes out as the two quads either side of
+    the opening rather than eight with six of them degenerate.
+
+    The grid interpolates the quad's own corners rather than stepping out from
+    the centreline, so the hole's long edges follow the face they are cut in.
+    Where a mitre widens that face -- 0.18mm a side at 30 degrees -- the hole
+    flares by the same fraction across its length. It is a picture; the number
+    is under two tenths of a millimetre, and the alternative is a hole that
+    does not lie in the surface it is cut from.
+    """
+    z = h if top else -h
+    def at(t, ss):
+        ax = a[i][0] + (a[i + 1][0] - a[i][0]) * t
+        ay = a[i][1] + (a[i + 1][1] - a[i][1]) * t
+        dx = d[i][0] + (d[i + 1][0] - d[i][0]) * t
+        dy = d[i][1] + (d[i + 1][1] - d[i][1]) * t
+        V.append([round(ax + (dx - ax) * ss, 3),
+                  round(ay + (dy - ay) * ss, 3), round(z, 3)])
+        return len(V) - 1
+    ts, ss = [0.0, t0, t1, 1.0], [0.0, s0, s1, 1.0]
+    grid = [[at(t, u) for u in ss] for t in ts]
+    out = []
+    for r in range(3):
+        for k in range(3):
+            if r == 1 and k == 1:
+                continue                      # the port
+            if ts[r + 1] - ts[r] < 1e-9 or ss[k + 1] - ss[k] < 1e-9:
+                continue                      # a cell of no area
+            p00, p01 = grid[r][k], grid[r][k + 1]
+            p11, p10 = grid[r + 1][k + 1], grid[r + 1][k]
+            v = ([p00, p01, p11, p10] if top else [p00, p10, p11, p01])
+            out.append({'v': v, 'f': 2 if top else 3, 's': i})
+    return out
+
+
 def data_for():
     """Vertices and quads for the airway, plus what each face is."""
     c = B.centreline()
@@ -62,12 +140,35 @@ def data_for():
         V += [[a[i][0], a[i][1], -h], [a[i][0], a[i][1], h],
               [d[i][0], d[i][1], h], [d[i][0], d[i][1], -h]]
     shut = (abs(c[0][0] - c[-1][0]) < 1e-6 and abs(c[0][1] - c[-1][1]) < 1e-6)
+    # A port goes through BOTH cheeks: they are one part cut twice, so the hole
+    # is a socket right through and you plug the side you are not using. Both
+    # cheek faces therefore lose the same rectangle.
+    spans = port_spans(c)
+    across = (1 - B.PORT_ACROSS / B.BORE) / 2 if B.PORT else 0.0
+    # WHICH CHEEK EACH PORT IS IN. Without --port-per-cheek a port goes through
+    # both, because the cheek is one part cut twice -- a socket right through,
+    # and you plug the side you are not using. With it the two ports are drawn
+    # on different sheets, so the mouth opens through the TOP cheek and the far
+    # end through the BOTTOM, and the instrument is blown into one face with
+    # the bell leaving the other. The page has to say which, because a picture
+    # showing both holes in both faces is a picture of a part nobody cut.
+    if B.PORT_PER_CHEEK:
+        top_h = {spans[0][0]: spans[0][1:]}
+        bot_h = {spans[1][0]: spans[1][1:]}
+    else:
+        top_h = bot_h = {i: (t0, t1) for i, t0, t1 in spans}
     for i in range(len(c) - 1):
         p, q = 4 * i, 4 * (i + 1)
         Q.append({'v': [p + 0, p + 1, q + 1, q + 0], 'f': 0, 's': i})   # inner
         Q.append({'v': [p + 3, q + 3, q + 2, p + 2], 'f': 1, 's': i})   # outer
-        Q.append({'v': [p + 1, p + 2, q + 2, q + 1], 'f': 2, 's': i})   # top
-        Q.append({'v': [p + 0, q + 0, q + 3, p + 3], 'f': 3, 's': i})   # bottom
+        if i in top_h:
+            Q += framed(V, a, d, h, i, *top_h[i], across, 1 - across, True)
+        else:
+            Q.append({'v': [p + 1, p + 2, q + 2, q + 1], 'f': 2, 's': i})  # top
+        if i in bot_h:
+            Q += framed(V, a, d, h, i, *bot_h[i], across, 1 - across, False)
+        else:
+            Q.append({'v': [p + 0, q + 0, q + 3, p + 3], 'f': 3, 's': i})  # bottom
     # The two cheek plates used to be drawn here as well, at full band width,
     # 3mm proud of the airway top and bottom -- faces 6 and 7, 'ply, top' and
     # 'ply, bottom'. They are gone (2026-09-13): every view of the inside was
@@ -123,10 +224,22 @@ def data_for():
         # always six, in face-index order; the key shows only the ones the
         # quads actually use, so a closed ring drops mouth and far end by
         # itself rather than by shifting every index after them
+        # A CAP IS NOT A MOUTH, and the page said it was. cap()'s own note
+        # settles which end it closes: "the mouthpiece goes into the port and
+        # the run simply stops a bore further on", so the plate covers the stub
+        # past the port, at the MOUTH. With --port-both there is such a stub at
+        # each end and caps() draws two, so both ends are shut and the bore
+        # breathes through the ports alone. Drawn as openings, those two faces
+        # were the only holes on a page whose real holes it did not draw.
         'faces': ['inner wall', 'outer wall', 'top cheek', 'bottom cheek',
-                  'mouth', 'far end'],
+                  'cap (mouth)' if B.CAP else 'mouth',
+                  'cap (far end)' if B.CAP and B.PORT_BOTH else 'far end'],
         'facecol': ['#5aa9e6', '#3d7ebd', '#c9d6e3', '#8fa3b8',
-                    '#1c1c20', '#e0457b'],
+                    '#b08968' if B.CAP else '#1c1c20',
+                    '#b08968' if B.CAP and B.PORT_BOTH else '#e0457b'],
+        'ports': len(spans),
+        'portsize': [B.PORT_ACROSS, B.PORT_ALONG] if B.PORT else None,
+        'percheek': B.PORT_PER_CHEEK,
     }
 
 
@@ -310,7 +423,7 @@ function key(){
   const rows = mode === 'face'
     ? D.faces.map((n,i) => [D.facecol[i], n, i])
         .filter(([,,i]) => D.Q.some(q => q.f === i)).map(([c,n]) => [c,n])
-    : (D.shut ? [] : [[D.facecol[4],'mouth'], [D.facecol[5],'far end']]).concat(
+    : (D.shut ? [] : [[D.facecol[4],D.faces[4]], [D.facecol[5],D.faces[5]]]).concat(
       [[D.pal[0], 'facet 1'], [D.pal[Math.floor(D.segs/2) % D.pal.length],
         'facet ' + (Math.floor(D.segs/2)+1)],
        [D.pal[(D.segs-1) % D.pal.length], 'facet ' + D.segs]]);
@@ -319,6 +432,16 @@ function key(){
     d.innerHTML = `<span class="sw" style="background:${c}"></span><span>${n}</span>`;
     k.appendChild(d);
   }
+}
+
+/* what the openings actually are: the ports, and which ends are shut */
+function portrow(){
+  const caps = [4,5].filter(i => D.faces[i].startsWith('cap')).length;
+  const shut = caps === 2 ? 'both ends capped'
+             : caps === 1 ? 'the mouth capped' : 'neither end capped';
+  const where = D.percheek ? 'one a cheek, opposite faces' : 'through both cheeks';
+  return `${D.ports} \u00d7 ${D.portsize[0]} \u00d7 ${D.portsize[1]}mm, `
+       + `${where}, ${shut}`;
 }
 
 $('sub').innerHTML = `<b>${D.bore} \u00d7 ${D.bore}mm</b> section, `
@@ -334,7 +457,8 @@ $('nums').innerHTML = [
      ? (D.rrange[0]/D.bore).toFixed(1) + ' to ' + (D.rrange[1]/D.bore).toFixed(1)
      : (D.R/D.bore).toFixed(1)],
   ['facet', D.facet + '\u00b0'], ['area at a mitre', '+' + D.over + '%'],
-].map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+].concat(D.ports ? [['ports', portrow()]] : [])
+ .map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
 
 key(); revn();
 addEventListener('resize', draw);
@@ -456,7 +580,8 @@ def main():
              ('wave-lead-r', float), ('ds-pitch', float),
              ('ds-r0', float), ('ds-facets', int), ('ds-cross-r', float),
              ('vol-r0', float), ('vol-step', float),
-             ('vol-semis', int), ('vol-cross-r', float))
+             ('vol-semis', int), ('vol-cross-r', float),
+             ('port-from-tip', float))
     for flag, cast in FLAGS:
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
@@ -472,7 +597,8 @@ def main():
                 'ds-r0': 'DS_R0', 'ds-facets': 'DS_FACETS',
                 'ds-cross-r': 'DS_CROSS_R', 'vol-r0': 'VOL_R0',
                 'vol-step': 'VOL_STEP', 'vol-semis': 'VOL_SEMIS',
-                'vol-cross-r': 'VOL_CROSS_R'}[flag]
+                'vol-cross-r': 'VOL_CROSS_R',
+                'port-from-tip': 'PORT_FROM_TIP'}[flag]
         setattr(B, name, cast(hit[0].split('=', 1)[1]))
 
     # This table is a SECOND copy of the generator's, and an unlisted flag
@@ -485,12 +611,35 @@ def main():
     # across here instead of through FLAGS. That makes three things this second
     # copy has lacked that the generator had; the two notes above are the others.
     B.DS_HALF = '--ds-half' in a
+    # The port flags, carried across the same way and for a stronger reason
+    # than --ds-half: a page drawn without them shows a mouth and a far end
+    # that the ported part has not got, and no hole where its openings are.
+    # --port-square's implication is copied from the generator rather than
+    # inferred, because the SIZE follows --bore and reading it off anything
+    # else is how the two copies of this argument handling drift apart.
+    B.PORT = '--port' in a
+    B.PORT_BOTH = '--port-both' in a
+    B.PORT_PER_CHEEK = '--port-per-cheek' in a
+    B.CAP = '--cap' in a
+    if '--port-square' in a:
+        B.PORT_ACROSS = B.PORT_ALONG = B.BORE
+    for flag, why in (('--port-both', 'draws no port at all, at either end'),
+                      ('--port-square', 'draws no port at all'),
+                      ('--port-per-cheek', 'draws no port at all'),
+                      ('--cap', 'closes the only opening the bore has')):
+        if flag in a and not B.PORT:
+            sys.exit(f'ribbon_view: {flag} without --port {why}. Pass both.')
+    if B.PORT_PER_CHEEK and not B.PORT_BOTH:
+        sys.exit('ribbon_view: --port-per-cheek without --port-both has one '
+                 'port and two cheeks, so there is nothing to split.')
     # --trace belongs in this set too. It was not, so the guard rejected the
     # one flag whose handler sits forty lines below it and the traced page
     # could not be redrawn at all -- the check meant to stop a page and its
     # sheets being built from different numbers stopped a page being built.
     known = ({f'--{f}' for f, _ in FLAGS}
-             | {'--out', '--home', '--embed', '--ds-half', '--trace'})
+             | {'--out', '--home', '--embed', '--ds-half', '--trace',
+                '--port', '--port-square', '--port-both', '--port-per-cheek',
+                '--cap'})
     for x in a:
         if x.startswith('--') and x.split('=', 1)[0] not in known:
             sys.exit(f'ribbon_view: {x.split("=", 1)[0]} is not a flag here. '

@@ -599,7 +599,58 @@ python3 ribbon_bore.py --port --port-both --port-square \
                                        # far port lands on that lead's only
                                        # tooth and teeth_kept() refuses --
                                        # correctly. --cap then makes TWO caps,
-                                       # because two ends are open
+                                       # because two ends are open.
+                                       #
+                                       # `--ds-half --ds-facets=2 --lead=42`
+                                       # is the coupon for it, 240mm on two
+                                       # sheets. It carries the SAME 42mm lead
+                                       # as the shipped 1000mm design, not the
+                                       # 20mm the 196mm halftest has, and that
+                                       # is the point: a merged panel is
+                                       # lead + facet, so a coupon at another
+                                       # lead proves a different panel and puts
+                                       # its teeth somewhere else. It is for
+                                       # the tail fold and the far port, the
+                                       # parts of this flag that are new, the
+                                       # way the 196mm one is for the crossover
+python3 ribbon_bore.py --port --port-both --port-per-cheek --port-square \
+    --out=x-ported-both-square.svg     # the two ports SPLIT between the two
+                                       # cheeks instead of each going through
+                                       # both. No geometry moves -- same coil,
+                                       # same panels, the same two holes in the
+                                       # same two places -- only which SHEET
+                                       # each hole is drawn on, and that turns
+                                       # one sheet cut twice into cheek-a and
+                                       # cheek-b, each cut once.
+                                       #
+                                       # What it buys: a port through both
+                                       # cheeks is a socket right through, and
+                                       # the side you are not using is an open
+                                       # hole to plug. Two ports make four of
+                                       # them and two are waste. One a cheek
+                                       # makes two, both wanted.
+                                       #
+                                       # What it costs is worth saying out
+                                       # loud, because it IS the instrument:
+                                       # the mouthpiece enters one FACE and the
+                                       # bell leaves the other. The openings
+                                       # stop being in the plane of the coil,
+                                       # so the total-turning-zero argument
+                                       # that puts the two RIM ends on opposite
+                                       # headings no longer describes how the
+                                       # thing is played -- those ends are the
+                                       # capped ones now.
+                                       #
+                                       # rotatable() REPORTS whether the two
+                                       # sheets are the same part half a turn
+                                       # apart, as flippable() reports its own
+                                       # question and for the same reason:
+                                       # neither answer is a fault. On the
+                                       # double spiral they are, to 9e-16mm, so
+                                       # one sheet cut twice with one turned
+                                       # round would do -- at the price of
+                                       # numbers upside down on the turned one,
+                                       # which is why two sheets is the default
 python3 ribbon_bore.py --merge-lead --out=x-merged.svg   # the merge on its own,
                                        # to look at. Names itself "-merged";
                                        # --port-square does not, because
