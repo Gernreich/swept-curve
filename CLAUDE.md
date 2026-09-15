@@ -368,6 +368,70 @@ designs, the volute narrowest at 3.736mm and the R36to144 spiral widest at
 ends and reports the same 4.672mm at each -- `--port-both` folds the tail lead
 as well, so its far port gets the whole facet the mouth's does.
 
+## A port seats a BELL in 3mm of ply. Nothing has seated a mouthpiece in one
+
+The stack is 16mm through and a port is cut in ONE cheek, so whatever goes into
+it meets 3mm of birch and not the whole sandwich. That reads thin on paper and
+it is the first thing anyone asks about this joint.
+
+**For a bell it holds, and there is a photograph of it holding.** The R35to113
+spiral is square-ported and glued up, and its bell is seated in the port — a
+ring-stack shank standing up out of the plane of the coil, carried by a 10 x 10mm
+hole through one 3mm cheek.
+
+![The R35to113 spiral bore glued up in pale birch, its finger joints and
+engraved panel numbers visible along every seam, with the ring-stack bell
+standing vertically out of the plane of the coil where its shank seats in the
+square port, and the mouthpiece on the lead at the far
+end](../../../../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-glued-up_web.jpg)
+
+**THE MOUTHPIECE IS NOT ON A PORT ON EITHER BUILT INSTRUMENT.** Look at the
+photograph again: the bell stands in the port, and the mouthpiece is out on the
+lead, seated in the TUBE END where the four walls grip the full 16mm depth. The
+three-turn trumpet does the same at both of its ends.
+
+![The built three-turn trumpet laid flat: a square-section lattice bore in
+scorched, shellacked birch with its finger joints alternating light and dark
+along every seam, the stacked-ring mouthpiece seated in the end of the square
+run at one end and the flared ring-stack bell at the
+other](../../../../built/coil-fold2-long-straight-3t/bore10-coil-fold2-long-straight-3t_web.jpg)
+
+They are different joints, and only one of the two has been asked to hold a
+mouthpiece. A bell sits where it is put; a mouthpiece takes lip pressure and
+whatever the player leans into it, which is the load the 3mm has never seen.
+Do not read the bell in that port as settling the mouthpiece.
+
+**SO THE 1000mm DOUBLE SPIRAL SHIPS BOTH ARRANGEMENTS**, and the folder holds
+three sheet sets because of it:
+
+    ...-1000mm-narrow-*                      no ports at all, the plain coil
+    ...-1000mm-ported-square-narrow-*        ONE port, one cap, one open end
+    ...-1000mm-ported-both-square-narrow-*   TWO ports, two caps, both ends shut
+
+The one-port set is the spiral's arrangement, the one that exists in wood: the
+port takes the bell, its stub is capped, and the far rim end stays open for the
+mouthpiece to seat on the tube end where four walls grip 16mm. It is `--port`
+without `--port-both`, and its port goes through BOTH cheeks, so one face of it
+is a hole to plug — which is the cost `--port-per-cheek` exists to avoid and
+which the built spiral pays.
+
+The two-port set is the one that needs nothing plugged and puts the mouthpiece
+and the bell on opposite faces. It is also the one whose mouth port has never
+been made. Cut the 240mm coupon first if that is the one you want.
+
+Each has a page of its own, because the airways differ. In
+`dspiral/ribbon-dspiral-bore10-30deg-R62-pitch46-1000mm/`, the page named for
+the folder is the TWO-port bore and the one whose name ends `-ported-square` is
+the one-port — which is the opposite of how the sheets read, where the plainer
+name is the plainer part. The page takes the folder's name because that is what
+every other design does and what `ribbon_view.py` writes without `--out`.
+
+`cap()`'s own docstring has it the other way round — *"the mouthpiece goes into
+the port and the run simply stops a bore further on"* — and the built spiral
+does the opposite, putting the bell there. The generator is not wrong about the
+geometry, which does not care which end is which, but the sentence describes an
+instrument nobody has made.
+
 **So a change to `MIN_FEATURE`, `BURN` or `THICK` is a change to whether the
 four round-ported designs draw at all**, and they will fail together rather
 than one at a time. The square-ported eight have room to absorb it. Measure
