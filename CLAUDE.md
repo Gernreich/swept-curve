@@ -686,6 +686,24 @@ python3 ribbon_bore.py --narrow --out=x-narrow.svg   # the cheek trimmed flush
                                        # rib; --narrow follows the drawn slot
                                        # edge, so it tracks --kerf and --sheet
 python3 ribbon_view.py --shape=serpentine    # the page you turn
+python3 ribbon_view.py                       # NOT harmless. --shape defaults
+                                       # to dspiral now that the coupon is
+                                       # gone, and the page lands beside the
+                                       # cut files it belongs to -- so a bare
+                                       # run REWRITES the 1506mm double
+                                       # spiral's page rather than dropping a
+                                       # stray. Correct output, and it is how
+                                       # the staleness below was found, but it
+                                       # is not a no-op
+
+# THE DESIGN PAGES ARE GATED, since 2026-09-15, and were not before. The embed
+# gate watches the ONE page that crosses into Gernreich.github.io; the twelve
+# that sit beside their cut files were watched by nothing, and ten of them were
+# a viewer revision behind before anyone looked. Two were worse than behind --
+# their vertices did not match the flags their folder names claim, so they drew
+# a bore nobody had drawn. `design pages match their generator` rebuilds each
+# into a temp and compares, which is `previews current with their cut files`
+# applied to the pages instead of the sheets.
 
 # Every current sheet, from every design folder, into the ONE previews/ here.
 # `ribbon-*.svg` matched nothing once the sheets moved down into per-design
