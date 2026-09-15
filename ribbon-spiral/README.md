@@ -2,10 +2,10 @@
 
 **The second design here that exists in wood**, and the only one that is not a
 lattice walk. A rectangle swept along a flat coil: **1000mm of centreline** in
-17 facets of 45°, winding out from **R34.7 to R112.9** with a straight lead in
-and out. Two faces of the tube are flat and two are faceted, which is what a
-swept curve buys — the section grows **+8.2%** at a mitre where a 90° lattice
-corner grows 41.4%.
+19 facets of 45° — 17 of them the coil, with a straight lead in and out —
+winding out from **R34.7 to R112.9**. Two faces of the tube are flat and two are
+faceted, which is what a swept curve buys — the section grows **+8.2%** at a
+mitre where a 90° lattice corner grows 41.4%.
 
 <!-- readme-only -->
 **[Read this page](https://gernreich.github.io/trumpet/ribbon-spiral/)**
