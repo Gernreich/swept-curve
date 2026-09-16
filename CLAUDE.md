@@ -242,15 +242,50 @@ joining it, and the two together are refused — each answers "how many ports an
 where", and two answers is one too many. `--cap` is refused with it too:
 `caps()` counts ported *run ends* and `--port-at` ports none of them.
 
-**Say the acoustics out loud, because the geometry will not.** Two ports on a
-closed ring leave the air two paths between them, unequal unless the ports are
-antipodal: `--port-at=0,6` on a 13 ring is 114.9mm one way and 134.0mm the other
-at R40. That is a ring resonator, not a trumpet bore, and it passes all thirteen
-checks because all thirteen are geometric. A single air path needs the ring
-blocked between the ports, and **the only block position that leaves no dead
-side-branch is one adjacent to both of them** — which forces the ports adjacent
-to each other, which is the end-based placement again. The two wants are
-incompatible on a ring; pick one knowing that.
+### The port separation is the ring's tuning dial
+
+**Two ports on a ring leave the air two paths, and here that is the point.** The
+ring is a resonator with two parallel branches, not a duct, and it is not trying
+to be one. Ports on facets `0` and `K` split an n-ring into `K` facets one way
+and `n-K` the other, so **K is the dial** and it runs 1 to `n//2` — most
+lopsided at 1, nearest balanced at `n//2`.
+
+The 13 ring, every K it has, at both ends of its radius band. The **difference**
+sets the first destructive null, `c/2d` at 343m/s, plane-wave and no end
+correction — indicative, not a measurement:
+
+| K | paths (facets) | ratio | R40 difference | null | R135 difference | null |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 1 / 12 | 1:12 | 210.6mm | 814 Hz | 710.8mm | 241 Hz |
+| 2 | 2 / 11 | 2:11 | 172.3mm | 995 Hz | 581.5mm | 295 Hz |
+| 3 | 3 / 10 | 3:10 | 134.0mm | 1280 Hz | 452.3mm | 379 Hz |
+| 4 | 4 / 9 | 4:9 | 95.7mm | 1792 Hz | 323.1mm | 531 Hz |
+| 5 | 5 / 8 | 5:8 | 57.4mm | 2986 Hz | 193.8mm | 885 Hz |
+| 6 | 6 / 7 | 6:7 | 19.1mm | 8958 Hz | 64.6mm | 2654 Hz |
+
+**K=6 is the least uneven split a 13 ring has, not the most**, which is worth
+saying because `--port-at=0,6` reads like the natural middle and is one end of
+the range. At R40 its difference is a single facet and the first null is up at
+9kHz, near enough no audible branch effect at all; K=1 at R135 puts it at 241Hz,
+in the playing register.
+
+**An odd n cannot produce equal paths.** An even ring has `K = n/2` exactly
+antipodal — two identical branches, in phase, the effect gone. 13 has no such K;
+its closest split still differs by one facet. That is a reason to choose an odd
+facet count, not an accident of having chosen one. More lopsided than 1:12 means
+a bigger n: `--facet=14.4` is n=25, floor R68 (it grows as `17/(2 sin(pi/n))`),
+ceiling R134, and K=1 there is 1:24 — 33mm against 782mm at R130, first null
+229Hz.
+
+Every K from 1 to `n//2` passes all twelve checks at every radius in the band,
+measured at n=13 R40 and R135 and at n=25. The checks are all geometric and have
+no opinion about any of this; they say it can be cut, not that it is in tune.
+
+If a **single** path is ever wanted instead, the ring has to be blocked between
+the ports, and the only block position leaving no dead side-branch is one
+adjacent to both of them — which forces the ports adjacent to each other, which
+is the end-based placement again. Recorded because it is the question a reader
+asks at this point, not because anything here wants it.
 
 ### A ported ring's window depends on n, and the table has to say which n
 

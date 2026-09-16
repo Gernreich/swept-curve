@@ -307,14 +307,28 @@ PORT_PER_CHEEK = False
 # joining it, and the two together are refused: each is an answer to "how many
 # ports and where", and two answers is one too many.
 #
-# Say it plainly, because the ring makes it easy to miss: two ports on a closed
-# ring leave the air TWO paths between them, and they are unequal unless the
-# ports are antipodal. --port-at=0,6 on a 13 ring is 114.9mm one way and
-# 134.0mm the other at R40. That is a ring resonator and not a duct, and no
-# check here has an opinion about it -- they are all geometric. A single air
-# path needs the ring blocked between the ports, and the only block position
-# that leaves no dead side-branch is one adjacent to BOTH of them, which forces
-# the ports adjacent to each other and is the end-based placement again.
+# TWO PORTS ON A RING LEAVE THE AIR TWO PATHS, AND THAT IS THE POINT HERE.
+# The ring is not a duct and is not meant to be one: it is a resonator with two
+# parallel branches, and the SEPARATION of the ports is its tuning dial. Ports
+# on facets 0 and K split an n-ring into K facets one way and n-K the other, so
+# the dial is K and it runs 1 to n//2 -- most lopsided at K=1, nearest balanced
+# at K=n//2. On a 13 ring at R40 that is 1:12 (19.1 against 229.7mm) down to
+# 6:7 (114.9 against 134.0).
+#
+# PICK AN ODD n AND THE PATHS CANNOT COME OUT EQUAL. An even ring has K=n/2
+# exactly antipodal, the two paths identical, the branches in phase and the
+# whole effect gone. 13 has no such K: its closest split still differs by a
+# facet. That is a reason to choose an odd facet count, not an accident of it.
+#
+# No check here has an opinion about any of this -- they are all geometric, and
+# every K from 1 to n//2 passes all twelve at every radius in the ring's band.
+# The dial is yours; the checks only say it can be cut.
+#
+# If a SINGLE path is ever wanted instead, the ring has to be blocked between
+# the ports, and the only block position leaving no dead side-branch is one
+# adjacent to both of them -- which forces the ports adjacent to each other and
+# is the end-based placement again. Written down because it is the question a
+# reader asks here, not because anything in this file wants it.
 PORT_AT = None
 # --port-square implies this: the square port needs the lead panel's tooth out
 # of the way, and folding the lead into the facet it already lies on is the
