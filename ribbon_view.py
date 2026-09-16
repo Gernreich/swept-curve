@@ -598,6 +598,7 @@ def main():
              ('vol-r0', float), ('vol-step', float),
              ('vol-semis', int), ('vol-cross-r', float),
              ('scallop-in-r', float), ('scallop-in-deg', float),
+             ('race-cap-r', float), ('race-straight', float),
              ('port-from-tip', float))
     for flag, cast in FLAGS:
         hit = [x for x in a if x.startswith(f'--{flag}=')]
@@ -617,6 +618,8 @@ def main():
                 'vol-cross-r': 'VOL_CROSS_R',
                 'scallop-in-r': 'SCALLOP_IN_R',
                 'scallop-in-deg': 'SCALLOP_IN_DEG',
+                'race-cap-r': 'RACE_CAP_R',
+                'race-straight': 'RACE_STRAIGHT',
                 'port-from-tip': 'PORT_FROM_TIP'}[flag]
         setattr(B, name, cast(hit[0].split('=', 1)[1]))
 
@@ -732,6 +735,11 @@ def main():
         # right there in the panel below it. The ring says how many sides it
         # has.
         title = (f'Closed Ring, {int(round(360.0 / B.FACET))} Facets, '
+                 f'{B.BORE:g}mm Bore')
+    elif B.SHAPE == 'racetrack':
+        stem = (f'ribbon-racetrack-bore{B.BORE:g}-{B.FACET:g}deg-{B.LOBES}lobes'
+                f'-R{B.LOBE_R:g}-cap{B.RACE_CAP_R:g}')
+        title = (f'Closed Serpentine Racetrack, {B.LOBES} Lobes a Side, '
                  f'{B.BORE:g}mm Bore')
     elif B.SHAPE == 'scallop':
         stem = (f'ribbon-scallop-bore{B.BORE:g}-{B.FACET:g}deg-{B.LOBES}lobes'

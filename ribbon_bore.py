@@ -199,7 +199,7 @@ BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
 # deleted 2026-09-14, and with it the fall-through that drew it: an unknown
 # --shape is now refused by name rather than quietly drawing a test piece.
 SHAPES = ('dspiral', 'serpentine', 'opposed', 'wave', 'spiral', 'volute',
-          'torus', 'scallop')
+          'torus', 'scallop', 'racetrack')
 SHAPE = 'dspiral'
 # Solved against this generator's own faceted centreline, not a smooth arc:
 # an inscribed chord is 1.14% short of the arc it spans, so a radius picked
@@ -399,11 +399,31 @@ SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
 # SCALLOP_IN_R is the one that will hit it first because the scoop is tighter
 # than the bulge.
 SCALLOP_IN_R, SCALLOP_IN_DEG = 34.0, 48.0
+# --shape=racetrack: a closed serpentine that is NOT radially symmetric, which
+# is the whole reason it exists. A scallop repeats one lobe LOBES times about a
+# centre, so its envelope is circular and the bed's 288mm of HEIGHT bounds it in
+# both axes -- the 580mm of width goes unused, and the shipped 800mm scallop is
+# already within a millimetre of the limit. 1600mm needs twice the envelope and
+# there is no scallop that has it: deepening the lobes shrinks the figure, but
+# the cheek starts crossing itself before it gets under 288. Measured across
+# 5/8/10/12 lobes and facets 24 to 72; there is no window.
+#
+# So this one is 2-FOLD symmetric and long. Half the loop is a 180 degree cap
+# then LOBES alternating half-circles joined by straights; the alternation nets
+# zero turning, so the half turns 180 and two halves turn 360. Same argument as
+# the scallop, one order lower: the figure is invariant under a half turn, so
+# the second half closes it whatever the radii. Measured closure 5e-13mm.
+#
+# THE STRAIGHTS ARE FOR THE PORTS, not the shape. Lobes at the bend floor make
+# 15mm facets whose inner panels are 11.2mm, and a bore-square port takes every
+# tooth on a panel that short. A straight turns nothing, so it costs the closure
+# argument nothing and buys a panel long enough to carry one.
+RACE_CAP_R, RACE_STRAIGHT = 134.115704, 30.0
 # The angle each shape is drawn at, where it is not FACET's default 30.
 # scallop: 24 divides 72, which is 360/5, so a five-lobe ring can be built at
 # all. 30 does not divide 72 and refuses; the shipped ring is 24.
 FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0,
-                  'scallop': 24.0}
+                  'scallop': 24.0, 'racetrack': 45.0}
 # 'dspiral' is two spiral arms half a turn apart about one centre, crossed at
 # the middle by a straight - the double spiral. Arm B IS arm A rotated 180
 # degrees, so the whole path is point-symmetric about the centre and the gap
@@ -536,6 +556,73 @@ def centreline():
     The panels ARE the segments of this polyline offset sideways - there is no
     separate faceting step, so there is nothing for it to disagree with.
     """
+    if SHAPE == 'racetrack':
+        # Half the loop, taken twice. The half is a 180 degree cap and then
+        # LOBES alternating half-circles joined by straights -- the OPEN
+        # serpentine's own construction, which is here because the first
+        # attempt was not. Lobes written as +deg then -deg at one radius do
+        # net zero turning, but a pair like that advances PERPENDICULAR to the
+        # heading it started with, so the straights displaced the whole run
+        # instead of separating neighbours and the lobes collided: 60 slot
+        # corners outside the cheek and 0.062mm of ply at the worst pair.
+        # Alternating half-circles with a straight after each is the shape
+        # that does not touch itself, and the serpentine's note says why the
+        # straights are there at all.
+        #
+        # LOBES has to be EVEN. The alternation nets zero only in pairs, and
+        # an odd count leaves the half turning 0 or 360 instead of 180, which
+        # does not close.
+        if LOBES % 2:
+            raise ValueError(
+                f'--lobes={LOBES} is odd. The half-circles alternate, so they '
+                f'cancel only in pairs; an odd count leaves the half turning '
+                f'{180 - 180 * (LOBES % 2):g} degrees instead of 180 and the '
+                f'loop does not close.')
+        if RACE_STRAIGHT < 0:
+            raise ValueError(
+                f'--race-straight={RACE_STRAIGHT:g} is negative.')
+        if abs(round(180.0 / FACET) * FACET - 180.0) > 1e-9:
+            raise ValueError(
+                f'--facet={FACET:g} does not divide a half-circle a whole '
+                f'number of times.')
+        floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
+            math.radians(FACET / 2))
+        tight = min(LOBE_R, RACE_CAP_R)
+        if tight < floor:
+            raise ValueError(
+                f'the tightest arc is R{tight:g} and a {BORE:g}mm bore at '
+                f'{FACET:g} degree facets needs R{floor:.1f}.')
+        half = [('a', RACE_CAP_R, +1)]
+        for i in range(LOBES):
+            half.append(('a', LOBE_R, -1 if i % 2 == 0 else +1))
+            if RACE_STRAIGHT > 0:
+                half.append(('s', RACE_STRAIGHT, 0))
+        step = math.radians(FACET)
+        per = int(round(180.0 / FACET))
+        x = y = a = 0.0
+        pts = [(0.0, 0.0)]
+        for item in half * 2:
+            if item[0] == 's':
+                x, y = x + item[1] * math.cos(a), y + item[1] * math.sin(a)
+                pts.append((x, y))
+                continue
+            _, R, sg = item
+            for _ in range(per):
+                c = 2 * R * math.sin(step / 2)
+                a += sg * step / 2
+                x, y = x + c * math.cos(a), y + c * math.sin(a)
+                a += sg * step / 2
+                pts.append((x, y))
+        # Same snap as the scallop: offset() tests its seam with an absolute
+        # 1e-9 and the construction closes to 5e-13, which is not zero.
+        pts[-1] = pts[0]
+        # LAID ALONG THE BED. The run of half-circles marches across the
+        # direction the half set out in, so the figure comes out long in y.
+        # The bed is 580 x 288 and pack() does not rotate a part, so a
+        # 84 x 418 cheek is refused although it fits turned. One quarter turn
+        # here, where the shape is still a list of points, costs nothing.
+        pts = [(y, -x) for x, y in pts]
+        return flip(pts)
     if SHAPE == 'scallop':
         # A closed serpentine: LOBES lobes, each a convex arc of LOBE_R then a
         # concave one of SCALLOP_IN_R. See the note beside SCALLOP_IN_R: the
@@ -2273,6 +2360,10 @@ def main(write=True):
             f'degree bulge of R{LOBE_R:g} against a {SCALLOP_IN_DEG:g} degree '
             f'scoop of R{SCALLOP_IN_R:g}'
             if SHAPE == 'scallop' else
+            f'a closed serpentine racetrack: {LOBES} half-circles a side '
+            f'of R{LOBE_R:g}, alternating, joined by {RACE_STRAIGHT:g}mm '
+            f'straights, and two 180 degree caps of R{RACE_CAP_R:g}'
+            if SHAPE == 'racetrack' else
             # Unreachable: centreline() refuses an unknown shape long before
             # this. Named rather than left as a fall-through, because a
             # fall-through here is what put the deleted coupon's "one 180
@@ -2329,6 +2420,9 @@ def main(write=True):
     elif SHAPE == 'scallop':
         stem = (f'ribbon-scallop-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:g}-in{SCALLOP_IN_R:g}-{L:.0f}mm.svg')
+    elif SHAPE == 'racetrack':
+        stem = (f'ribbon-racetrack-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
+                f'-R{LOBE_R:g}-cap{RACE_CAP_R:g}-{L:.0f}mm.svg')
     else:
         # Unreachable: centreline() refuses an unknown shape long before this.
         # Named anyway rather than left as a silent fall-through, because a
@@ -2487,6 +2581,8 @@ if __name__ == '__main__':
                        ('sheet', float), ('kerf', float),
                        ('scallop-in-r', float),
                        ('scallop-in-deg', float),
+                       ('race-cap-r', float),
+                       ('race-straight', float),
                        ('port-from-tip', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
@@ -2506,6 +2602,8 @@ if __name__ == '__main__':
          'sheet': 'SHEET', 'kerf': 'BURN',
          'scallop-in-r': 'SCALLOP_IN_R',
          'scallop-in-deg': 'SCALLOP_IN_DEG',
+         'race-cap-r': 'RACE_CAP_R',
+         'race-straight': 'RACE_STRAIGHT',
          'port-from-tip': 'PORT_FROM_TIP'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
@@ -2526,6 +2624,8 @@ if __name__ == '__main__':
                    'sheet': 'SHEET', 'kerf': 'BURN',
          'scallop-in-r': 'SCALLOP_IN_R',
          'scallop-in-deg': 'SCALLOP_IN_DEG',
+         'race-cap-r': 'RACE_CAP_R',
+         'race-straight': 'RACE_STRAIGHT',
          'port-from-tip': 'PORT_FROM_TIP'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
