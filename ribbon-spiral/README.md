@@ -48,7 +48,15 @@ a tab at every mortice — leaves air gaps all along both rims, and they are
 closed the same way they are closed on the built instrument: **several coats of
 shellac**, which seal the ply and fill the gaps in the same pass.
 **[The three-turn trumpet](../three-turn/)** is the colour it is because it has
-had them. This spiral is still bare ply.
+had them.
+
+## Finished
+
+The spiral has had them too, and it is finished: shellacked the same amber-brown
+as the three-turn, the tabs along both rims standing out darker than the faces
+around them.
+
+![The finished spiral standing upright on its bell on grey card: the bell's round rim flat on the card and its ribbed throat rising into the port at the inner end of the coil, the faceted band winding a little over two turns above it in glossy amber-brown with darker tabs along both rims, and the straight tail leaving the outer end to carry a dark ring-stacked mouthpiece up to the top left](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-finished_web.jpg)
 
 ## The numbers
 
