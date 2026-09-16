@@ -597,6 +597,7 @@ def main():
              ('ds-r0', float), ('ds-facets', int), ('ds-cross-r', float),
              ('vol-r0', float), ('vol-step', float),
              ('vol-semis', int), ('vol-cross-r', float),
+             ('scallop-in-r', float), ('scallop-in-deg', float),
              ('port-from-tip', float))
     for flag, cast in FLAGS:
         hit = [x for x in a if x.startswith(f'--{flag}=')]
@@ -614,6 +615,8 @@ def main():
                 'ds-cross-r': 'DS_CROSS_R', 'vol-r0': 'VOL_R0',
                 'vol-step': 'VOL_STEP', 'vol-semis': 'VOL_SEMIS',
                 'vol-cross-r': 'VOL_CROSS_R',
+                'scallop-in-r': 'SCALLOP_IN_R',
+                'scallop-in-deg': 'SCALLOP_IN_DEG',
                 'port-from-tip': 'PORT_FROM_TIP'}[flag]
         setattr(B, name, cast(hit[0].split('=', 1)[1]))
 
@@ -722,8 +725,18 @@ def main():
         print(f'  {"":52}{d["mm"]}mm, {d["segs"]} facets, traced')
         return 0
     if B.SHAPE == 'torus':
-        stem = f'ribbon-torus-bore{B.BORE:g}-{B.FACET:g}deg-R{B.RADIUS:.0f}'
-        title = f'Octagonal Torus, {B.BORE:g}mm Bore'
+        stem = f'ribbon-torus-bore{B.BORE:g}-{B.FACET:g}deg-R{B.RADIUS:g}'
+        # NOT "Octagonal Torus". That title was written when 45 degrees was the
+        # only ring anyone had drawn, and it then headed a 13-facet ring -- a
+        # page calling a thirteen-sided figure an octagon, with the facet count
+        # right there in the panel below it. The ring says how many sides it
+        # has.
+        title = (f'Closed Ring, {int(round(360.0 / B.FACET))} Facets, '
+                 f'{B.BORE:g}mm Bore')
+    elif B.SHAPE == 'scallop':
+        stem = (f'ribbon-scallop-bore{B.BORE:g}-{B.FACET:g}deg-{B.LOBES}lobes'
+                f'-R{B.LOBE_R:g}-in{B.SCALLOP_IN_R:g}')
+        title = (f'Closed Serpentine, {B.LOBES} Lobes, {B.BORE:g}mm Bore')
     elif B.SHAPE == 'wave':
         stem = (f'ribbon-wave-bore{B.BORE:g}-{B.FACET:g}deg-'
                 f'{B.WAVE_LOBE_ARCS}arc')

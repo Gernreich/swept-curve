@@ -199,7 +199,7 @@ BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
 # deleted 2026-09-14, and with it the fall-through that drew it: an unknown
 # --shape is now refused by name rather than quietly drawing a test piece.
 SHAPES = ('dspiral', 'serpentine', 'opposed', 'wave', 'spiral', 'volute',
-          'torus')
+          'torus', 'scallop')
 SHAPE = 'dspiral'
 # Solved against this generator's own faceted centreline, not a smooth arc:
 # an inscribed chord is 1.14% short of the arc it spans, so a radius picked
@@ -377,8 +377,33 @@ OPPOSED_R, OPPOSED_RISE = 64.0, 82.4539
 # The radii then follow from wanting 1000mm with 22mm between neighbouring
 # passes, against the 20mm the cheek band needs.
 SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
+# --shape=scallop: a CLOSED serpentine. The open one runs half-circles down a
+# line; this bends the same alternation round until it shuts, so the lobes sit
+# on a ring and there are no ends at all.
+#
+# WHAT CLOSES IT IS THE SYMMETRY, not a solver. One lobe is a convex arc then a
+# concave one, and if that unit turns exactly 360/LOBES the figure is invariant
+# under a 360/LOBES rotation -- so LOBES of them come back to the start by
+# construction, whatever the radii. Hence the one law here:
+#
+#     convex turn - concave turn = 360 / LOBES
+#
+# SCALLOP_IN_DEG is the concave turn and the convex one is derived, so the
+# relation cannot be written down wrong. FACET has to divide all three of the
+# concave turn, the derived convex turn and 360/LOBES; at LOBES 5 that makes
+# 360/5 = 72 three facets of 24, and the shipped design is a 48 degree scoop
+# against a 120 degree bulge. The measured closure is 4e-13mm.
+#
+# Both radii are bends and both answer to the same floor as every other shape:
+# the tooth, not the geometry. At FACET 24 and a 10mm bore that is R30.6, and
+# SCALLOP_IN_R is the one that will hit it first because the scoop is tighter
+# than the bulge.
+SCALLOP_IN_R, SCALLOP_IN_DEG = 34.0, 48.0
 # The angle each shape is drawn at, where it is not FACET's default 30.
-FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0}
+# scallop: 24 divides 72, which is 360/5, so a five-lobe ring can be built at
+# all. 30 does not divide 72 and refuses; the shipped ring is 24.
+FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0,
+                  'scallop': 24.0}
 # 'dspiral' is two spiral arms half a turn apart about one centre, crossed at
 # the middle by a straight - the double spiral. Arm B IS arm A rotated 180
 # degrees, so the whole path is point-symmetric about the centre and the gap
@@ -511,6 +536,48 @@ def centreline():
     The panels ARE the segments of this polyline offset sideways - there is no
     separate faceting step, so there is nothing for it to disagree with.
     """
+    if SHAPE == 'scallop':
+        # A closed serpentine: LOBES lobes, each a convex arc of LOBE_R then a
+        # concave one of SCALLOP_IN_R. See the note beside SCALLOP_IN_R: the
+        # unit has to turn 360/LOBES for the figure to be LOBES-fold symmetric,
+        # and that symmetry is what shuts it, so the convex turn is DERIVED
+        # rather than given.
+        per = 360.0 / LOBES
+        out_deg = SCALLOP_IN_DEG + per
+        for what, deg in (('360/LOBES', per), ('the concave turn',
+                          SCALLOP_IN_DEG), ('the convex turn', out_deg)):
+            if abs(round(deg / FACET) * FACET - deg) > 1e-9:
+                raise ValueError(
+                    f'--facet={FACET:g} does not divide {what}, {deg:g} '
+                    f'degrees, a whole number of times. At {LOBES} lobes the '
+                    f'facet has to divide 360/{LOBES} = {per:g} as well as '
+                    f'both turns.')
+        floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
+            math.radians(FACET / 2))
+        tight = min(LOBE_R, SCALLOP_IN_R)
+        if tight < floor:
+            raise ValueError(
+                f'the tightest arc is R{tight:g} and a {BORE:g}mm bore at '
+                f'{FACET:g} degree facets needs R{floor:.1f}.')
+        segs = ([('a', LOBE_R, +1)] * int(round(out_deg / FACET))
+                + [('a', SCALLOP_IN_R, -1)] * int(round(SCALLOP_IN_DEG / FACET))
+                ) * LOBES
+        step = math.radians(FACET)
+        x = y = a = 0.0
+        pts = [(0.0, 0.0)]
+        for _, R, sg in segs:
+            c = 2 * R * math.sin(step / 2)
+            a += sg * step / 2
+            x, y = x + c * math.cos(a), y + c * math.sin(a)
+            a += sg * step / 2
+            pts.append((x, y))
+        # Shut it EXACTLY. The construction closes to 4e-13mm, which is the
+        # symmetry working, but offset() tests its seam with an absolute 1e-9
+        # and a polyline that misses by even that is mitred as an open run --
+        # the two seam facets come out over-long and the ring does not close.
+        # Snapping costs 4e-13mm of one facet and buys the mitre.
+        pts[-1] = pts[0]
+        return flip(pts)
     if SHAPE == 'torus':
         # A closed regular ring of FACET turns: at FACET 45 an octagon, eight
         # facets and an airway between the inner and outer apothems. RADIUS is
@@ -2202,6 +2269,10 @@ def main(write=True):
             f'a closed ring of {int(round(360.0 / FACET))} facets, R{R:g} '
             f'circumradius to the centreline vertices'
             if SHAPE == 'torus' else
+            f'a closed serpentine: {LOBES} lobes, a {SCALLOP_IN_DEG + 360.0 / LOBES:g} '
+            f'degree bulge of R{LOBE_R:g} against a {SCALLOP_IN_DEG:g} degree '
+            f'scoop of R{SCALLOP_IN_R:g}'
+            if SHAPE == 'scallop' else
             # Unreachable: centreline() refuses an unknown shape long before
             # this. Named rather than left as a fall-through, because a
             # fall-through here is what put the deleted coupon's "one 180
@@ -2255,6 +2326,9 @@ def main(write=True):
     elif SHAPE == 'torus':
         stem = (f'ribbon-torus-bore{BORE:g}-{FACET:g}deg'
                 f'-R{RADIUS:g}.svg')
+    elif SHAPE == 'scallop':
+        stem = (f'ribbon-scallop-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
+                f'-R{LOBE_R:g}-in{SCALLOP_IN_R:g}-{L:.0f}mm.svg')
     else:
         # Unreachable: centreline() refuses an unknown shape long before this.
         # Named anyway rather than left as a silent fall-through, because a
@@ -2411,6 +2485,8 @@ if __name__ == '__main__':
                        ('vol-r0', float), ('vol-step', float),
                        ('vol-semis', int), ('vol-cross-r', float),
                        ('sheet', float), ('kerf', float),
+                       ('scallop-in-r', float),
+                       ('scallop-in-deg', float),
                        ('port-from-tip', float)):
         hit = [x for x in a if x.startswith(f'--{flag}=')]
         if not hit:
@@ -2428,6 +2504,8 @@ if __name__ == '__main__':
          'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
          'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R',
          'sheet': 'SHEET', 'kerf': 'BURN',
+         'scallop-in-r': 'SCALLOP_IN_R',
+         'scallop-in-deg': 'SCALLOP_IN_DEG',
          'port-from-tip': 'PORT_FROM_TIP'}[flag]
         globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
                    'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
@@ -2446,6 +2524,8 @@ if __name__ == '__main__':
                    'vol-semis': 'VOL_SEMIS',
                    'vol-cross-r': 'VOL_CROSS_R',
                    'sheet': 'SHEET', 'kerf': 'BURN',
+         'scallop-in-r': 'SCALLOP_IN_R',
+         'scallop-in-deg': 'SCALLOP_IN_DEG',
          'port-from-tip': 'PORT_FROM_TIP'}[flag]] = v
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
@@ -2480,7 +2560,17 @@ if __name__ == '__main__':
         if not PORT_AT:
             raise SystemExit('error: --port-at= names no facet at all. Give '
                              'it one index per port, e.g. --port-at=0,6.')
-    MERGE_LEAD = '--merge-lead' in a or PORT_SQUARE
+    # --port-square implies the merge ONLY where the ports are on leads. The
+    # merge exists for one reason -- a 20mm lead panel carries a single tooth
+    # dead centre, exactly where a bore-square port wants to be -- and
+    # --port-at puts no port on a lead. On the 800mm ring its ports sit on
+    # 57.59mm panels carrying four teeth each, so teeth_kept() drops the one
+    # that clashes and three remain; there is nothing to merge and, on a ring,
+    # no collinear neighbour to merge into. Forcing it there made
+    # --port-square refuse every ring by way of merge_lead's own correct
+    # refusal, which is a right answer to a question that should not have been
+    # asked.
+    MERGE_LEAD = '--merge-lead' in a or (PORT_SQUARE and PORT_AT is None)
     CAP = '--cap' in a
     if PORT_BOTH and not PORT:
         raise SystemExit('error: --port-both without --port draws no port at '
