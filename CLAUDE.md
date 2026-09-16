@@ -283,11 +283,22 @@ one. **Radius is the dial**, and a reader reaching for `--port-at` on a default
 ring (R30, 12 facets, 15.53mm of facet) hits this before anything else.
 
 Coarsening `--facet` widens the facet and does not help: at `--facet=60` the
-ring passes the port check and then fails *the web outboard of a slot is
-cuttable* at 0.951mm against the 1.5mm needed — **at every radius**, default and
-R60 alike, because 60 degree facets put the mortices that close to the rim
-whatever the ring's size. It is not a radius failure and opening the radius will
-not clear it.
+ring clears the port check and then fails *the web outboard of a slot is
+cuttable* at **0.951mm** against the 1.5mm needed. Not a radius failure —
+0.951mm at R30, at R60 and at R120, because 60 degree facets put the mortices
+that close to the rim whatever the ring's size.
+
+Above that the ring never passes either, but **it stops failing that check and
+starts failing before any check runs**: from R150 the bed refuses the cheek
+outright (*"a part is 280 x 323mm"*) and the twelve checks are never reached. So
+`--facet=60` has no passing radius at all — the mode of the refusal changes at
+R150 and nothing else does.
+
+That is worth the sentence because of how it reads if you count one signal.
+`--facet=60 --radius=300` prints **zero FAIL lines**, and zero FAIL lines there
+means zero checks, not a clean run. Every row in `all-gates.sh` asserts the
+PASS count as well for exactly this reason, and its header says so: absence of
+bad news is not good news.
 
 So a 13 ring is usable from **R36 (224mm of duct) to R135 (840mm)**, and that
 window is the whole of it.
