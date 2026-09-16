@@ -946,6 +946,10 @@ def panel(L, cs=None):
     return out
 
 
+def _no_description():
+    raise ValueError(f'no report description for --shape={SHAPE}.')
+
+
 def caps():
     """How many end caps this design needs: one per ported end, else none.
 
@@ -2194,8 +2198,17 @@ def main(write=True):
             f'{LOBES} half-circles of R{R:g} joined by {RISE:g}mm straights'
             + (', then a quarter turn to bring the ends opposed'
                if SHAPE == 'opposed' else '')
-            if SHAPE in ('serpentine', 'opposed')
-            else f'one 180 degree bend of R{R:g}')
+            if SHAPE in ('serpentine', 'opposed') else
+            f'a closed ring of {int(round(360.0 / FACET))} facets, R{R:g} '
+            f'circumradius to the centreline vertices'
+            if SHAPE == 'torus' else
+            # Unreachable: centreline() refuses an unknown shape long before
+            # this. Named rather than left as a fall-through, because a
+            # fall-through here is what put the deleted coupon's "one 180
+            # degree bend" on every torus ever reported -- the same mistake
+            # the filename chain records at the bottom of this function, made
+            # twice in one function and caught once.
+            _no_description())
     print(f'ribbon bore, {SHAPE}   {BORE:g}mm square, {FACET:g} degree facets')
     print(f'  {what}')
     print(f'  centreline {sum(seglen(a, b) for a, b in zip(c, c[1:])):.1f}mm, '

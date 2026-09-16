@@ -59,20 +59,36 @@ def port_spans(c):
     if not B.PORT:
         return []
     out = []
-    ends = [0] + ([-1] if B.PORT_BOTH else [])
-    for e in ends:
-        i = 0 if e == 0 else len(c) - 2
+    # WHICH SEGMENTS THE PORTS SIT ON. Under --port-at the flag says, and a
+    # facet index IS a segment index, walked forward from vertex i exactly as
+    # port_hole() walks it. Otherwise the two run ends, which is where the
+    # generator puts them and where this drew them before the flag existed.
+    #
+    # This was a SECOND COPY of that rule and it had already gone wrong once in
+    # the only way it could: --port-at moved the holes and this went on drawing
+    # them at the seam, because it asked PORT_BOTH a question only port_holes()
+    # can answer. Kept as an index-and-t rather than replaced by port_holes()
+    # because the page draws the OPENING and that function returns the cut line
+    # -- BURN under size -- but the PLACEMENT now comes from one flag, not two
+    # readings of one.
+    if B.PORT_AT is not None:
+        places = [(i, +1) for i in B.PORT_AT]
+    else:
+        places = [(0, +1)] + ([(len(c) - 2, -1)] if B.PORT_BOTH else [])
+    for i, sgn in places:
         L = B.seglen(c[i], c[i + 1])
         half = B.PORT_ALONG / 2
         lo, hi = B.PORT_FROM_TIP - half, B.PORT_FROM_TIP + half
         # measured from the TIP, which is station 0 at the mouth and the last
         # station at the far end -- so the far end's t runs the other way
-        t0, t1 = (lo / L, hi / L) if e == 0 else (1 - hi / L, 1 - lo / L)
+        t0, t1 = (lo / L, hi / L) if sgn > 0 else (1 - hi / L, 1 - lo / L)
         if not (0 <= t0 < t1 <= 1):
+            where = (f'facet {i}' if B.PORT_AT is not None
+                     else 'the lead it sits on')
             raise ValueError(
                 f'the port at {B.PORT_FROM_TIP:g}mm from the tip, '
                 f'{B.PORT_ALONG:g}mm long, does not fit inside the '
-                f'{L:.1f}mm lead it sits on. Lengthen --lead or move '
+                f'{L:.1f}mm of {where}. Lengthen --lead or move '
                 f'--port-from-tip.')
         out.append((i, t0, t1))
     return out
@@ -620,6 +636,10 @@ def main():
     B.PORT = '--port' in a
     B.PORT_BOTH = '--port-both' in a
     B.PORT_PER_CHEEK = '--port-per-cheek' in a
+    B.PORT_AT = None
+    hit = [x for x in a if x.startswith('--port-at=')]
+    if hit:
+        B.PORT_AT = [int(v) for v in hit[0].split('=', 1)[1].split(',') if v != '']
     B.CAP = '--cap' in a
     if '--port-square' in a:
         B.PORT_ACROSS = B.PORT_ALONG = B.BORE
@@ -629,9 +649,21 @@ def main():
                       ('--cap', 'closes the only opening the bore has')):
         if flag in a and not B.PORT:
             sys.exit(f'ribbon_view: {flag} without --port {why}. Pass both.')
-    if B.PORT_PER_CHEEK and not B.PORT_BOTH:
+    # The loop above tests `flag in a`, which a flag carrying a VALUE never
+    # satisfies -- '--port-at=0,6' is not '--port-at' -- so this one needs
+    # saying separately rather than adding a name to that tuple.
+    if B.PORT_AT is not None and not B.PORT:
+        sys.exit('ribbon_view: --port-at without --port draws no port at all, '
+                 'on any facet. Pass both.')
+    if B.PORT_AT is not None and B.PORT_BOTH:
+        sys.exit('ribbon_view: --port-at and --port-both are two answers to '
+                 'the same question. Pass one.')
+    if B.PORT_PER_CHEEK and B.PORT_AT is None and not B.PORT_BOTH:
         sys.exit('ribbon_view: --port-per-cheek without --port-both has one '
                  'port and two cheeks, so there is nothing to split.')
+    if B.PORT_PER_CHEEK and B.PORT_AT is not None and len(B.PORT_AT) != 2:
+        sys.exit(f'ribbon_view: --port-per-cheek splits the ports between TWO '
+                 f'cheeks and --port-at names {len(B.PORT_AT)}.')
     # --trace belongs in this set too. It was not, so the guard rejected the
     # one flag whose handler sits forty lines below it and the traced page
     # could not be redrawn at all -- the check meant to stop a page and its
@@ -639,7 +671,7 @@ def main():
     known = ({f'--{f}' for f, _ in FLAGS}
              | {'--out', '--home', '--embed', '--ds-half', '--trace',
                 '--port', '--port-square', '--port-both', '--port-per-cheek',
-                '--cap'})
+                '--port-at', '--cap'})
     for x in a:
         if x.startswith('--') and x.split('=', 1)[0] not in known:
             sys.exit(f'ribbon_view: {x.split("=", 1)[0]} is not a flag here. '

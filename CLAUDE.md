@@ -8,9 +8,17 @@ beside the generator.
 **Every sheet kept here is 10mm.** `--bore` is untouched and takes any value; nothing
 is shipped at another.
 
-**Nothing octagonal is kept here** - no torus, no traced octagonal trumpet, no viewer
-page or trace for either. `--shape=torus` and `--trace=` stay, because they are general
-and the next closed ring or measured curve will want them.
+**Nothing OCTAGONAL is kept here** - no 45 degree torus, no traced octagonal
+trumpet, no viewer page or trace for either. That line used to read "no torus",
+and `--shape=torus` was kept on the argument that "the next closed ring will
+want it". The next closed ring turned up:
+`torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm` is a **13-facet ring**,
+ports on facets 0 and 6, one per cheek, 800.0mm of centreline. Thirteen facets
+is not eight, so the octagon sentence still holds - it is the 45 degree ring
+that is not kept, and the reason is that it lives in `torus-octagonal`, not
+that a ring cannot live here.
+
+`--trace=` is still kept on the original argument, unused.
 
 ## Working in this repository
 
