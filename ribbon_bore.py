@@ -1280,6 +1280,28 @@ def cheek(poly):
     return a + b[::-1]
 
 
+def contours(outline):
+    """The closed loops a cheek outline is CUT as.
+
+    For an open shape the outline is one loop and this returns it. For a closed
+    one -- torus, scallop, racetrack -- cheek() joins the outer ring to the inner
+    one, so the list goes round the outer ring, steps across the band to the
+    inner ring, goes round that, and closes back across the same step. As a
+    polygon that is harmless: the two crossings coincide and cancel, and every
+    inside test here reads it right. As a CUT it is a slit straight across the
+    cheek band and through the airway at the seam, and every ring cheek drawn
+    until 2026-09-16 carried one: one path, one M, one Z. So the drawing takes
+    the rings apart here, and the cheek comes off the bed as a ring.
+    """
+    # Within 1e-9, the tolerance offset() shuts a loop with, not exactly: the
+    # scallop's seam sits on a vertex that does not turn, offset() finds no
+    # mitre there, and the two ends of its outer ring agree only to rounding.
+    k = next((i for i in range(1, len(outline) - 1)
+              if math.hypot(outline[i][0] - outline[0][0],
+                            outline[i][1] - outline[0][1]) < 1e-9), None)
+    return [outline] if k is None else [outline[:k + 1], outline[k + 1:]]
+
+
 GLYPH = {'0': [[(0.5, 1), (0.85, 0.8), (0.85, 0.2), (0.5, 0), (0.15, 0.2), (0.15, 0.8), (0.5, 1)]], '1': [[(0.3, 0.78), (0.52, 1), (0.52, 0)], [(0.28, 0), (0.78, 0)]], '2': [[(0.1, 0.78), (0.3, 1), (0.7, 1), (0.9, 0.78), (0.9, 0.6), (0.1, 0), (0.9, 0)]], '3': [[(0.1, 1), (0.9, 1), (0.45, 0.55)], [(0.45, 0.55), (0.9, 0.55), (0.9, 0.16), (0.72, 0), (0.28, 0), (0.1, 0.16)]], '4': [[(0.7, 0), (0.7, 1), (0.12, 0.32), (0.92, 0.32)]], '5': [[(0.85, 1), (0.2, 1), (0.15, 0.55), (0.5, 0.62), (0.8, 0.5), (0.88, 0.28), (0.75, 0.06), (0.4, 0), (0.15, 0.12)]], '6': [[(0.82, 0.92), (0.55, 1), (0.25, 0.85), (0.15, 0.45), (0.15, 0.18), (0.35, 0), (0.62, 0), (0.85, 0.18), (0.85, 0.38), (0.62, 0.55), (0.3, 0.55), (0.15, 0.45)]], '7': [[(0.12, 1), (0.9, 1), (0.42, 0)]], '8': [[(0.5, 0.55), (0.22, 0.68), (0.22, 0.87), (0.5, 1), (0.78, 0.87), (0.78, 0.68), (0.5, 0.55), (0.18, 0.4), (0.18, 0.14), (0.5, 0), (0.82, 0.14), (0.82, 0.4), (0.5, 0.55)]], '9': [[(0.18, 0.08), (0.45, 0), (0.75, 0.15), (0.85, 0.55), (0.85, 0.82), (0.65, 1), (0.38, 1), (0.15, 0.82), (0.15, 0.62), (0.38, 0.45), (0.7, 0.45), (0.85, 0.55)]], 'A': [[(0.1, 0), (0.5, 1), (0.9, 0)], [(0.26, 0.4), (0.74, 0.4)]], 'B': [[(0.15, 0), (0.15, 1), (0.68, 1), (0.88, 0.83), (0.88, 0.68), (0.68, 0.55), (0.15, 0.55)], [(0.15, 0.55), (0.72, 0.55), (0.9, 0.4), (0.9, 0.16), (0.7, 0), (0.15, 0)]], 'C': [[(0.9, 0.8), (0.7, 1.0), (0.3, 1.0), (0.1, 0.8), (0.1, 0.2), (0.3, 0.0), (0.7, 0.0), (0.9, 0.2)]], 'D': [[(0.15, 0), (0.15, 1), (0.58, 1), (0.88, 0.74), (0.88, 0.26), (0.58, 0), (0.15, 0)]], 'E': [[(0.9, 1), (0.15, 1), (0.15, 0), (0.9, 0)], [(0.15, 0.5), (0.68, 0.5)]], 'F': [[(0.88, 1), (0.15, 1), (0.15, 0)], [(0.15, 0.52), (0.68, 0.52)]]}
 
 
@@ -1838,7 +1860,8 @@ def sheet(parts, cheekpoly, cline, path_out, write=True):
         marks, holes, cuts = [], [], []
         for it, dx, dy in placed:
             here = [(q[0] + dx, q[1] + dy) for q in it['outline']]
-            cuts.append(path(here))
+            for ring in contours(it['outline']):
+                cuts.append(path([(q[0] + dx, q[1] + dy) for q in ring]))
             for sl in it['slots']:
                 moved = [(q[0] + dx, q[1] + dy) for q in sl]
                 # tagged with the file, because two sheets are two files and
@@ -2282,9 +2305,13 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     # geometry pinched the web at a tight mitre. The number it prints is the
     # same 2.05mm on every shape here - WEB plus half the kerf - but now it is
     # the narrowest one actually in the cheek.
+    # over the contours as cut, not the outline as listed: on a ring cheek the
+    # listed outline steps across the band at the seam, and a slot near that
+    # step read it as rim.
+    rim = [(r[i], r[i + 1]) for r in contours(ring) for i in range(len(r) - 1)]
+
     def to_rim(sl):
-        return min(pt_seg(q, ring[i], ring[i + 1])
-                   for q in sl for i in range(len(ring) - 1))
+        return min(pt_seg(q, a, b) for q in sl for a, b in rim)
     per_slot = [to_rim(sl) for sl in allslots]
     web = min(per_slot, default=0.0)
     if NARROW:
@@ -2326,6 +2353,28 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
         note(web >= 1.5, 'the web outboard of a slot is cuttable',
              f'narrowest slot to rim {web:.3f}mm against 1.5mm needed, '
              f'band {band():g}mm wide')
+
+    # --- no cut line runs through the airway. Every edge of the cheek as cut
+    # has to stand at least half a bore off the centreline, except where an open
+    # shape's outline closes across its own tail -- that edge IS the end of the
+    # duct. Written for the slit every ring cheek carried across its band at the
+    # seam: 13 checks passed on sheets that would have come off the bed cut in
+    # two places, because nothing asked where the black lines were.
+    shut = math.hypot(c[0][0] - c[-1][0], c[0][1] - c[-1][1]) < 1e-9
+
+    def off_air(q):
+        dist = min(pt_seg(q, a, b) for a, b in zip(c, c[1:]))
+        if not shut and min(math.hypot(q[0] - e[0], q[1] - e[1])
+                            for e in (c[0], c[-1])) <= dist + 1e-6:
+            return True                     # the open end of the duct
+        return dist >= BORE / 2 - 1e-6
+    across = sum(1 for r in contours(cheekpoly) for a, b in zip(r, r[1:])
+                 for t in (0.25, 0.5, 0.75)
+                 if not off_air((a[0] + (b[0] - a[0]) * t,
+                                 a[1] + (b[1] - a[1]) * t)))
+    n_rings = len(contours(cheekpoly))
+    note(across == 0, 'no cut line crosses the airway',
+         f'{n_rings} cheek contour(s), {across} point(s) inside the airway')
 
     big = [n for n, w, h, _, _ in written if w > BED_W or h > BED_H]
     note(not big and len(written) > 0, 'every sheet fits the P2S bed',

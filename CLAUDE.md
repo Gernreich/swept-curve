@@ -231,6 +231,34 @@ Nothing open moves: `poly[0] != poly[-1]` on a run, so it takes the old branch.
 Checked rather than assumed — all six shapes, plain, `--port` and
 `--port-both`, compared as geometry: **18 of 18 identical**.
 
+### A ring cheek is two cuts, and it was one with a slit in it
+
+`cheek()` builds the flat face by running out along one offset and back along
+the other. On an open run that is one contour and it is right. On a ring the
+two offsets are separate loops, and the list went round the outer one, stepped
+across the band, round the inner one and back across the same step. **As a
+polygon that is fine** — the two crossings coincide and cancel, so every inside
+test and every one of the twelve checks read it correctly. **As a cut it is a
+slit across the band and through the airway at the seam**: one `<path>`, one
+`M`, one `Z`, and the laser follows the step like any other edge. Every ring
+cheek shipped carried it — both torus variants, the scallop and the racetrack —
+until 2026-09-16.
+
+`contours()` now splits the outline where it returns to its first point, and
+the sheet writes each loop as its own closed path. The outline stays one list
+for the geometry, so no check had to change what it measures. What was missing
+was a check on the black lines themselves: **`no cut line crosses the airway`**
+walks every cut edge and requires it to stand half a bore off the centreline,
+except the edge that closes an open run across its own tail. With the split
+undone it fails the torus and the scallop, 3 points each; every open shape
+passes it unchanged, and only the seven ring cheek sheets were rewritten —
+every panel sheet reproduces byte for byte.
+
+The scallop's seam sits on a vertex that does not turn, so `offset()` finds no
+mitre there and its outer ring's two ends agree only to rounding. The split
+matches within 1e-9, the tolerance `offset()` shuts a loop with; an exact
+comparison left the scallop as one path.
+
 ### Two ports on a ring are two paths, and that is not a duct
 
 `--port-at=i,j` puts the ports on **named facets** instead of at the two ends of
