@@ -641,10 +641,16 @@ of the tube, so the openings sit (315 + 180) mod 360 = 135 degrees apart.
 condition first, exactly as `the shortest panel still holds a tooth` does in
 `ribbon_bore.py`.
 
-**`ribbon_view.py`.** Its guards hold: an unknown flag is refused by name, and a
-shape with no title or filename exits saying to add one. The check that matters
-for this file is whether it still agrees with the generator, since it has
-diverged twice — it does, on all seven shapes, to the tenth of a millimetre.
+**`ribbon_view.py`.** It no longer keeps a copy of the generator's argument
+handling. It diverged four ways by 2026-09-16 — the generator ignored flags the
+viewer refused, the viewer drew pages for combinations the generator refuses,
+both quoted R30 for the scallop and racetrack, and the viewer's own naming rule
+would have written three pages over other designs' pages. Now the viewer calls
+`ribbon_bore.read_flags()` for the design, `bend_radius()` for the quoted
+radius and `port_holes()` for the facet refusals, and it takes only `--out`,
+`--home`, `--embed` and `--trace` itself. **`--out` is required**: design
+folders are named by hand, so a page's path cannot be derived. A shape with no
+title exits saying to add one.
 
 One rough edge fixed: a refusal from the generator escaped as a traceback
 instead of the sentence the generator wrote. `ribbon_bore`'s `__main__` has
@@ -927,16 +933,13 @@ python3 ribbon_bore.py --narrow --out=x-narrow.svg   # the cheek trimmed flush
                                        # which leaves an uncuttable 0.095mm
                                        # rib; --narrow follows the drawn slot
                                        # edge, so it tracks --kerf and --sheet
-python3 ribbon_view.py --shape=serpentine    # the page you turn
-python3 ribbon_view.py                       # NOT harmless. --shape defaults
-                                       # to dspiral now that the coupon is
-                                       # gone, and the page lands beside the
-                                       # cut files it belongs to -- so a bare
-                                       # run REWRITES the 1506mm double
-                                       # spiral's page rather than dropping a
-                                       # stray. Correct output, and it is how
-                                       # the staleness below was found, but it
-                                       # is not a no-op
+python3 ribbon_view.py --shape=serpentine \
+    --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
+                                       # the page you turn, and the one that
+                                       # ships. --out is required: without it
+                                       # the page's path was guessed, and for
+                                       # three shipped designs the guess was
+                                       # another design's page
 
 # THE DESIGN PAGES ARE GATED, since 2026-09-15, and were not before. The embed
 # gate watches the ONE page that crosses into Gernreich.github.io; the twelve

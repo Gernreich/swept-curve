@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """An interactive view of a ribbon bore: drag to turn.
 
-    python3 ribbon_view.py                       # the double spiral
-    python3 ribbon_view.py --shape=serpentine    # and so on, same flags
+    python3 ribbon_view.py --shape=serpentine \
+        --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
 
-Writes one self-contained HTML page beside the cut files it belongs to, so a
+Takes the generator's own flags, read by ribbon_bore.read_flags(), plus --out
+(required), --home, --embed and --trace. The page goes beside the cut files it
+belongs to, so a
 design folder holds the thing you cut and the thing you turn around, and they
 cannot drift apart.
 
@@ -58,6 +60,9 @@ def port_spans(c):
     """
     if not B.PORT:
         return []
+    # Range and distinctness of --port-at are refused by port_holes(), in the
+    # generator; this used to draw a page for a facet named twice.
+    B.port_holes(c)
     out = []
     # WHICH SEGMENTS THE PORTS SIT ON. Under --port-at the flag says, and a
     # facet index IS a segment index, walked forward from vertex i exactly as
@@ -199,19 +204,10 @@ def data_for():
     # a closed ring has no mouth and no far end; the last station IS the first,
     # so its four vertices are already coincident with station 0's
 
-    # The spiral has no single bend radius - that is the point of it - so it
-    # reports the range it sweeps. Falling through to RADIUS printed R30, the
-    # old coupon's radius, on a bore whose arcs run R34.7 to R112.9.
-    # dspiral and volute have no single bend radius either, and both quote
-    # their tightest arc, as ribbon_bore does. Neither was in this list: the
-    # double spiral read R30 because DS_CROSS_R was that same 30, so the
-    # fall-through was right by coincidence, and the volute inherited it
-    # against arcs of R22, R64 and R94.
-    R = (B.WAVE_TROUGH_R if B.SHAPE == 'wave'
-         else B.SPIRAL_RI if B.SHAPE == 'spiral'
-         else B.DS_CROSS_R if B.SHAPE == 'dspiral'
-         else B.VOL_CROSS_R if B.SHAPE == 'volute'
-         else B.LOBE_R if B.SHAPE in ('serpentine', 'opposed') else B.RADIUS)
+    # The quoted radius is the generator's own, read from bend_radius(). This
+    # file had a second copy of that table and both fell through to RADIUS for
+    # any shape not listed, so the scallop and the racetrack pages said R30.
+    R = B.bend_radius()
     return {
         'V': [[round(v, 3) for v in p] for p in V],
         'Q': Q,
@@ -587,116 +583,28 @@ def build(title, embed=False, home=''):
 
 def main():
     a = sys.argv[1:]
-    FLAGS = (('shape', str), ('bore', float), ('facet', float),
-             ('radius', float), ('lobes', int), ('lobe-r', float),
-             ('rise', float), ('lead', float), ('web', float),
-             ('spiral-facets', int), ('spiral-ri', float),
-             ('spiral-ro', float), ('wave-rise', float),
-             ('wave-trough-r', float), ('wave-crest-r', float),
-             ('wave-lead-r', float), ('ds-pitch', float),
-             ('ds-r0', float), ('ds-facets', int), ('ds-cross-r', float),
-             ('vol-r0', float), ('vol-step', float),
-             ('vol-semis', int), ('vol-cross-r', float),
-             ('scallop-in-r', float), ('scallop-in-deg', float),
-             ('race-cap-r', float), ('race-straight', float),
-             ('port-from-tip', float))
-    for flag, cast in FLAGS:
-        hit = [x for x in a if x.startswith(f'--{flag}=')]
-        if not hit:
-            continue
-        name = {'shape': 'SHAPE', 'bore': 'BORE', 'facet': 'FACET',
-                'radius': 'RADIUS', 'lobes': 'LOBES', 'lobe-r': 'LOBE_R',
-                'rise': 'RISE', 'lead': 'LEAD', 'web': 'WEB',
-                'spiral-facets': 'SPIRAL_FACETS', 'spiral-ri': 'SPIRAL_RI',
-                'spiral-ro': 'SPIRAL_RO', 'wave-rise': 'WAVE_RISE',
-                'wave-trough-r': 'WAVE_TROUGH_R',
-                'wave-crest-r': 'WAVE_CREST_R',
-                'wave-lead-r': 'WAVE_LEAD_R', 'ds-pitch': 'DS_PITCH',
-                'ds-r0': 'DS_R0', 'ds-facets': 'DS_FACETS',
-                'ds-cross-r': 'DS_CROSS_R', 'vol-r0': 'VOL_R0',
-                'vol-step': 'VOL_STEP', 'vol-semis': 'VOL_SEMIS',
-                'vol-cross-r': 'VOL_CROSS_R',
-                'scallop-in-r': 'SCALLOP_IN_R',
-                'scallop-in-deg': 'SCALLOP_IN_DEG',
-                'race-cap-r': 'RACE_CAP_R',
-                'race-straight': 'RACE_STRAIGHT',
-                'port-from-tip': 'PORT_FROM_TIP'}[flag]
-        setattr(B, name, cast(hit[0].split('=', 1)[1]))
-
-    # This table is a SECOND copy of the generator's, and an unlisted flag
-    # used to fall straight through it: the double spiral was drawn here at
-    # its default crossover radius while the cut files beside it were cut at
-    # another, and the only tell was 6.5mm of length between two reports
-    # nobody was comparing. An unknown flag is now an error, so a page and
-    # the sheets it belongs to cannot be built from different numbers.
-    # --ds-half is a bare switch rather than --flag=value, so it is carried
-    # across here instead of through FLAGS. That makes three things this second
-    # copy has lacked that the generator had; the two notes above are the others.
-    B.DS_HALF = '--ds-half' in a
-    # The port flags, carried across the same way and for a stronger reason
-    # than --ds-half: a page drawn without them shows a mouth and a far end
-    # that the ported part has not got, and no hole where its openings are.
-    # --port-square's implication is copied from the generator rather than
-    # inferred, because the SIZE follows --bore and reading it off anything
-    # else is how the two copies of this argument handling drift apart.
-    B.PORT = '--port' in a
-    B.PORT_BOTH = '--port-both' in a
-    B.PORT_PER_CHEEK = '--port-per-cheek' in a
-    B.PORT_AT = None
-    hit = [x for x in a if x.startswith('--port-at=')]
-    if hit:
-        B.PORT_AT = [int(v) for v in hit[0].split('=', 1)[1].split(',') if v != '']
-    B.CAP = '--cap' in a
-    if '--port-square' in a:
-        B.PORT_ACROSS = B.PORT_ALONG = B.BORE
-    for flag, why in (('--port-both', 'draws no port at all, at either end'),
-                      ('--port-square', 'draws no port at all'),
-                      ('--port-per-cheek', 'draws no port at all'),
-                      ('--cap', 'closes the only opening the bore has')):
-        if flag in a and not B.PORT:
-            sys.exit(f'ribbon_view: {flag} without --port {why}. Pass both.')
-    # The loop above tests `flag in a`, which a flag carrying a VALUE never
-    # satisfies -- '--port-at=0,6' is not '--port-at' -- so this one needs
-    # saying separately rather than adding a name to that tuple.
-    if B.PORT_AT is not None and not B.PORT:
-        sys.exit('ribbon_view: --port-at without --port draws no port at all, '
-                 'on any facet. Pass both.')
-    if B.PORT_AT is not None and B.PORT_BOTH:
-        sys.exit('ribbon_view: --port-at and --port-both are two answers to '
-                 'the same question. Pass one.')
-    if B.PORT_PER_CHEEK and B.PORT_AT is None and not B.PORT_BOTH:
-        sys.exit('ribbon_view: --port-per-cheek without --port-both has one '
-                 'port and two cheeks, so there is nothing to split.')
-    if B.PORT_PER_CHEEK and B.PORT_AT is not None and len(B.PORT_AT) != 2:
-        sys.exit(f'ribbon_view: --port-per-cheek splits the ports between TWO '
-                 f'cheeks and --port-at names {len(B.PORT_AT)}.')
-    # --trace belongs in this set too. It was not, so the guard rejected the
-    # one flag whose handler sits forty lines below it and the traced page
-    # could not be redrawn at all -- the check meant to stop a page and its
-    # sheets being built from different numbers stopped a page being built.
-    known = ({f'--{f}' for f, _ in FLAGS}
-             | {'--out', '--home', '--embed', '--ds-half', '--trace',
-                '--port', '--port-square', '--port-both', '--port-per-cheek',
-                '--port-at', '--cap'})
-    for x in a:
-        if x.startswith('--') and x.split('=', 1)[0] not in known:
-            sys.exit(f'ribbon_view: {x.split("=", 1)[0]} is not a flag here. '
-                     f'Known: {" ".join(sorted(known))}')
-
-    # the opposed shape carries its own lobe; see ribbon_bore.OPPOSED_R
-    if B.SHAPE == 'opposed':
-        if not any(x.startswith('--lobe-r=') for x in a):
-            B.LOBE_R = B.OPPOSED_R
-        if not any(x.startswith('--rise=') for x in a):
-            B.RISE = B.OPPOSED_RISE
-    # Read from the generator, not copied. When ribbon_bore grew a per-shape
-    # facet default this file did not, and a bare --shape=wave drew 611.1mm
-    # here against the generator's 836.5mm while --shape=spiral drew nothing
-    # at all. That is the second time a second copy of the generator's
-    # argument handling has quietly diverged in this file.
-    if B.SHAPE in B.FACET_BY_SHAPE and not any(
-            x.startswith('--facet=') for x in a):
-        B.FACET = B.FACET_BY_SHAPE[B.SHAPE]
+    # THE DESIGN IS READ BY THE GENERATOR, not by a copy of it here. This file
+    # kept its own flag table, its own refusals and its own per-shape defaults,
+    # and each note that used to sit here recorded one more way the copy had
+    # drifted: an unlisted flag drawn at its default, a facet default this file
+    # did not have, --ds-half, the port flags, --trace refused. The last state of
+    # it drew pages for --port-at with --cap, which the generator refuses. Only
+    # the four flags that are about the page are taken out first.
+    VIEW = ('--out=', '--home=', '--embed', '--trace=')
+    B.read_flags([x for x in a if not x.startswith(VIEW)])
+    # --out IS REQUIRED. This used to guess the page's path from a filename rule
+    # of its own, a third naming scheme beside the generator's sheet names and
+    # the folder names the designs actually ship in, which are chosen by hand
+    # (-800mm, -halftest, -1000mm). Measured on 2026-09-16: of 18 shipped pages,
+    # 7 resolved to their own file; three would have been written over ANOTHER
+    # design's page, and the torus, scallop and racetrack found no folder at
+    # all. A page's path is not something this file can derive, so it asks.
+    out = [x for x in a if x.startswith('--out=')]
+    if not out:
+        sys.exit('ribbon_view: say where the page goes with --out=PATH. It '
+                 'belongs beside the cut files it describes, in the design\'s '
+                 'own folder.')
+    path = out[0].split('=', 1)[1]
 
     here = os.path.dirname(os.path.abspath(__file__))
     # --trace draws a centreline from stations fixed somewhere other than this
@@ -714,21 +622,18 @@ def main():
         inner = sorted(seg)[1:-1]
         B.RADIUS = round((sum(inner) / len(inner))
                          / (2 * math.tan(math.radians(B.FACET / 2))), 3)
-        stem = f'ribbon-traced-{doc["name"]}-bore{B.BORE:g}-{B.FACET:g}deg'
         # the trace names itself; this used to be hard-coded to the octagonal
         # trumpet, which put that title on every other traced bore
         title = (doc['name'].replace('-', ' ').title()
                  + f', {B.BORE:g}mm \u2014 traced')
-        out = [x for x in a if x.startswith('--out=')]
-        path = out[0].split('=', 1)[1] if out else os.path.join(here, stem + '.html')
-        open(path, 'w').write(build(title))
+        page = build(title)
+        open(path, 'w').write(page)
         d = data_for()
         print(f'  {os.path.basename(path):<52}drag to turn, colour by face '
               f'or facet')
         print(f'  {"":52}{d["mm"]}mm, {d["segs"]} facets, traced')
         return 0
     if B.SHAPE == 'torus':
-        stem = f'ribbon-torus-bore{B.BORE:g}-{B.FACET:g}deg-R{B.RADIUS:g}'
         # NOT "Octagonal Torus". That title was written when 45 degrees was the
         # only ring anyone had drawn, and it then headed a 13-facet ring -- a
         # page calling a thirteen-sided figure an octagon, with the facet count
@@ -737,40 +642,25 @@ def main():
         title = (f'Closed Ring, {int(round(360.0 / B.FACET))} Facets, '
                  f'{B.BORE:g}mm Bore')
     elif B.SHAPE == 'racetrack':
-        stem = (f'ribbon-racetrack-bore{B.BORE:g}-{B.FACET:g}deg-{B.LOBES}lobes'
-                f'-R{B.LOBE_R:g}-cap{B.RACE_CAP_R:g}')
         title = (f'Closed Serpentine Racetrack, {B.LOBES} Lobes a Side, '
                  f'{B.BORE:g}mm Bore')
     elif B.SHAPE == 'scallop':
-        stem = (f'ribbon-scallop-bore{B.BORE:g}-{B.FACET:g}deg-{B.LOBES}lobes'
-                f'-R{B.LOBE_R:g}-in{B.SCALLOP_IN_R:g}')
         title = (f'Closed Serpentine, {B.LOBES} Lobes, {B.BORE:g}mm Bore')
     elif B.SHAPE == 'wave':
-        stem = (f'ribbon-wave-bore{B.BORE:g}-{B.FACET:g}deg-'
-                f'{B.WAVE_LOBE_ARCS}arc')
         title = f'Ribbon Wave, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'spiral':
-        stem = (f'ribbon-spiral-bore{B.BORE:g}-{B.FACET:g}deg-'
-                f'R{B.SPIRAL_RI:.0f}to{B.SPIRAL_RO:.0f}')
         title = f'Ribbon Spiral, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'volute':
-        stem = (f'ribbon-volute-bore{B.BORE:g}-{B.FACET:g}deg-'
-                f'R{B.VOL_R0:.0f}-step{B.VOL_STEP:.0f}')
         title = f'Ribbon Double Volute, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'dspiral':
         # --ds-half is a different bore, not a view of the same one: it stops at
         # the centre and runs out from there. Without this it took the full
         # spiral's name and title, which is the mistake the else-branch below
         # exists to stop, one level further in.
-        stem = (f'ribbon-dspiral-bore{B.BORE:g}-{B.FACET:g}deg-'
-                f'R{B.DS_R0:.0f}-pitch{B.DS_PITCH:.0f}'
-                + ('-halftest' if B.DS_HALF else ''))
         title = ('Ribbon Double Spiral, Centre Half, %gmm Bore' % B.BORE
                  if B.DS_HALF
                  else f'Ribbon Double Spiral, {B.BORE:g}mm Bore')
     elif B.SHAPE in ('serpentine', 'opposed'):
-        stem = (f'ribbon-{B.SHAPE}-bore{B.BORE:g}-{B.FACET:g}deg-'
-                f'{B.LOBES}lobes-R{B.LOBE_R:.0f}')
         title = ('Ribbon Opposed-Ends Bore, %gmm' % B.BORE
                  if B.SHAPE == 'opposed'
                  else f'Ribbon Serpentine, {B.BORE:g}mm Bore')
@@ -783,35 +673,16 @@ def main():
         # showed it. The coupon is gone (2026-09-14) and the branch it used to
         # own is now nothing but this refusal, which is what it should always
         # have been.
-        sys.exit(f'ribbon_view: no title or filename for --shape={B.SHAPE}. '
+        sys.exit(f'ribbon_view: no title for --shape={B.SHAPE}. '
                  f'Add it here as well as in ribbon_bore.centreline().')
-    out = [x for x in a if x.startswith('--out=')]
     hm = [x for x in a if x.startswith('--home=')]
     embed = '--embed' in a
-    # THE PAGE BELONGS BESIDE ITS CUT FILES, not at the root of swept-curve.
-    # The default was `here`, which is where the traced and torus pages ship and
-    # nowhere any ordinary shape's page lives: every one of the seven sits in
-    # <shape>/<stem>/ with the sheets it describes. So a bare run dropped an
-    # unshipped duplicate at the root, one directory up from the real page and
-    # beside the one root page that is real. Found by running the file with no
-    # arguments, which is the only way anyone would meet it.
-    #
-    # The design directory has to EXIST. ribbon_bore.py makes it when it writes
-    # the sheets, so its absence means this is a shape-and-parameter combination
-    # nothing has cut -- and inventing a directory for a viewer is how strays get
-    # made in the first place. Say so and ask for --out instead.
-    design = os.path.join(here, B.SHAPE, stem)
-    if out:
-        path = out[0].split('=', 1)[1]
-    elif os.path.isdir(design):
-        path = os.path.join(design, stem + ('-embed.html' if embed else '.html'))
-    else:
-        sys.exit(f'ribbon_view: no cut files at {os.path.relpath(design)}, so '
-                 f'there is nowhere this page belongs.\n'
-                 f'  Draw the design first, or name the file with --out=PATH.')
-    open(path, 'w').write(build(title, embed,
-                                hm[0].split('=', 1)[1] if hm else
-                                'https://gernreich.github.io/trumpet/'))
+    # Built BEFORE the file is opened. open() creates the file, so a design the
+    # generator refuses while the page is being built -- a facet named twice --
+    # left an empty page at --out, over whatever was there, beside its refusal.
+    page = build(title, embed, hm[0].split('=', 1)[1] if hm else
+                 'https://gernreich.github.io/trumpet/')
+    open(path, 'w').write(page)
     d = data_for()
     print(f'  {os.path.basename(path):<52}drag to turn, colour by face '
           f'or facet')

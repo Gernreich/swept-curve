@@ -2329,11 +2329,7 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
 def main(write=True):
     c, inn, out, parts, report = build()
     over = 100 * (1 / math.cos(math.radians(FACET) / 2) - 1)
-    R = (WAVE_TROUGH_R if SHAPE == 'wave'
-         else SPIRAL_RI if SHAPE == 'spiral'
-         else DS_CROSS_R if SHAPE == 'dspiral'
-         else VOL_CROSS_R if SHAPE == 'volute'
-         else LOBE_R if SHAPE in ('serpentine', 'opposed') else RADIUS)
+    R = bend_radius()
     what = (f'a wave: a trough of R{WAVE_TROUGH_R:g} and a crest of '
             f'R{WAVE_CREST_R:g}, level at both ends'
             if SHAPE == 'wave' else
@@ -2564,69 +2560,69 @@ def main(write=True):
     return 1 if bad else 0
 
 
-if __name__ == '__main__':
-    # a geometry that cannot be built is an answer, not a crash
-    a = sys.argv[1:]
-    for flag, cast in (('out', str), ('shape', str), ('bore', float),
-                       ('facet', float), ('radius', float), ('lobes', int),
-                       ('lobe-r', float), ('rise', float), ('lead', float),
-                       ('web', float), ('wave-rise', float),
-                       ('wave-trough-r', float), ('wave-crest-r', float),
-                       ('wave-lead-r', float), ('spiral-facets', int),
-                       ('spiral-ri', float), ('spiral-ro', float),
-                       ('ds-pitch', float), ('ds-r0', float),
-                       ('ds-facets', int), ('ds-cross-r', float),
-                       ('vol-r0', float), ('vol-step', float),
-                       ('vol-semis', int), ('vol-cross-r', float),
-                       ('sheet', float), ('kerf', float),
-                       ('scallop-in-r', float),
-                       ('scallop-in-deg', float),
-                       ('race-cap-r', float),
-                       ('race-straight', float),
-                       ('port-from-tip', float)):
+# THE FLAGS, READ IN ONE PLACE. --name=value flags and the globals they set.
+#
+# This table was written out THREE times inside __main__ and a fourth in
+# ribbon_view.py, and the copies differed in the one way a copy can: this file
+# ignored a flag it did not know, so --lobe-radius=50 built the default R71.754
+# lobe and said nothing, while the viewer refused the same line. The viewer now
+# calls read_flags() and has no table of its own.
+FLAGS = {
+    'out': ('OUT', str), 'shape': ('SHAPE', str), 'bore': ('BORE', float),
+    'facet': ('FACET', float), 'radius': ('RADIUS', float),
+    'lobes': ('LOBES', int), 'lobe-r': ('LOBE_R', float),
+    'rise': ('RISE', float), 'lead': ('LEAD', float), 'web': ('WEB', float),
+    'wave-rise': ('WAVE_RISE', float),
+    'wave-trough-r': ('WAVE_TROUGH_R', float),
+    'wave-crest-r': ('WAVE_CREST_R', float),
+    'wave-lead-r': ('WAVE_LEAD_R', float),
+    'spiral-facets': ('SPIRAL_FACETS', int),
+    'spiral-ri': ('SPIRAL_RI', float), 'spiral-ro': ('SPIRAL_RO', float),
+    'ds-pitch': ('DS_PITCH', float), 'ds-r0': ('DS_R0', float),
+    'ds-facets': ('DS_FACETS', int), 'ds-cross-r': ('DS_CROSS_R', float),
+    'vol-r0': ('VOL_R0', float), 'vol-step': ('VOL_STEP', float),
+    'vol-semis': ('VOL_SEMIS', int), 'vol-cross-r': ('VOL_CROSS_R', float),
+    'sheet': ('SHEET', float), 'kerf': ('BURN', float),
+    'scallop-in-r': ('SCALLOP_IN_R', float),
+    'scallop-in-deg': ('SCALLOP_IN_DEG', float),
+    'race-cap-r': ('RACE_CAP_R', float),
+    'race-straight': ('RACE_STRAIGHT', float),
+    'port-from-tip': ('PORT_FROM_TIP', float),
+    'port-at': (None, str),             # read below: a list, and refused alone
+}
+SWITCHES = ('port', 'ds-half', 'narrow', 'port-square', 'port-both',
+            'port-per-cheek', 'merge-lead', 'cap', 'no-write')
+
+
+def read_flags(a):
+    """Set the design from a command line, or refuse it in a sentence.
+
+    Every flag this file knows is in FLAGS or SWITCHES; anything else is an
+    error rather than a no-op. Called by __main__ here and by ribbon_view.py,
+    so a page and the sheets it belongs to are built from one reading of one
+    line, refusals included.
+    """
+    global PORT, DS_HALF, NARROW, PORT_SQUARE, PORT_BOTH, PORT_AT
+    global PORT_PER_CHEEK, MERGE_LEAD, CAP, LOBE_R, RISE, FACET
+    global PORT_ACROSS, PORT_ALONG
+    for x in a:
+        name, eq, v = x[2:].partition('=') if x.startswith('--') else ('', '', '')
+        if not (name in FLAGS and eq) and not (name in SWITCHES and not eq):
+            raise SystemExit(
+                f'error: {x} is not a flag this generator reads. It takes '
+                + ', '.join(f'--{f}=' for f in FLAGS) + ' and '
+                + ', '.join(f'--{f}' for f in SWITCHES) + '.')
+    for flag, (var, cast) in FLAGS.items():
         hit = [x for x in a if x.startswith(f'--{flag}=')]
-        if not hit:
+        if len(hit) > 1:
+            raise SystemExit(f'error: --{flag} is given twice.')
+        if not hit or var is None:
             continue
-        v = cast(hit[0].split('=', 1)[1])
-        {'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE', 'facet': 'FACET',
-         'radius': 'RADIUS', 'lobes': 'LOBES', 'lobe-r': 'LOBE_R',
-         'rise': 'RISE', 'lead': 'LEAD', 'web': 'WEB',
-         'wave-rise': 'WAVE_RISE', 'wave-trough-r': 'WAVE_TROUGH_R',
-         'wave-crest-r': 'WAVE_CREST_R', 'wave-lead-r': 'WAVE_LEAD_R',
-         'spiral-facets': 'SPIRAL_FACETS', 'spiral-ri': 'SPIRAL_RI',
-         'spiral-ro': 'SPIRAL_RO',
-         'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
-         'ds-facets': 'DS_FACETS', 'ds-cross-r': 'DS_CROSS_R',
-         'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
-         'vol-semis': 'VOL_SEMIS', 'vol-cross-r': 'VOL_CROSS_R',
-         'sheet': 'SHEET', 'kerf': 'BURN',
-         'scallop-in-r': 'SCALLOP_IN_R',
-         'scallop-in-deg': 'SCALLOP_IN_DEG',
-         'race-cap-r': 'RACE_CAP_R',
-         'race-straight': 'RACE_STRAIGHT',
-         'port-from-tip': 'PORT_FROM_TIP'}[flag]
-        globals()[{'out': 'OUT', 'shape': 'SHAPE', 'bore': 'BORE',
-                   'facet': 'FACET', 'radius': 'RADIUS', 'lobes': 'LOBES',
-                   'lobe-r': 'LOBE_R', 'rise': 'RISE', 'lead': 'LEAD',
-                   'web': 'WEB', 'wave-rise': 'WAVE_RISE',
-                   'wave-trough-r': 'WAVE_TROUGH_R',
-                   'wave-crest-r': 'WAVE_CREST_R',
-                   'wave-lead-r': 'WAVE_LEAD_R',
-                   'spiral-facets': 'SPIRAL_FACETS',
-                   'spiral-ri': 'SPIRAL_RI',
-                   'spiral-ro': 'SPIRAL_RO',
-                   'ds-pitch': 'DS_PITCH', 'ds-r0': 'DS_R0',
-                   'ds-facets': 'DS_FACETS',
-                   'ds-cross-r': 'DS_CROSS_R',
-                   'vol-r0': 'VOL_R0', 'vol-step': 'VOL_STEP',
-                   'vol-semis': 'VOL_SEMIS',
-                   'vol-cross-r': 'VOL_CROSS_R',
-                   'sheet': 'SHEET', 'kerf': 'BURN',
-         'scallop-in-r': 'SCALLOP_IN_R',
-         'scallop-in-deg': 'SCALLOP_IN_DEG',
-         'race-cap-r': 'RACE_CAP_R',
-         'race-straight': 'RACE_STRAIGHT',
-         'port-from-tip': 'PORT_FROM_TIP'}[flag]] = v
+        try:
+            globals()[var] = cast(hit[0].split('=', 1)[1])
+        except ValueError:
+            raise SystemExit(f'error: {hit[0]} is not a '
+                             f'{"whole number" if cast is int else "number"}.')
     # per-shape defaults, and only where the caller has not spoken
     if SHAPE == 'opposed':
         if not any(x.startswith('--lobe-r=') for x in a):
@@ -2716,6 +2712,40 @@ if __name__ == '__main__':
         if not PORT:
             raise SystemExit('error: --port-square without --port draws no '
                              'port at all. Pass both.')
+
+
+def bend_radius():
+    """The tightest arc the centreline is built from, as a report quotes it.
+
+    ONE table, read by main()'s report and by ribbon_view.py's panel. It was
+    written twice, once in each, and both fell through to RADIUS -- the torus
+    circumradius, R30 by default -- for any shape not listed, so the scallop
+    (R40) and the racetrack (R22) were both reported as R30 on their pages and
+    in the terminal.
+
+    For the spiral this is its inner radius; the page quotes the range.
+    """
+    if SHAPE == 'wave':
+        return min(WAVE_LEAD_R, WAVE_TROUGH_R, WAVE_CREST_R)
+    if SHAPE == 'spiral':
+        return min(SPIRAL_RI, SPIRAL_RO)
+    if SHAPE == 'dspiral':
+        return DS_CROSS_R
+    if SHAPE == 'volute':
+        return VOL_CROSS_R
+    if SHAPE in ('serpentine', 'opposed'):
+        return LOBE_R
+    if SHAPE == 'scallop':
+        return min(LOBE_R, SCALLOP_IN_R)
+    if SHAPE == 'racetrack':
+        return min(LOBE_R, RACE_CAP_R)
+    return RADIUS                       # torus, and a traced bore
+
+
+if __name__ == '__main__':
+    # a geometry that cannot be built is an answer, not a crash
+    a = sys.argv[1:]
+    read_flags(a)
     try:
         sys.exit(main(write='--no-write' not in a))
     except ValueError as e:
