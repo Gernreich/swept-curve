@@ -398,6 +398,16 @@ SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
 # the tooth, not the geometry. At FACET 24 and a 10mm bore that is R30.6, and
 # SCALLOP_IN_R is the one that will hit it first because the scoop is tighter
 # than the bulge.
+#
+# THE SCOOP NEEDS TWO FACETS OR IT IS NOT THERE. Arcs are inscribed, so a chord
+# turns half a facet at each end; a one-facet scoop between two bulges turns +half
+# where the bulge turned -half, twice, and the centreline goes STRAIGHT through
+# it. The first 800mm scallop (36 degree facets, a 36 degree scoop of R40) was
+# drawn, gated and quoted as R40 with no inward bend anywhere: a decagon with
+# rounded corners. The one that replaced it (2026-09-16) keeps 36 degree facets
+# -- finer ones make panels too short for a square port to leave a tooth on --
+# and scoops 72 degrees, two facets, R41 against a 144 degree bulge of R44.22.
+# R41 is as tight as the pair goes with ports: from R42 no facet takes one.
 SCALLOP_IN_R, SCALLOP_IN_DEG = 34.0, 48.0
 # --shape=racetrack: a closed serpentine that is NOT radially symmetric, which
 # is the whole reason it exists. A scallop repeats one lobe LOBES times about a
