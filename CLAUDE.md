@@ -252,56 +252,75 @@ side-branch is one adjacent to both of them** — which forces the ports adjacen
 to each other, which is the end-based placement again. The two wants are
 incompatible on a ring; pick one knowing that.
 
-### A ported ring runs R36 to R135, and the floor is the PORT
+### A ported ring's window depends on n, and the table has to say which n
 
-The cheek is one part and a disc, so the bed's 288mm of usable height is the
-ceiling, not its 580mm of width:
+**Every number in this section is from this command**, which is the thing the
+first version of it left out and the reason two readers got two answers:
 
-| radius | duct | largest sheet |
+    python3 ribbon_bore.py --shape=torus --facet=F --radius=R \
+            --port --port-at=0,K --no-write
+
+`n = round(360/F)` facets, `K = n//2` so the ports sit opposite. A DEFAULT torus
+is `--facet=30`, so n=12 and 24 wall panels; the 13 ring is
+`--facet=27.6923076923`, n=13, 26 panels. **The two rings have different floors
+and different ceilings**, and a table that names neither its facet angle nor its
+port facets is a table about no particular ring.
+
+| | n = 12 (`--facet=30`) | n = 13 (`--facet=27.6923076923`) |
 | --- | --- | --- |
-| R40 | 249mm | 577 x 119 |
-| R80 | 498mm | 561 x 198 |
-| R120 | 747mm | 592 x 277 |
-| **R135** | **840mm** | **599 x 306** |
-| R136 | 846mm | refused: cheek 290 x 288 against 288 |
-
-The 1000mm the shipped designs run to needs R160.7 and a 338 x 336mm cheek.
-Nesting cannot save it — the cheek is one part.
+| floor | **R32.9** (R32.8 refuses, 16.98mm of facet) | **R36** (R35.5 refuses, 16.99mm) |
+| ceiling | **R133**, sheet 594 x 307 | **R135**, sheet 599 x 306 |
+| first refused | R134, *"a part is 289 x 289mm"* | R136, *"a part is 290 x 288mm"* |
+| duct at the ceiling | 826mm | 840mm |
 
 The FLOOR is not the bend radius and not the tooth. A port needs
 `PORT_FROM_TIP + PORT_ALONG/2` = **17mm of the facet it is measured along**, and
 a ring's facet is `2*R*sin(pi/n)`, so
 
-    R >= 17 / (2 sin(pi/n))
+    R >= 17 / (2 sin(pi/n))          32.84 at n=12,  35.52 at n=13
 
-    n = 12   R >= 32.84    refuses at R32.8 (16.98mm of facet), passes at R32.9
-    n = 13   R >= 35.52    refuses at R35.5 (16.99mm of facet), passes at R36
-
-Below that the generator refuses by name — *"the port spans 3.00 to 17.00mm
+and the generator refuses below it by name — *"the port spans 3.00 to 17.00mm
 along facet 0, which is 16.99mm long"* — which reads like a port problem and is
-one. **Radius is the dial**, and a reader reaching for `--port-at` on a default
-ring (R30, 12 facets, 15.53mm of facet) hits this before anything else.
+one. **Radius is the dial.** A reader reaching for `--port-at` on a default ring
+(R30, 15.53mm of facet) hits this before anything else.
 
-Coarsening `--facet` widens the facet and does not help: at `--facet=60` the
-ring clears the port check and then fails *the web outboard of a slot is
-cuttable* at **0.951mm** against the 1.5mm needed. Not a radius failure —
-0.951mm at R30, at R60 and at R120, because 60 degree facets put the mortices
-that close to the rim whatever the ring's size.
+The CEILING is the cheek against the bed. It is one part and a disc, so the
+bed's **288mm of usable height** is what runs out, not its 580mm of width. The
+1000mm the shipped designs run to needs R160.7 at n=13 and a 338 x 336mm cheek;
+nesting cannot save it, because the cheek is one part.
 
-Above that the ring never passes either, but **it stops failing that check and
-starts failing before any check runs**: from R150 the bed refuses the cheek
-outright (*"a part is 280 x 323mm"*) and the twelve checks are never reached. So
-`--facet=60` has no passing radius at all — the mode of the refusal changes at
-R150 and nothing else does.
+**Do not read the ceiling off the sheet size.** The bed check reports the
+largest SHEET against the full 600 x 308 bed, and 599 x 306 passes it; the
+580 x 288 in the refusal is the per-PART usable area, which is a different
+limit measured against a different thing. A ring at its ceiling therefore
+prints a sheet taller than 288 and is correct. Reading 306 > 288 off that row
+and concluding the ring is over is the mistake the two limits invite.
 
-That is worth the sentence because of how it reads if you count one signal.
+### `--facet=60` has no passing radius, and changes how it fails at R133
+
+Coarsening `--facet` widens the facet and does not rescue a ring. At
+`--facet=60` — n=6, so the comparable run is `--port-at=0,3` — the ring clears
+the port check and fails *the web outboard of a slot is cuttable* at **0.951mm**
+against the 1.5mm needed. Not a radius failure: 0.951mm at R30, R60, R120, R130
+and R132 alike, because 60 degree facets put the mortices that close to the rim
+whatever the ring's size.
+
+At **R133** it stops failing that check and starts failing before any check
+runs — the bed refuses the cheek outright, *"a part is 250 x 289mm"*. The
+conclusion is unchanged, and R133 is the crossover: R132 reaches the checks,
+R133 does not.
+
+That is worth saying because of how the upper end reads if you count one signal.
 `--facet=60 --radius=300` prints **zero FAIL lines**, and zero FAIL lines there
-means zero checks, not a clean run. Every row in `all-gates.sh` asserts the
-PASS count as well for exactly this reason, and its header says so: absence of
-bad news is not good news.
+means zero checks, not a clean run. Every row in `all-gates.sh` asserts the PASS
+count as well for exactly this reason, and its header says so: absence of bad
+news is not good news.
 
-So a 13 ring is usable from **R36 (224mm of duct) to R135 (840mm)**, and that
-window is the whole of it.
+**Both numbers in this section were wrong once for the same reason** — an
+absolute written from samples that could not disprove it. "R120 is the smallest
+radius that passes" came from probing only 120 and up; "the mode changes at
+R150" came from probing 120 then 150 and never narrowing. Sweep across the
+boundary you mean to name, not away from it.
 
 `--facet` wants eleven decimal places for a 13 ring. The divisibility guard is
 `1e-9` absolute, so `--facet=27.692307692` is refused and `27.6923076923` is
