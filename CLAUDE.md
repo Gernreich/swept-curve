@@ -203,6 +203,75 @@ measured off a cut file.
 `ribbon_view.py` draws a closed loop with no mouth and no far end, because the
 last station is the first.
 
+### The seam is not a free end, and every torus ever drawn failed for it
+
+`build()` trims each panel end back by `THICK/2*tan(phi/2)`, because a panel end
+is a square cut and two neighbours meeting at a mitre otherwise jam on the
+concave side before either is seated. `turn_at()` decided how far to trim, and
+answered **0 at the first and last vertex** — *"a free end turns through 0"*,
+which is right for a run and wrong for a ring. A closed polyline's first and
+last vertex are one vertex and it turns there like any other.
+
+So the two panels either side of the seam kept the ply the trim exists to take
+off, and **`no two wall panels share plan area` failed with exactly 2 jamming
+pairs — one per wall — on every torus at every facet count and every radius**.
+0.37mm a panel at 13 facets, 0.62mm at 8, which is the 1.24mm the trim's own
+comment quotes from the bench. `turn_at()` now wraps, the way `offset()`
+already did at the seam mitre and for the same reason.
+
+Nothing open moves: `poly[0] != poly[-1]` on a run, so it takes the old branch.
+Checked rather than assumed — all six shapes, plain, `--port` and
+`--port-both`, compared as geometry: **18 of 18 identical**.
+
+### Two ports on a ring are two paths, and that is not a duct
+
+`--port-at=i,j` puts the ports on **named facets** instead of at the two ends of
+the run. Facet `i` runs from vertex `i` to vertex `i+1`, and the hole goes
+`--port-from-tip` along it from vertex `i` — so `--port-at=0` **is** the mouth
+port, verified identical on all six shapes, and the flag subsumes the old path
+rather than sitting beside it.
+
+It exists because a closed ring has no ends. `cline[0]` and `cline[-1]` are one
+vertex on a torus, so `--port-both` put both ports 19.4mm apart either side of
+the seam and nothing moved them. Almost nothing else had to learn about it: the
+per-cheek split, `teeth_kept()`, the label dodge, three checks and the
+narrow-rim web all read `port_holes()` and never ask where a port came from.
+
+The list length is the port count, so it **replaces** `--port-both` rather than
+joining it, and the two together are refused — each answers "how many ports and
+where", and two answers is one too many. `--cap` is refused with it too:
+`caps()` counts ported *run ends* and `--port-at` ports none of them.
+
+**Say the acoustics out loud, because the geometry will not.** Two ports on a
+closed ring leave the air two paths between them, unequal unless the ports are
+antipodal: `--port-at=0,6` on a 13 ring is 114.9mm one way and 134.0mm the other
+at R40. That is a ring resonator, not a trumpet bore, and it passes all thirteen
+checks because all thirteen are geometric. A single air path needs the ring
+blocked between the ports, and **the only block position that leaves no dead
+side-branch is one adjacent to both of them** — which forces the ports adjacent
+to each other, which is the end-based placement again. The two wants are
+incompatible on a ring; pick one knowing that.
+
+### A 13-facet ring tops out at R135
+
+The cheek is one part and a disc, so the bed's 288mm of usable height is the
+ceiling, not its 580mm of width:
+
+| radius | duct | largest sheet |
+| --- | --- | --- |
+| R40 | 249mm | 577 x 119 |
+| R80 | 498mm | 561 x 198 |
+| R120 | 747mm | 592 x 277 |
+| **R135** | **840mm** | **599 x 306** |
+| R136 | 846mm | refused: cheek 290 x 288 against 288 |
+
+The 1000mm the shipped designs run to needs R160.7 and a 338 x 336mm cheek.
+Nesting cannot save it — the cheek is one part.
+
+`--facet` wants eleven decimal places for a 13 ring. The divisibility guard is
+`1e-9` absolute, so `--facet=27.692307692` is refused and `27.6923076923` is
+accepted. A facet *count* would be the better flag, and is not written.
+
 ## The cheek gets its own file, and that file is cut twice
 
 The two cheeks are the same part, so one file run twice is the whole job -

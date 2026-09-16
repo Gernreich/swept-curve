@@ -290,6 +290,32 @@ PORT_BOTH = False
 #
 # It needs --port-both, having nothing to split otherwise.
 PORT_PER_CHEEK = False
+# --port-at=i,j: put the ports on NAMED FACETS instead of at the two ends of
+# the run. Facet i is the centreline segment from vertex i to vertex i+1, and
+# the hole goes PORT_FROM_TIP along it from vertex i, in the run's direction --
+# so --port-at=0 is the mouth port exactly, byte for byte, and every other
+# index is a place the end-based placement cannot reach.
+#
+# It exists because a CLOSED RING has no ends. cline[0] and cline[-1] are one
+# vertex on a torus, so --port-both put both ports 19.4mm apart either side of
+# the seam and no flag moved them. The two openings of a ring are wherever you
+# say they are, and nothing else in this file needed to learn that: the
+# per-cheek split, teeth_kept(), the label dodge, three checks and the
+# narrow-rim web all read port_holes() and never ask where a port came from.
+#
+# The LIST LENGTH is the port count, so it replaces --port-both rather than
+# joining it, and the two together are refused: each is an answer to "how many
+# ports and where", and two answers is one too many.
+#
+# Say it plainly, because the ring makes it easy to miss: two ports on a closed
+# ring leave the air TWO paths between them, and they are unequal unless the
+# ports are antipodal. --port-at=0,6 on a 13 ring is 114.9mm one way and
+# 134.0mm the other at R40. That is a ring resonator and not a duct, and no
+# check here has an opinion about it -- they are all geometric. A single air
+# path needs the ring blocked between the ports, and the only block position
+# that leaves no dead side-branch is one adjacent to BOTH of them, which forces
+# the ports adjacent to each other and is the end-based placement again.
+PORT_AT = None
 # --port-square implies this: the square port needs the lead panel's tooth out
 # of the way, and folding the lead into the facet it already lies on is the
 # only move that buys the room without moving the coil. Separately settable so
@@ -1200,9 +1226,31 @@ def build():
     cl = c
 
     def turn_at(poly, k):
-        """How far the wall turns at vertex k. A free end turns through 0."""
+        """How far the wall turns at vertex k. A free end turns through 0.
+
+        A CLOSED polyline has no free end. Its first and last vertex are one
+        vertex, and it turns there by a facet like every other -- so the trim
+        below has to wrap, or the two panels either side of the seam keep the
+        THICK/2*tan(phi/2) of ply the trim exists to take off. They then butt
+        before either is seated and the ring does not close: 0.37mm a panel at
+        13 facets, 0.62mm at 8, which is the 1.24mm the trim's own comment
+        quotes from the bench. Every --shape=torus ever drawn failed "no two
+        wall panels share plan area" with exactly 2 jamming pairs, one per
+        wall, for this reason and no other.
+
+        offset() already computes this same shut test, at the seam mitre, for
+        the same reason. An open run has poly[0] != poly[-1], so it takes the
+        0.0 branch exactly as before and no shipped sheet moves.
+        """
+        shut = (abs(poly[0][0] - poly[-1][0]) < 1e-9
+                and abs(poly[0][1] - poly[-1][1]) < 1e-9)
         if k <= 0 or k >= len(poly) - 1:
-            return 0.0
+            if not shut:
+                return 0.0
+            h1 = math.atan2(poly[-1][1] - poly[-2][1],
+                            poly[-1][0] - poly[-2][0])
+            h2 = math.atan2(poly[1][1] - poly[0][1], poly[1][0] - poly[0][0])
+            return abs((h2 - h1 + math.pi) % (2 * math.pi) - math.pi)
         h1 = math.atan2(poly[k][1] - poly[k - 1][1], poly[k][0] - poly[k - 1][0])
         h2 = math.atan2(poly[k + 1][1] - poly[k][1], poly[k + 1][0] - poly[k][0])
         return abs((h2 - h1 + math.pi) % (2 * math.pi) - math.pi)
@@ -1289,6 +1337,13 @@ def port_hole(cline, end=0):
     the same tail() in centreline(), so the far end differs only in which two
     stations give the direction: the tip and the station after it, walking in.
 
+    Under --port-at it is ('facet', i) instead, and the direction comes from
+    facet i's own two stations, walked FORWARD from vertex i. The far end's
+    mirror is therefore not --port-at=<last>: that measures from the last
+    facet's start, where end=-1 measures from the run's tip walking back. Give
+    --port-from-tip the distance you want measured along the run and there is
+    one rule rather than a sign to get right.
+
     The airway is bounded top and bottom by the cheeks, so the only way out of
     the plane is through one. This cuts a PORT_ACROSS x PORT_ALONG hole -- 7 x
     14mm by default, not bore-square, for the reason set out beside
@@ -1303,9 +1358,26 @@ def port_hole(cline, end=0):
     It is a slot, not an outline cut, so it is taken in the orange stage while
     the sheet still holds the cheek - the same reason the tab slots are.
     """
-    a, b = (cline[0], cline[1]) if end == 0 else (cline[-1], cline[-2])
+    if isinstance(end, tuple):          # ('facet', i), from --port-at
+        a, b = cline[end[1]], cline[end[1] + 1]
+    else:
+        a, b = (cline[0], cline[1]) if end == 0 else (cline[-1], cline[-2])
     ux, uy = b[0] - a[0], b[1] - a[1]
     m = math.hypot(ux, uy)
+    # The hole has to fit on the segment it is measured along, and until
+    # --port-at it always did by construction: a lead is LEAD long, the port
+    # spans PORT_FROM_TIP +- PORT_ALONG/2, and 3 to 17 of 20 needs no check.
+    # A NAMED facet is whatever the shape made it, and a port that runs off the
+    # end of one is drawn by extrapolating this direction -- a hole in the
+    # cheek at a place the airway does not go. Refuse, with both numbers.
+    if PORT_FROM_TIP - PORT_ALONG / 2 < 0 or PORT_FROM_TIP + PORT_ALONG / 2 > m:
+        where = (f'facet {end[1]}' if isinstance(end, tuple)
+                 else 'the mouth lead' if end == 0 else 'the tail lead')
+        raise ValueError(
+            f'the port spans {PORT_FROM_TIP - PORT_ALONG / 2:.2f} to '
+            f'{PORT_FROM_TIP + PORT_ALONG / 2:.2f}mm along {where}, which is '
+            f'{m:.2f}mm long. Move it along with --port-from-tip, or name a '
+            f'facet with room for it.')
     ux, uy = ux / m, uy / m
     nx, ny = -uy, ux
     # The sign was wrong here and the comment beside it said so: a hole is
@@ -1337,6 +1409,22 @@ def port_holes(cline):
     """
     if not PORT:
         return []
+    if PORT_AT is not None:
+        # Range and distinctness are checked HERE and not at the flag, because
+        # a facet index only means something against a centreline and main()
+        # has not built one yet. len(cline) - 1 facets, 0-based.
+        n = len(cline) - 1
+        for i in PORT_AT:
+            if not 0 <= i < n:
+                raise ValueError(
+                    f'--port-at names facet {i} and this centreline has {n}, '
+                    f'numbered 0 to {n - 1}.')
+        if len(set(PORT_AT)) != len(PORT_AT):
+            raise ValueError(
+                f'--port-at names the same facet twice: {PORT_AT}. Two holes '
+                f'in one facet would be two mouths a bore apart, which is not '
+                f'a thing this file knows how to cut.')
+        return [port_hole(cline, ('facet', i)) for i in PORT_AT]
     return [port_hole(cline, 0)] + ([port_hole(cline, -1)] if PORT_BOTH else [])
 
 
@@ -1480,7 +1568,9 @@ def items_for(parts, cheekpoly, cline):
                     'note': ('the cheek - CUT THIS SHEET TWICE'
                              if not PORT_PER_CHEEK else
                              f'cheek {"AB"[k]} - CUT THIS SHEET ONCE - carries '
-                             f'the {"mouth" if k == 0 else "far end"} port')})
+                             + (f'the port on facet {PORT_AT[k]}'
+                                if PORT_AT is not None else
+                                f'the {"mouth" if k == 0 else "far end"} port'))})
     pan = []
     for q in parts:
         w = q['len'] + BURN
@@ -2171,6 +2261,19 @@ def main(write=True):
                 f'--port-both with --out={OUT} would write the two-port '
                 f'sheets under a name that does not say so, over the one-port '
                 f'twin. Put "both" in the --out name.')
+    if PORT_AT is not None:
+        # Same rule as "both", and the reason is the same one: two ported
+        # sheets of one shape differ by nothing an operator can see in a
+        # thumbnail except which facet the hole is on, and that is exactly the
+        # thing this flag varies. The facets go IN the name.
+        tag = 'at' + '-'.join(str(i) for i in PORT_AT)
+        stem = stem[:-4] + f'-{tag}.svg'
+        if OUT and tag not in os.path.basename(OUT):
+            raise ValueError(
+                f'--port-at with --out={OUT} would write sheets whose ports '
+                f'are on facets {PORT_AT} under a name that does not say so, '
+                f'over the sheets of another placement. Put "{tag}" in the --out '
+                f'name.')
     if MERGE_LEAD and not PORT_SQUARE:
         # A merged lead is two panels fewer and two longer, which is a
         # different part set from the plain design under a name that would not
@@ -2210,8 +2313,11 @@ def main(write=True):
     turn = flippable(cheekpoly, parts)
     if PORT_PER_CHEEK:
         spin = rotatable(cheekpoly, parts, c)
-        print(f'\n  the two cheeks are DIFFERENT parts: cheek A carries the '
-              f'mouth port, cheek B the far one.')
+        print(f'\n  the two cheeks are DIFFERENT parts: '
+              + (f'cheek A carries the port on facet {PORT_AT[0]}, cheek B '
+                 f'the one on facet {PORT_AT[1]}.'
+                 if PORT_AT is not None else
+                 f'cheek A carries the mouth port, cheek B the far one.'))
         print('  ' + (
             f'  (they are the same part half a turn apart, to '
             f'{spin:.0e}mm -- so one sheet cut twice with one turned round '
@@ -2219,7 +2325,13 @@ def main(write=True):
             if spin is not None and spin < 1e-6 else
             f'  (not the same part at any angle, so both sheets are needed)'))
         print('    the mouthpiece enters one FACE and the bell leaves the '
-              'other; both rim ends are capped.')
+              'other'
+              # The rim-end sentence is an OPEN RUN's sentence. A closed ring
+              # has no rim ends to cap, and under --port-at an open run's rim
+              # ends are not the ported ones either -- saying "capped" there
+              # would be telling an operator to close the wrong two holes.
+              + ('.' if PORT_AT is not None or SHAPE == 'torus'
+                 else '; both rim ends are capped.'))
     else:
         print(f'\n  the two cheeks are identical, and go on the same way up.')
         print('  ' + (f'  (geometrically one could be flipped and turned '
@@ -2329,13 +2441,50 @@ if __name__ == '__main__':
     NARROW = '--narrow' in a
     PORT_SQUARE = '--port-square' in a
     PORT_BOTH = '--port-both' in a
+    PORT_AT = None
     PORT_PER_CHEEK = '--port-per-cheek' in a
+    hit = [x for x in a if x.startswith('--port-at=')]
+    if hit:
+        try:
+            PORT_AT = [int(v) for v in hit[0].split('=', 1)[1].split(',') if v != '']
+        except ValueError:
+            raise SystemExit(f'error: {hit[0]} is not a comma-separated list '
+                             f'of facet numbers.')
+        if not PORT_AT:
+            raise SystemExit('error: --port-at= names no facet at all. Give '
+                             'it one index per port, e.g. --port-at=0,6.')
     MERGE_LEAD = '--merge-lead' in a or PORT_SQUARE
     CAP = '--cap' in a
     if PORT_BOTH and not PORT:
         raise SystemExit('error: --port-both without --port draws no port at '
                          'all, at either end. Pass both.')
-    if PORT_PER_CHEEK and not PORT_BOTH:
+    if PORT_AT is not None and not PORT:
+        raise SystemExit('error: --port-at without --port draws no port at '
+                         'all, on any facet. Pass both.')
+    if PORT_AT is not None and PORT_BOTH:
+        raise SystemExit('error: --port-at and --port-both are two answers to '
+                         'the same question. --port-at says how many ports '
+                         'there are and which facets they sit on; --port-both '
+                         'says there are two and they sit at the ends. Pass '
+                         'one. Two ports at the ends is --port-both; two ports '
+                         'anywhere else is --port-at=i,j.')
+    if PORT_AT is not None and CAP:
+        # caps() counts ported RUN ENDS, and --port-at ports none. On a ring
+        # there is no open end to cap; on an open run the ends are still open
+        # and still want capping, but they are no longer the ported ones and
+        # caps() would draw the wrong number. Refuse rather than guess.
+        raise SystemExit('error: --cap counts ported run ends and --port-at '
+                         'ports none of them. A closed ring has no open end '
+                         'to cap; an open run under --port-at has two, and '
+                         'neither is a port. Cap them by hand or say what the '
+                         'rule should be.')
+    if PORT_PER_CHEEK and PORT_AT is not None and len(PORT_AT) != 2:
+        # "AB"[k] and the A/B report have exactly two names in them, and
+        # items_for() makes one cheek per port under this flag.
+        raise SystemExit(f'error: --port-per-cheek splits the ports between '
+                         f'TWO cheeks and --port-at names {len(PORT_AT)}. '
+                         f'There are two cheeks.')
+    if PORT_PER_CHEEK and PORT_AT is None and not PORT_BOTH:
         raise SystemExit('error: --port-per-cheek without --port-both has one '
                          'port and two cheeks, so there is nothing to split. '
                          'It exists to put the two ports on different sheets.')
