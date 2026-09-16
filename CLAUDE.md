@@ -289,12 +289,24 @@ bed's **288mm of usable height** is what runs out, not its 580mm of width. The
 1000mm the shipped designs run to needs R160.7 at n=13 and a 338 x 336mm cheek;
 nesting cannot save it, because the cheek is one part.
 
-**Do not read the ceiling off the sheet size.** The bed check reports the
-largest SHEET against the full 600 x 308 bed, and 599 x 306 passes it; the
-580 x 288 in the refusal is the per-PART usable area, which is a different
-limit measured against a different thing. A ring at its ceiling therefore
-prints a sheet taller than 288 and is correct. Reading 306 > 288 off that row
-and concluding the ring is over is the mistake the two limits invite.
+**Do not read the ceiling off the sheet size.** There are TWO bed limits and
+they are measured against different things:
+
+| | limit | set in | applies to |
+| --- | --- | --- | --- |
+| *the sheet* | 600 x 308 | the `every sheet fits the P2S bed` check, `w > BED_W or h > BED_H` | a finished sheet |
+| *the part* | 580 x 288 | `pack()`, `use_w, use_h = BED_W - 2*margin, BED_H - 2*margin` | one part, and it is what a refusal quotes |
+
+The part limit is the smaller because `pack()` packs into the bed **minus a
+margin all round**, and its docstring says why: filling to the edge gave *"a
+sheet 600 x 307 on a 600 x 308 bed, which passes a fits-the-bed check and
+cannot be positioned on a real machine"*.
+
+So a ring at its ceiling prints a sheet taller than 288 — 599 x 306 at n=13 —
+and is correct, because that number is measured against 308 and not against
+288. Reading `306 > 288` off that row concludes the opposite, and it is the
+inference the two limits invite: the row that reports a sheet sits directly
+beneath refusals that quote a part.
 
 ### `--facet=60` has no passing radius, and changes how it fails at R133
 
