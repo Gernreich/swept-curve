@@ -252,7 +252,7 @@ side-branch is one adjacent to both of them** — which forces the ports adjacen
 to each other, which is the end-based placement again. The two wants are
 incompatible on a ring; pick one knowing that.
 
-### A 13-facet ring tops out at R135
+### A ported ring runs R36 to R135, and the floor is the PORT
 
 The cheek is one part and a disc, so the bed's 288mm of usable height is the
 ceiling, not its 580mm of width:
@@ -267,6 +267,30 @@ ceiling, not its 580mm of width:
 
 The 1000mm the shipped designs run to needs R160.7 and a 338 x 336mm cheek.
 Nesting cannot save it — the cheek is one part.
+
+The FLOOR is not the bend radius and not the tooth. A port needs
+`PORT_FROM_TIP + PORT_ALONG/2` = **17mm of the facet it is measured along**, and
+a ring's facet is `2*R*sin(pi/n)`, so
+
+    R >= 17 / (2 sin(pi/n))
+
+    n = 12   R >= 32.84    refuses at R32.8 (16.98mm of facet), passes at R32.9
+    n = 13   R >= 35.52    refuses at R35.5 (16.99mm of facet), passes at R36
+
+Below that the generator refuses by name — *"the port spans 3.00 to 17.00mm
+along facet 0, which is 16.99mm long"* — which reads like a port problem and is
+one. **Radius is the dial**, and a reader reaching for `--port-at` on a default
+ring (R30, 12 facets, 15.53mm of facet) hits this before anything else.
+
+Coarsening `--facet` widens the facet and does not help: at `--facet=60` the
+ring passes the port check and then fails *the web outboard of a slot is
+cuttable* at 0.951mm against the 1.5mm needed — **at every radius**, default and
+R60 alike, because 60 degree facets put the mortices that close to the rim
+whatever the ring's size. It is not a radius failure and opening the radius will
+not clear it.
+
+So a 13 ring is usable from **R36 (224mm of duct) to R135 (840mm)**, and that
+window is the whole of it.
 
 `--facet` wants eleven decimal places for a 13 ring. The divisibility guard is
 `1e-9` absolute, so `--facet=27.692307692` is refused and `27.6923076923` is
