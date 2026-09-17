@@ -335,8 +335,8 @@ swapping x and y, which is a reflection and drew the knot mirrored.
 
 `--render=PATH` writes the interactive 3D page that sits beside the cut files
 in `~/LaserMadeMusic/GIT/lyre-harp/`: both cheeks with their holes and the knot,
-and every panel as a board at its own position, angle and length, drawn by
-three.js r128 from cdnjs. Tabs, slots and engraving are left off.
+and every panel as a board at its own position, angle and length, drawn with the
+Three library, release r128, loaded from cdnjs. Tabs, slots and engraving are left off.
 
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
