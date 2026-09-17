@@ -306,6 +306,24 @@ long as it is wide: 220.7mm of centreline, a 124 x 79mm cheek, 20 panels.
 a half-circle — a hexagon cut in half, 15.5% over at every mitre — and over 30,
 which needs R27.8.
 
+### `lyre_harp.py`: a closed duct whose width changes
+
+Not a `--shape`, because every shape in `ribbon_bore.py` is two walls a fixed
+bore either side of one centreline. The lyre-harp frame (2026-09-16) is two
+independent closed walls: a stadium 400mm long outside, and a string hole with
+a concentric arch, parallel sides and a bump between tangent corners. Over the
+arch and down the sides the duct is 30 x 30mm; below the hole it opens to the
+whole gap, about 200mm along the axis, which is the resonator. It imports the
+panel, mortice, label, packer, sheet and ring-contour code from `ribbon_bore`
+and adds only the two outlines and the checks a constant bore made
+unnecessary. Its cut files go to `~/LaserMadeMusic/GIT/lyre-harp/`, where
+nothing gates them.
+
+The faces are drawn and the walls derived from them. Drawn the other way the
+duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
+then 29.987mm (the hole face's mitred vertices), and `the duct is never
+narrower than the bore` caught both.
+
 ### Two ports on a ring are two paths, and that is not a duct
 
 `--port-at=i,j` puts the ports on **named facets** instead of at the two ends of
