@@ -644,6 +644,8 @@ def main():
     elif B.SHAPE == 'racetrack':
         title = (f'Closed Serpentine Racetrack, {B.LOBES} Lobes a Side, '
                  f'{B.BORE:g}mm Bore')
+    elif B.SHAPE == 'oval':
+        title = f'Closed Oval, Flattened Ends, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'scallop':
         title = (f'Closed Serpentine, {B.LOBES} Lobes, {B.BORE:g}mm Bore')
     elif B.SHAPE == 'wave':

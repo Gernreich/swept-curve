@@ -199,7 +199,7 @@ BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
 # deleted 2026-09-14, and with it the fall-through that drew it: an unknown
 # --shape is now refused by name rather than quietly drawing a test piece.
 SHAPES = ('dspiral', 'serpentine', 'opposed', 'wave', 'spiral', 'volute',
-          'torus', 'scallop', 'racetrack')
+          'torus', 'scallop', 'racetrack', 'oval')
 SHAPE = 'dspiral'
 # Solved against this generator's own faceted centreline, not a smooth arc:
 # an inscribed chord is 1.14% short of the arc it spans, so a radius picked
@@ -429,6 +429,29 @@ SCALLOP_IN_R, SCALLOP_IN_DEG = 34.0, 48.0
 # tooth on a panel that short. A straight turns nothing, so it costs the closure
 # argument nothing and buys a panel long enough to carry one.
 RACE_CAP_R, RACE_STRAIGHT = 134.115704, 30.0
+# --shape=oval: a closed ellipse with its two long ends flattened, and no ports.
+#
+# Built like the racetrack, as half a loop taken twice, so it closes by the same
+# 2-fold symmetry whatever the numbers. The half is a straight across one long
+# end -- the flat -- then an arc of OVAL_END_R turning OVAL_END_DEG, an arc of
+# OVAL_SIDE_R turning 180 - 2 * OVAL_END_DEG along the long side, and the end arc
+# again. Four arcs a loop of two radii is the draughtsman's ellipse; the flat is
+# what makes the ends blunter than an ellipse's. FACET has to divide both turns.
+#
+# Both radii answer to the tooth floor like every other bend, and the end arc is
+# the tighter of the two, so it is the one that meets it.
+#
+# THE DEFAULTS ARE THE SMALLEST ONE, found by search on 2026-09-16 against every
+# check here and three rules of shape: a flat at each long end, two facets on
+# every arc so the sides curve rather than run straight, and the long axis at
+# least 1.4 times the short. At 30 degree facets that is ends of R28 turning 60,
+# sides of R95 turning 60, 13mm flats: 338.7mm of centreline, a 159 x 123mm
+# cheek. The shortest panel is 10.21mm against the 10 a tooth needs, and that is
+# what stops it shrinking -- a 12mm flat, or R27 at the ends, leaves an inner
+# panel too short to hold one. 45 degree facets come out 1.5mm shorter at 337.2
+# with a single facet on each end arc and 8% over at every mitre; 36 and 22.5
+# are longer.
+OVAL_END_R, OVAL_END_DEG, OVAL_SIDE_R, OVAL_FLAT = 28.0, 60.0, 95.0, 13.0
 # The angle each shape is drawn at, where it is not FACET's default 30.
 # scallop: 24 divides 72, which is 360/5, so a five-lobe ring can be built at
 # all. 30 does not divide 72 and refuses; the shipped ring is 24.
@@ -566,6 +589,51 @@ def centreline():
     The panels ARE the segments of this polyline offset sideways - there is no
     separate faceting step, so there is nothing for it to disagree with.
     """
+    if SHAPE == 'oval':
+        side_deg = 180.0 - 2 * OVAL_END_DEG
+        if OVAL_FLAT < 0:
+            raise ValueError(f'--oval-flat={OVAL_FLAT:g} is negative.')
+        if not 0 < OVAL_END_DEG < 90:
+            raise ValueError(
+                f'--oval-end-deg={OVAL_END_DEG:g} has to be between 0 and 90: '
+                f'the two end arcs and the side arc share a half turn.')
+        for what, deg in (('the end turn', OVAL_END_DEG),
+                          ('the side turn', side_deg)):
+            if abs(round(deg / FACET) * FACET - deg) > 1e-9:
+                raise ValueError(
+                    f'--facet={FACET:g} does not divide {what}, {deg:g} '
+                    f'degrees, a whole number of times.')
+        floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
+            math.radians(FACET / 2))
+        tight = min(OVAL_END_R, OVAL_SIDE_R)
+        if tight < floor:
+            raise ValueError(
+                f'the tightest arc is R{tight:g} and a {BORE:g}mm bore at '
+                f'{FACET:g} degree facets needs R{floor:.1f}.')
+        half = [('s', OVAL_FLAT), ('a', OVAL_END_R, OVAL_END_DEG),
+                ('a', OVAL_SIDE_R, side_deg), ('a', OVAL_END_R, OVAL_END_DEG)]
+        step = math.radians(FACET)
+        x = y = a = 0.0
+        pts = [(0.0, 0.0)]
+        for item in half * 2:
+            if item[0] == 's':
+                if item[1] > 0:
+                    x, y = x + item[1] * math.cos(a), y + item[1] * math.sin(a)
+                    pts.append((x, y))
+                continue
+            _, R, deg = item
+            for _ in range(int(round(deg / FACET))):
+                c = 2 * R * math.sin(step / 2)
+                a += step / 2
+                x, y = x + c * math.cos(a), y + c * math.sin(a)
+                a += step / 2
+                pts.append((x, y))
+        # the same snap as the racetrack and the scallop, for the same reason
+        pts[-1] = pts[0]
+        # The flat runs along x as built, so the long axis comes out along y.
+        # A quarter turn lays it along the bed, as the racetrack does.
+        pts = [(y, -x) for x, y in pts]
+        return flip(pts)
     if SHAPE == 'racetrack':
         # Half the loop, taken twice. The half is a 180 degree cap and then
         # LOBES alternating half-circles joined by straights -- the OPEN
@@ -2419,6 +2487,11 @@ def main(write=True):
             f'of R{LOBE_R:g}, alternating, joined by {RACE_STRAIGHT:g}mm '
             f'straights, and two 180 degree caps of R{RACE_CAP_R:g}'
             if SHAPE == 'racetrack' else
+            f'a flattened oval: two {OVAL_FLAT:g}mm flats across the long '
+            f'ends, each between two {OVAL_END_DEG:g} degree arcs of '
+            f'R{OVAL_END_R:g}, joined along the sides by '
+            f'{180 - 2 * OVAL_END_DEG:g} degree arcs of R{OVAL_SIDE_R:g}'
+            if SHAPE == 'oval' else
             # Unreachable: centreline() refuses an unknown shape long before
             # this. Named rather than left as a fall-through, because a
             # fall-through here is what put the deleted coupon's "one 180
@@ -2478,6 +2551,10 @@ def main(write=True):
     elif SHAPE == 'racetrack':
         stem = (f'ribbon-racetrack-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:g}-cap{RACE_CAP_R:g}-{L:.0f}mm.svg')
+    elif SHAPE == 'oval':
+        stem = (f'ribbon-oval-bore{BORE:g}-{FACET:g}deg-end{OVAL_END_DEG:g}'
+                f'-R{OVAL_END_R:g}-side-R{OVAL_SIDE_R:g}-flat{OVAL_FLAT:g}'
+                f'-{L:.0f}mm.svg')
     else:
         # Unreachable: centreline() refuses an unknown shape long before this.
         # Named anyway rather than left as a silent fall-through, because a
@@ -2646,6 +2723,10 @@ FLAGS = {
     'scallop-in-deg': ('SCALLOP_IN_DEG', float),
     'race-cap-r': ('RACE_CAP_R', float),
     'race-straight': ('RACE_STRAIGHT', float),
+    'oval-end-r': ('OVAL_END_R', float),
+    'oval-end-deg': ('OVAL_END_DEG', float),
+    'oval-side-r': ('OVAL_SIDE_R', float),
+    'oval-flat': ('OVAL_FLAT', float),
     'port-from-tip': ('PORT_FROM_TIP', float),
     'port-at': (None, str),             # read below: a list, and refused alone
 }
@@ -2798,6 +2879,8 @@ def bend_radius():
         return min(LOBE_R, SCALLOP_IN_R)
     if SHAPE == 'racetrack':
         return min(LOBE_R, RACE_CAP_R)
+    if SHAPE == 'oval':
+        return min(OVAL_END_R, OVAL_SIDE_R)
     return RADIUS                       # torus, and a traced bore
 
 

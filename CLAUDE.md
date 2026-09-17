@@ -259,6 +259,23 @@ mitre there and its outer ring's two ends agree only to rounding. The split
 matches within 1e-9, the tolerance `offset()` shuts a loop with; an exact
 comparison left the scallop as one path.
 
+### The oval is as small as a tooth allows
+
+`--shape=oval` is a closed ellipse with its two long ends flattened and no
+ports: half a loop taken twice, like the racetrack — a flat, an end arc, a side
+arc, an end arc — so it closes by symmetry. Its defaults are the shipped design
+in `oval/`, found by search for the **smallest** loop meeting every check plus
+three rules of shape: a flat at each long end, **two facets on every arc** (one
+facet on the side arc passes and is smaller, 260.9mm, but its long sides are a
+single straight panel and it reads as a stretched decagon, not an ellipse), and
+a long axis at least 1.4 times the short.
+
+At 30 degree facets: ends R28 turning 60, sides R95 turning 60, 13mm flats —
+**338.7mm of centreline, a 159 x 123mm cheek**, 28 panels. What stops it
+shrinking is `the shortest panel still holds a tooth`: 10.21mm against 10. The
+45 degree version is 1.5mm shorter at 337.2mm but has one facet per end arc and
+is 8.2% over at every mitre against 3.5%; 36 and 22.5 degrees come out longer.
+
 ### Two ports on a ring are two paths, and that is not a duct
 
 `--port-at=i,j` puts the ports on **named facets** instead of at the two ends of
