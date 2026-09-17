@@ -347,6 +347,13 @@ whole facets cannot be symmetric: the span is 7 whole facets and a half at each
 end, which also keeps the block's ends off the panel joints. Its checks compare
 against 8 and 30 as asked, not against the constants that drew it.
 
+Seven hitch pins, 2mm, 16mm apart across the axis and centred on it, go
+through the front cheek into the block. Each sits on the block's mid-line, 15mm
+in from the wall face, so the row follows the curve of the bottom end. They
+are ENGRAVED on cheek A as drilling marks -- a 2mm circle with a cross through
+it -- not cut: a hole in the cheek alone would not guide a drill on into the
+block. A spacing the block cannot reach across is refused.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
