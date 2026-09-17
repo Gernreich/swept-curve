@@ -441,17 +441,22 @@ RACE_CAP_R, RACE_STRAIGHT = 134.115704, 30.0
 # Both radii answer to the tooth floor like every other bend, and the end arc is
 # the tighter of the two, so it is the one that meets it.
 #
+# OVAL_SIDE_FLAT puts a straight in the middle of each long side, splitting the
+# side arc in two, so the two long sides carry segments parallel to each other
+# and to the long axis. FACET then has to divide HALF the side turn.
+#
 # THE DEFAULTS ARE THE SMALLEST ONE, found by search on 2026-09-16 against every
-# check here and three rules of shape: a flat at each long end, two facets on
-# every arc so the sides curve rather than run straight, and the long axis at
-# least 1.4 times the short. At 30 degree facets that is ends of R28 turning 60,
-# sides of R95 turning 60, 13mm flats: 338.7mm of centreline, a 159 x 123mm
-# cheek. The shortest panel is 10.21mm against the 10 a tooth needs, and that is
-# what stops it shrinking -- a 12mm flat, or R27 at the ends, leaves an inner
-# panel too short to hold one. 45 degree facets come out 1.5mm shorter at 337.2
-# with a single facet on each end arc and 8% over at every mitre; 36 and 22.5
-# are longer.
-OVAL_END_R, OVAL_END_DEG, OVAL_SIDE_R, OVAL_FLAT = 28.0, 60.0, 95.0, 13.0
+# check here and the rules of shape: a flat at each long end, a straight in the
+# middle of each long side, at least two facets on each end arc, and the long
+# axis at least 1.4 times the short. At 30 degree facets that is ends of R28
+# turning 60, sides of R72 turning 30 either side of a 12.5mm straight, and
+# 12.2mm flats: 314.4mm of centreline, a 148 x 116mm cheek. What stops it
+# shrinking is the tooth: a 12.1mm flat, a 12mm side straight or R27.5 at the
+# ends leaves an inner panel too short to hold one. 22.5 degree facets, the
+# only other angle that divides both turns with two facets an end, come out
+# 354mm. Without the side straights the smallest was 338.7mm.
+OVAL_END_R, OVAL_END_DEG, OVAL_SIDE_R, OVAL_FLAT = 28.0, 60.0, 72.0, 12.2
+OVAL_SIDE_FLAT = 12.5
 # The angle each shape is drawn at, where it is not FACET's default 30.
 # scallop: 24 divides 72, which is 360/5, so a five-lobe ring can be built at
 # all. 30 does not divide 72 and refuses; the shipped ring is 24.
@@ -591,14 +596,20 @@ def centreline():
     """
     if SHAPE == 'oval':
         side_deg = 180.0 - 2 * OVAL_END_DEG
-        if OVAL_FLAT < 0:
-            raise ValueError(f'--oval-flat={OVAL_FLAT:g} is negative.')
+        for flag, v in (('--oval-flat', OVAL_FLAT),
+                        ('--oval-side-flat', OVAL_SIDE_FLAT)):
+            if v < 0:
+                raise ValueError(f'{flag}={v:g} is negative.')
         if not 0 < OVAL_END_DEG < 90:
             raise ValueError(
                 f'--oval-end-deg={OVAL_END_DEG:g} has to be between 0 and 90: '
                 f'the two end arcs and the side arc share a half turn.')
+        # A side flat splits the side arc in two, so each half has to be a
+        # whole number of facets, not only the whole.
         for what, deg in (('the end turn', OVAL_END_DEG),
-                          ('the side turn', side_deg)):
+                          ('the side turn', side_deg)
+                          if not OVAL_SIDE_FLAT else
+                          ('half the side turn', side_deg / 2)):
             if abs(round(deg / FACET) * FACET - deg) > 1e-9:
                 raise ValueError(
                     f'--facet={FACET:g} does not divide {what}, {deg:g} '
@@ -610,8 +621,11 @@ def centreline():
             raise ValueError(
                 f'the tightest arc is R{tight:g} and a {BORE:g}mm bore at '
                 f'{FACET:g} degree facets needs R{floor:.1f}.')
-        half = [('s', OVAL_FLAT), ('a', OVAL_END_R, OVAL_END_DEG),
-                ('a', OVAL_SIDE_R, side_deg), ('a', OVAL_END_R, OVAL_END_DEG)]
+        side = ([('a', OVAL_SIDE_R, side_deg / 2), ('s', OVAL_SIDE_FLAT),
+                 ('a', OVAL_SIDE_R, side_deg / 2)] if OVAL_SIDE_FLAT else
+                [('a', OVAL_SIDE_R, side_deg)])
+        half = ([('s', OVAL_FLAT), ('a', OVAL_END_R, OVAL_END_DEG)] + side
+                + [('a', OVAL_END_R, OVAL_END_DEG)])
         step = math.radians(FACET)
         x = y = a = 0.0
         pts = [(0.0, 0.0)]
@@ -2491,6 +2505,8 @@ def main(write=True):
             f'ends, each between two {OVAL_END_DEG:g} degree arcs of '
             f'R{OVAL_END_R:g}, joined along the sides by '
             f'{180 - 2 * OVAL_END_DEG:g} degree arcs of R{OVAL_SIDE_R:g}'
+            + (f' with a {OVAL_SIDE_FLAT:g}mm straight in the middle of each'
+               if OVAL_SIDE_FLAT else '')
             if SHAPE == 'oval' else
             # Unreachable: centreline() refuses an unknown shape long before
             # this. Named rather than left as a fall-through, because a
@@ -2554,7 +2570,8 @@ def main(write=True):
     elif SHAPE == 'oval':
         stem = (f'ribbon-oval-bore{BORE:g}-{FACET:g}deg-end{OVAL_END_DEG:g}'
                 f'-R{OVAL_END_R:g}-side-R{OVAL_SIDE_R:g}-flat{OVAL_FLAT:g}'
-                f'-{L:.0f}mm.svg')
+                + (f'-sideflat{OVAL_SIDE_FLAT:g}' if OVAL_SIDE_FLAT else '')
+                + f'-{L:.0f}mm.svg')
     else:
         # Unreachable: centreline() refuses an unknown shape long before this.
         # Named anyway rather than left as a silent fall-through, because a
@@ -2727,6 +2744,7 @@ FLAGS = {
     'oval-end-deg': ('OVAL_END_DEG', float),
     'oval-side-r': ('OVAL_SIDE_R', float),
     'oval-flat': ('OVAL_FLAT', float),
+    'oval-side-flat': ('OVAL_SIDE_FLAT', float),
     'port-from-tip': ('PORT_FROM_TIP', float),
     'port-at': (None, str),             # read below: a list, and refused alone
 }

@@ -262,19 +262,28 @@ comparison left the scallop as one path.
 ### The oval is as small as a tooth allows
 
 `--shape=oval` is a closed ellipse with its two long ends flattened and no
-ports: half a loop taken twice, like the racetrack — a flat, an end arc, a side
-arc, an end arc — so it closes by symmetry. Its defaults are the shipped design
-in `oval/`, found by search for the **smallest** loop meeting every check plus
-three rules of shape: a flat at each long end, **two facets on every arc** (one
-facet on the side arc passes and is smaller, 260.9mm, but its long sides are a
-single straight panel and it reads as a stretched decagon, not an ellipse), and
-a long axis at least 1.4 times the short.
+ports: half a loop taken twice, like the racetrack, so it closes by symmetry.
+The half is a flat across the long end, an end arc, the side, and the end arc
+again. `--oval-side-flat` puts a straight in the middle of each side, splitting
+the side arc in two, so **the two long sides carry segments parallel to each
+other and to the long axis**; the facet then has to divide half the side turn.
 
-At 30 degree facets: ends R28 turning 60, sides R95 turning 60, 13mm flats —
-**338.7mm of centreline, a 159 x 123mm cheek**, 28 panels. What stops it
-shrinking is `the shortest panel still holds a tooth`: 10.21mm against 10. The
-45 degree version is 1.5mm shorter at 337.2mm but has one facet per end arc and
-is 8.2% over at every mitre against 3.5%; 36 and 22.5 degrees come out longer.
+Its defaults are the shipped design in `oval/`, found by search for the
+**smallest** loop meeting every check plus the rules of shape asked for: a flat
+at each long end, a parallel straight in the middle of each long side, at least
+two facets on each end arc, and a long axis at least 1.4 times the short.
+
+At 30 degree facets: ends R28 turning 60, sides R72 turning 30 either side of a
+12.5mm straight, 12.2mm flats — **314.4mm of centreline, a 148 x 116mm cheek**,
+32 panels. What stops it shrinking is `the shortest panel still holds a tooth`:
+10.09mm against 10. A 12.1mm flat, a 12mm side straight or R27.5 at the ends
+fails it. 22.5 degrees is the only other facet that divides both turns with two
+facets an end, and its smallest is 354mm.
+
+The first oval (same day) had no side straights: 338.7mm, R95 sides of two
+facets meeting at a point in the middle of each long side. A single side facet
+is smaller still, 260.9mm, but its long sides are one straight panel from end
+arc to end arc and it reads as a stretched decagon.
 
 ### Two ports on a ring are two paths, and that is not a duct
 
