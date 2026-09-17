@@ -293,10 +293,10 @@ side: **two half-circles of the tightest facets, turned until the sides come out
 parallel, joined by two parallel straights**. It is refused without a side
 straight, which would be a circle.
 
-First drawn here as `ribbon-oval-bore10-45deg-R21.8-straight43.6-221mm`, and
-moved out of this repository on 2026-09-16 to `~/LaserMadeMusic/GIT/lyre-harp/`
-as `lyre-harp-bore10-45deg-R21.8-straight43.6-221mm-prototype`, where nothing
-gates it:
+First drawn here as `ribbon-oval-bore10-45deg-R21.8-straight43.6-221mm`, then
+moved to `~/LaserMadeMusic/GIT/lyre-harp/` as a prototype and deleted there on
+2026-09-16. `ribbon_bore.py --shape=oval --facet=45 --oval-end-deg=90
+--oval-end-r=21.8 --oval-flat=0 --oval-side-flat=43.6 --narrow` still draws it:
 45 degree facets, four per half-circle, at **R21.8, the tightest radius any
 check passes** — R21.7 leaves a 9.98mm inner panel against the 10mm a tooth
 needs. The straights are the o's own diameter, 43.6mm, so the loop is twice as
