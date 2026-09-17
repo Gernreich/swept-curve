@@ -285,6 +285,24 @@ facets meeting at a point in the middle of each long side. A single side facet
 is smaller still, 260.9mm, but its long sides are one straight panel from end
 arc to end arc and it reads as a stretched decagon.
 
+### The stadium: an o cut in half with straights put in
+
+`--oval-end-deg=90` is the limit of the oval where the two end arcs make a whole
+half-circle and the side arc turns nothing, so `--oval-side-flat` is the entire
+side: **two half-circles of the tightest facets, turned until the sides come out
+parallel, joined by two parallel straights**. It is refused without a side
+straight, which would be a circle.
+
+Shipped in `oval/` as `ribbon-oval-bore10-45deg-R21.8-straight43.6-221mm`:
+45 degree facets, four per half-circle, at **R21.8, the tightest radius any
+check passes** — R21.7 leaves a 9.98mm inner panel against the 10mm a tooth
+needs. The straights are the o's own diameter, 43.6mm, so the loop is twice as
+long as it is wide: 220.7mm of centreline, a 124 x 79mm cheek, 20 panels.
+
+45 degrees was chosen over 60, which is tighter at R19.5 but only three facets
+a half-circle — a hexagon cut in half, 15.5% over at every mitre — and over 30,
+which needs R27.8.
+
 ### Two ports on a ring are two paths, and that is not a duct
 
 `--port-at=i,j` puts the ports on **named facets** instead of at the two ends of

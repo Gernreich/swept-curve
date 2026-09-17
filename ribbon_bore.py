@@ -600,10 +600,18 @@ def centreline():
                         ('--oval-side-flat', OVAL_SIDE_FLAT)):
             if v < 0:
                 raise ValueError(f'{flag}={v:g} is negative.')
-        if not 0 < OVAL_END_DEG < 90:
+        # 90 is allowed and is the STADIUM: the two end arcs make a whole
+        # half-circle, the side arc turns nothing, and the side straight is all
+        # there is of the side -- an o cut in half with two straights put in.
+        if not 0 < OVAL_END_DEG <= 90:
             raise ValueError(
-                f'--oval-end-deg={OVAL_END_DEG:g} has to be between 0 and 90: '
-                f'the two end arcs and the side arc share a half turn.')
+                f'--oval-end-deg={OVAL_END_DEG:g} has to be above 0 and at '
+                f'most 90: the two end arcs and the side arc share a half turn.')
+        if OVAL_END_DEG == 90 and not OVAL_SIDE_FLAT:
+            raise ValueError(
+                '--oval-end-deg=90 turns the whole half-circle at the end and '
+                'leaves the side nothing, so without --oval-side-flat the two '
+                'ends meet and the loop is a circle. Give the side a straight.')
         # A side flat splits the side arc in two, so each half has to be a
         # whole number of facets, not only the whole.
         for what, deg in (('the end turn', OVAL_END_DEG),
@@ -616,7 +624,7 @@ def centreline():
                     f'degrees, a whole number of times.')
         floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
             math.radians(FACET / 2))
-        tight = min(OVAL_END_R, OVAL_SIDE_R)
+        tight = bend_radius()
         if tight < floor:
             raise ValueError(
                 f'the tightest arc is R{tight:g} and a {BORE:g}mm bore at '
@@ -2501,6 +2509,11 @@ def main(write=True):
             f'of R{LOBE_R:g}, alternating, joined by {RACE_STRAIGHT:g}mm '
             f'straights, and two 180 degree caps of R{RACE_CAP_R:g}'
             if SHAPE == 'racetrack' else
+            f'a stadium: two half-circles of R{OVAL_END_R:g} joined by two '
+            f'{OVAL_SIDE_FLAT:g}mm parallel straights'
+            + (f', with a {OVAL_FLAT:g}mm flat across each end'
+               if OVAL_FLAT else '')
+            if SHAPE == 'oval' and OVAL_END_DEG == 90 else
             f'a flattened oval: two {OVAL_FLAT:g}mm flats across the long '
             f'ends, each between two {OVAL_END_DEG:g} degree arcs of '
             f'R{OVAL_END_R:g}, joined along the sides by '
@@ -2567,6 +2580,11 @@ def main(write=True):
     elif SHAPE == 'racetrack':
         stem = (f'ribbon-racetrack-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:g}-cap{RACE_CAP_R:g}-{L:.0f}mm.svg')
+    elif SHAPE == 'oval' and OVAL_END_DEG == 90:
+        # the stadium: no side arc to name, and the straight is the side
+        stem = (f'ribbon-oval-bore{BORE:g}-{FACET:g}deg-R{OVAL_END_R:g}'
+                + (f'-flat{OVAL_FLAT:g}' if OVAL_FLAT else '')
+                + f'-straight{OVAL_SIDE_FLAT:g}-{L:.0f}mm.svg')
     elif SHAPE == 'oval':
         stem = (f'ribbon-oval-bore{BORE:g}-{FACET:g}deg-end{OVAL_END_DEG:g}'
                 f'-R{OVAL_END_R:g}-side-R{OVAL_SIDE_R:g}-flat{OVAL_FLAT:g}'
@@ -2898,7 +2916,9 @@ def bend_radius():
     if SHAPE == 'racetrack':
         return min(LOBE_R, RACE_CAP_R)
     if SHAPE == 'oval':
-        return min(OVAL_END_R, OVAL_SIDE_R)
+        # at --oval-end-deg=90 the side arc turns nothing and is no bend
+        return (OVAL_END_R if OVAL_END_DEG == 90
+                else min(OVAL_END_R, OVAL_SIDE_R))
     return RADIUS                       # torus, and a traced bore
 
 
