@@ -338,6 +338,15 @@ in `~/LaserMadeMusic/GIT/lyre-harp/`: both cheeks with their holes and the knot,
 and every panel as a board at its own position, angle and length, drawn with the
 Three library, release r128, loaded from cdnjs. Tabs, slots and engraving are left off.
 
+The hitch-pin block: loop-end strings go over hitch pins driven through the
+bottom wall, and 3mm of ply cannot hold a pin, so six 3mm laminations are glued
+up inside the bottom end, 18mm deep. In plan each lies against the outer wall's
+face and is 30mm wide from it, over 8 facets' length centred on the axis. The
+bottom end has an odd number of facets with one centred on the axis, so 8
+whole facets cannot be symmetric: the span is 7 whole facets and a half at each
+end, which also keeps the block's ends off the panel joints. Its checks compare
+against 8 and 30 as asked, not against the constants that drew it.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
