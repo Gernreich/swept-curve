@@ -333,6 +333,11 @@ cheek's rims as cut, the air's faces, the knot as placed, and dimensions
 measured off them. It stands the part upright by a quarter turn, not by
 swapping x and y, which is a reflection and drew the knot mirrored.
 
+`--render=PATH` writes the interactive 3D page that sits beside the cut files
+in `~/LaserMadeMusic/GIT/lyre-harp/`: both cheeks with their holes and the knot,
+and every panel as a board at its own position, angle and length, drawn by
+three.js r128 from cdnjs. Tabs, slots and engraving are left off.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
