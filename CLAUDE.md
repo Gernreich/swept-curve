@@ -328,6 +328,11 @@ crossing marks engraved. Two of those marks end 0.0007 and 0.0018mm past the
 edge of a waste cut, rounding in the knot file, so a mark counts as in a hole
 only when it is deeper than half a kerf.
 
+`--drawing=PATH` draws `lyre-harp-drawing.svg` from the same `build()`: the
+cheek's rims as cut, the air's faces, the knot as placed, and dimensions
+measured off them. It stands the part upright by a quarter turn, not by
+swapping x and y, which is a reflection and drew the knot mirrored.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
