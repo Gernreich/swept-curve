@@ -319,6 +319,15 @@ and adds only the two outlines and the checks a constant bore made
 unnecessary. Its cut files go to `~/LaserMadeMusic/GIT/lyre-harp/`, where
 nothing gates them.
 
+The front cheek carries a sound hole: the 2-lead 7-bight knot from
+`knotwork-soundholes`, read from that repository's cut file and placed
+unchanged, centred on the axis two thirds of the way up the resonator's air
+from the far end. So the cheeks are two parts now, A with the knot and B
+without, each cut once. The knot's waste is cut with the mortices and its
+crossing marks engraved. Two of those marks end 0.0007 and 0.0018mm past the
+edge of a waste cut, rounding in the knot file, so a mark counts as in a hole
+only when it is deeper than half a kerf.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
