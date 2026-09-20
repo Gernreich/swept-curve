@@ -354,6 +354,19 @@ are ENGRAVED on cheek A as drilling marks -- a 2mm circle with a cross through
 it -- not cut: a hole in the cheek alone would not guide a drill on into the
 block. A spacing the block cannot reach across is refused.
 
+The tuning-pin block is the same idea at the arch: 6 laminations filling the
+duct there, touching the outer wall's face and the string hole's, 30mm between
+them. It spans 120 degrees -- out to the facet midpoint past the last pin,
+which leaves 33.7mm of wood beyond it -- and carries one tuning pin above each
+hitch pin, on the mid-line of the band and in line with it across the
+instrument. Those marks are a cross with no circle: a tuning pin's diameter is
+the builder's choice, and a ring drawn at a guess reads as the hole to drill.
+
+Both blocks are written by one lamination_sheet(). Each span ends where a face
+has a vertex -- the string hole's wall carries one every facet -- so both
+builders drop a repeated point first: a zero-length run has no direction to
+offset along, and the kerf offset came back as a 300mm spike.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
