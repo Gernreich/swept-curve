@@ -367,6 +367,13 @@ has a vertex -- the string hole's wall carries one every facet -- so both
 builders drop a repeated point first: a zero-length run has no direction to
 offset along, and the kerf offset came back as a 300mm spike.
 
+**The lyre-harp is cut at a 0.17mm kerf, not this file's 0.15.** The test came
+off the bed with loose finger joints (2026-09-20), and a wider kerf draws each
+tab wider and each mortice narrower by half of the difference a side: 0.02mm on
+each, 0.04mm of interference a joint. `lyre_harp.KERF` sets `ribbon_bore.BURN`
+for its own run and nothing else. Raising it HERE would redraw all 61 shipped
+ribbon sheets, which are the record of parts already cut.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
