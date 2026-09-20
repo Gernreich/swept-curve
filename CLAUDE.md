@@ -374,6 +374,17 @@ each, 0.04mm of interference a joint. `lyre_harp.KERF` sets `ribbon_bore.BURN`
 for its own run and nothing else. Raising it HERE would redraw all 61 shipped
 ribbon sheets, which are the record of parts already cut.
 
+`--test=PATH` writes an ARCH TEST PIECE: the string-hole wall's panels
+TEST_FROM..TEST_TO, every outer panel that overlaps the arc they cover, and a
+sector of the cheek for each side carrying their mortices, with TEST_MARGIN of
+rim past the outermost one. It is for trying the joints before committing a
+whole frame. Two things the first cut of it got wrong: angles wrap at the
+resonator end, so a panel down there read as an arch angle and joined the list
+until the outer run was pinned to the arch side; and choosing outer panels by
+their midpoint dropped the two at the ends of the arc, which share their joint
+with the inner run, so they are chosen by overlap instead. It refuses to write
+if a mortice corner falls outside the sector.
+
 The faces are drawn and the walls derived from them. Drawn the other way the
 duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
 then 29.987mm (the hole face's mitred vertices), and `the duct is never
