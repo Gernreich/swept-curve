@@ -36,6 +36,9 @@ h3{font-size:1.02rem;font-weight:650;margin:1.7em 0 .45em}
 p{margin:.85em 0}
 ul,ol{margin:.85em 0;padding-left:1.35em}
 li{margin:.3em 0}
+/* A list with blank lines between its items is "loose", and pandoc wraps each item
+   in a <p> as GitHub does. These pages were set tight before pandoc, so they stay so. */
+li>p{margin:0}
 hr{border:0;border-top:1px solid var(--line);margin:2.6em 0}
 figure{margin:1.6em 0}
 /* A paragraph holding two or more images is a gallery. Left to inline layout they
@@ -109,10 +112,94 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <p>The spiral has had them too, and it is finished: shellacked the same amber-brown as the three-turn, the tabs along both rims standing out darker than the faces around them.</p>
 <figure><img src="../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-finished_web.jpg" alt="The finished spiral standing upright on its bell on grey card: the bell&#x27;s round rim flat on the card and its ribbed throat rising into the port at the inner end of the coil, the faceted band winding a little over two turns above it in glossy amber-brown with darker tabs along both rims, and the straight tail leaving the outer end to carry a dark ring-stacked mouthpiece up to the top left"></figure>
 <h2 id="the-numbers">The numbers</h2>
-<div class='tw'><table><thead><tr><th></th><th></th></tr></thead><tbody><tr><td>curve</td><td>a compass spiral, stepping its arc radius facet by facet</td></tr><tr><td>centreline</td><td>1000.0mm</td></tr><tr><td>facets</td><td>17 at 45°, plus a straight lead in and out</td></tr><tr><td>bend radius</td><td>R34.662 at the centre out to R112.903 at the rim</td></tr><tr><td>R / bore</td><td>3.5 at the tightest</td></tr><tr><td>airway</td><td>10 × 10mm square, 100mm²</td></tr><tr><td>section at a mitre</td><td>+8.2%</td></tr><tr><td>play</td><td>0.025mm per side</td></tr><tr><td>parts</td><td>36 wall panels + 2 cheeks + 1 end cap = 39, over 2 sheets</td></tr><tr><td>the cheek</td><td>237 × 239mm — <strong>cut this sheet twice</strong></td></tr><tr><td>the wall panels</td><td>575 × 97mm</td></tr></tbody></table></div>
+<div class="tw">
+<table>
+<tbody>
+<tr>
+<td>curve</td>
+<td>a compass spiral, stepping its arc radius facet by facet</td>
+</tr>
+<tr>
+<td>centreline</td>
+<td>1000.0mm</td>
+</tr>
+<tr>
+<td>facets</td>
+<td>17 at 45°, plus a straight lead in and out</td>
+</tr>
+<tr>
+<td>bend radius</td>
+<td>R34.662 at the centre out to R112.903 at the rim</td>
+</tr>
+<tr>
+<td>R / bore</td>
+<td>3.5 at the tightest</td>
+</tr>
+<tr>
+<td>airway</td>
+<td>10 × 10mm square, 100mm²</td>
+</tr>
+<tr>
+<td>section at a mitre</td>
+<td>+8.2%</td>
+</tr>
+<tr>
+<td>play</td>
+<td>0.025mm per side</td>
+</tr>
+<tr>
+<td>parts</td>
+<td>36 wall panels + 2 cheeks + 1 end cap = 39, over 2 sheets</td>
+</tr>
+<tr>
+<td>the cheek</td>
+<td>237 × 239mm — <strong>cut this sheet twice</strong></td>
+</tr>
+<tr>
+<td>the wall panels</td>
+<td>575 × 97mm</td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="three-sheets-and-which-one-was-cut">Three sheets, and which one was cut</h2>
 <p>The design ships three variants, each as a cheek sheet and a panel sheet, in <code>../built/ribbon-spiral-bore10-45deg-R35to113/cut-files/</code>:</p>
-<div class='tw'><table><thead><tr><th></th><th>port</th><th>panels</th><th>mortices</th><th>panel sheet</th></tr></thead><tbody><tr><td><code>-narrow</code></td><td>none</td><td>38</td><td>151</td><td>579 × 97mm</td></tr><tr><td><code>-ported-narrow</code></td><td>round, 7 × 14mm</td><td>38 + a cap</td><td>151</td><td>579 × 97mm</td></tr><tr><td><strong><code>-ported-square-narrow</code></strong></td><td><strong>square, 10 × 10mm</strong></td><td><strong>36 + a cap</strong></td><td><strong>149</strong></td><td><strong>575 × 97mm</strong></td></tr></tbody></table></div>
+<div class="tw">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>port</th>
+<th>panels</th>
+<th>mortices</th>
+<th>panel sheet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-narrow</code></td>
+<td>none</td>
+<td>38</td>
+<td>151</td>
+<td>579 × 97mm</td>
+</tr>
+<tr>
+<td><code>-ported-narrow</code></td>
+<td>round, 7 × 14mm</td>
+<td>38 + a cap</td>
+<td>151</td>
+<td>579 × 97mm</td>
+</tr>
+<tr>
+<td><strong><code>-ported-square-narrow</code></strong></td>
+<td><strong>square, 10 × 10mm</strong></td>
+<td><strong>36 + a cap</strong></td>
+<td><strong>149</strong></td>
+<td><strong>575 × 97mm</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>The square-ported one is what the photographs show. A round port needs no lead panel moved and so keeps all 38; the square one asks for the bore's own section and pays two panels for it.</p>
 <h2 id="rebuild-it">Rebuild it</h2>
 <p>The generator is <code>ribbon_bore.py</code>, in <code>../parts/bore/concept/swept-curve/</code>. Report only, writing nothing:</p>
