@@ -683,7 +683,7 @@ def main():
     # generator refuses while the page is being built -- a facet named twice --
     # left an empty page at --out, over whatever was there, beside its refusal.
     page = build(title, embed, hm[0].split('=', 1)[1] if hm else
-                 'https://gernreich.github.io/trumpet/')
+                 'https://gernreich.github.io/trumpet-elbows-not-allowed/')
     open(path, 'w').write(page)
     d = data_for()
     print(f'  {os.path.basename(path):<52}drag to turn, colour by face '
