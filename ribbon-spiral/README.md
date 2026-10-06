@@ -8,7 +8,7 @@ faceted, which is what a swept curve buys — the section grows **+8.2%** at a
 mitre where a 90° lattice corner grows 41.4%.
 
 <!-- readme-only -->
-**[Read this page](https://gernreich.github.io/trumpet-elbows-not-allowed/ribbon-spiral/)**
+**[Read this page](https://gernreich.github.io/trumpet-elbows-allowed/ribbon-spiral/)**
 
 Its viewer is a page of its own: drag to rotate, and the slider reveals the
 spiral a facet at a time. **[Turn it →](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
