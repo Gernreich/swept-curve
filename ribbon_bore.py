@@ -14,7 +14,7 @@ The section is exactly bore x bore along every facet. At each facet joint the
 walls mitre, and the area there is bore^2 / cos(phi/2):
 
     phi = 90 deg   +41.4%      a turn in the Minecraft lattice
-    phi = 45 deg    +8.2%      the octagonal torus
+    phi = 45 deg    +8.2%      an eight-facet ring
     phi = 30 deg    +3.5%      this
     phi = 15 deg    +0.9%
 
@@ -1100,7 +1100,7 @@ def offset(poly, d):
             and abs(poly[0][1] - poly[-1][1]) < 1e-9)
     # A closed loop has a mitre at its seam like every other vertex. Without
     # this the two facets either side of the join come out over-long - 53.35mm
-    # against 48.17 on the octagonal torus - and the ring does not close.
+    # against 48.17 on an eight-facet ring - and the ring does not close.
     first = meet(segs[-1], segs[0]) if shut else None
     out = [first or segs[0][0]]
     for a, b in zip(segs, segs[1:]):

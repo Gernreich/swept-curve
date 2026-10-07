@@ -8,14 +8,14 @@ beside the generator.
 **Every sheet kept here is 10mm.** `--bore` is untouched and takes any value; nothing
 is shipped at another.
 
-**Nothing OCTAGONAL is kept here** - no 45 degree torus, no traced octagonal
+**No 45 degree ring is kept here** - no 45 degree torus, no traced eight-facet
 trumpet, no viewer page or trace for either. That line used to read "no torus",
 and `--shape=torus` was kept on the argument that "the next closed ring will
 want it". The next closed ring turned up:
 `torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm` is a **13-facet ring**,
 ports on facets 0 and 6, one per cheek, 800.0mm of centreline. Thirteen facets
-is not eight, so the octagon sentence still holds - it is the 45 degree ring
-that is not kept, and the reason is that it lives in `torus-octagonal`, not
+is not eight, so that sentence still holds - it is the 45 degree ring
+that is not kept, and the reason is that it belongs to another build, not
 that a ring cannot live here.
 
 `--trace=` is still kept on the original argument, unused.
@@ -852,7 +852,7 @@ measured everything.
 
 Measuring the output with `re.findall(r'd="([^"]+)"')` matches the `id`
 attribute too and hands you `slots` where a coordinate should be. Use
-`(?:^|\s)d="`. The octagonal writeup records the same trap; it still cost
+`(?:^|\s)d="`. It is a known trap; it still cost
 a run here.
 
 **A failing run deletes its output**, which is right — a sheet that failed a

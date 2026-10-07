@@ -622,8 +622,8 @@ def main():
         inner = sorted(seg)[1:-1]
         B.RADIUS = round((sum(inner) / len(inner))
                          / (2 * math.tan(math.radians(B.FACET / 2))), 3)
-        # the trace names itself; this used to be hard-coded to the octagonal
-        # trumpet, which put that title on every other traced bore
+        # the trace names itself; this used to be hard-coded to the first
+        # traced bore, which put that title on every other one
         title = (doc['name'].replace('-', ' ').title()
                  + f', {B.BORE:g}mm \u2014 traced')
         page = build(title)
