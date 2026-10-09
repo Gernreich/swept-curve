@@ -168,10 +168,12 @@ for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*'); do
 done
 
 python3 $G/flat-part-check.py --dir . --min-edge 1.5
-python3 $G/md2html.py README.md index.html
+python3 $G/svg-stroke-check.py --dir . --quiet
+
+# The writeup is the root README; regenerate and audit it there
+cd ../../../.. && python3 $G/md2html.py README.md index.html
 python3 $G/doc-audit.py README.md --html index.html \
     --rebuild "python3 $G/md2html.py {md} {out}" --links
-python3 $G/svg-stroke-check.py --dir . --quiet
 ```
 
 **Read the audit output before pushing.** It ends with a pass/fail tally.
