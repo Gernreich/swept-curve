@@ -219,7 +219,7 @@ def data_for():
         # and the drawing cannot tell them apart, so the panel says which:
         # every shape but 'dspiral' is built from arcs whose radius holds all
         # the way across, and 'dspiral' samples a smooth Archimedean spiral.
-        # See "Which curve each shape's vertices sit on" in CLAUDE.md.
+        # See "Which curve each shape's vertices sit on" in NOTES.md.
         'curve': {'dspiral': 'Archimedean spiral, sampled',
                   'volute': 'chain of semicircles',
                   'spiral': 'compass spiral, stepping arcs',
