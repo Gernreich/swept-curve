@@ -717,11 +717,11 @@ it meets 3mm of birch and not the whole sandwich. That reads thin on paper and
 it is the first thing anyone asks about this joint.
 
 **For a bell it holds, and there is a photograph of it holding.** The R35to113
-spiral is square-ported and glued up, and its bell is seated in the port — a
+spiral is square-ported and press-fit, and its bell is seated in the port — a
 ring-stack shank standing up out of the plane of the coil, carried by a 10 x 10mm
 hole through one 3mm cheek.
 
-![The R35to113 spiral bore glued up in pale birch, its finger joints and
+![The R35to113 spiral bore press-fit in pale birch, its finger joints and
 engraved panel numbers visible along every seam, with the ring-stack bell
 standing vertically out of the plane of the coil where its shank seats in the
 square port, and the mouthpiece on the lead at the far
@@ -1076,7 +1076,7 @@ python3 ribbon_bore.py --port --cap --out=x-ported.svg
                                        # 20 x 16 not. A ported bore breathes
                                        # through the port, so the open end
                                        # needs closing or the air takes it.
-                                       # Glued, unnumbered, and NOT square -
+                                       # Press-fit, unnumbered, and NOT square -
                                        # the band and the stack are unrelated
                                        # numbers that happen to be close.
                                        # Refuses without --port, which would

@@ -37,15 +37,15 @@ already lies on — they are collinear, so nothing about the airway moves — an
 two panels with one tooth each leave the drawing. The plain sheet beside it,
 with no port at all, is 38 panels and 151 mortices.
 
-## Glued up, and not airtight
+## Press-fit, and not airtight
 
-Both sheets are cut now, and the bore is glued up — the wall panels standing in
+Both sheets are cut now, and the bore is press-fit — the wall panels standing in
 the mortices between the two cheeks, a mouthpiece on the straight tail and a
 bell on the port at the inner end.
 
-![The spiral glued up on a dark wood floor: a pale ply band winding a little over two turns, cornered at every facet, both rims crenellated with tabs and a number engraved beside each one; a straight tail leaves the outer end and carries a dark, glossy mouthpiece, and a bell engraved 10. stands on a dark ribbed throat at the inner end](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-glued-up_web.jpg)
+![The spiral press-fit on a dark wood floor: a pale ply band winding a little over two turns, cornered at every facet, both rims crenellated with tabs and a number engraved beside each one; a straight tail leaves the outer end and carries a dark, glossy mouthpiece, and a bell engraved 10. stands on a dark ribbed throat at the inner end](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-glued-up_web.jpg)
 
-It is not airtight. A glue-up with this many joints — a mitre at every facet and
+It is not airtight. A press-fit with this many joints — a mitre at every facet and
 a tab at every mortice — leaves air gaps all along both rims, and they are
 closed the same way they are closed on the built instrument: **several coats of
 shellac**, which seal the ply and fill the gaps in the same pass.
