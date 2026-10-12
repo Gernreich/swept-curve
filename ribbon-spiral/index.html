@@ -202,8 +202,9 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 </div>
 <p>The square-ported one is what the photographs show. A round port needs no lead panel moved and so keeps all 38; the square one asks for the bore's own section and pays two panels for it.</p>
 <h2 id="rebuild-it">Rebuild it</h2>
-<p>The generator is <code>ribbon_bore.py</code>, in <code>../parts/bore/concept/swept-curve/</code>. Report only, writing nothing:</p>
-<pre><code>python3 ribbon_bore.py --shape=spiral --port --port-square --cap --narrow</code></pre>
+<p>The generator is <code>ribbon_bore.py</code>, in <code>parts/bore/concept/swept-curve/</code>, and both commands run from the repository root. Report only, writing nothing:</p>
+<pre><code>cd parts/bore/concept/swept-curve &amp;&amp; python3 ribbon_bore.py \
+    --shape=spiral --port --port-square --cap --narrow --no-write</code></pre>
 <p>Every number on this page comes off that report. Writing needs an <code>--out</code> whose name says <code>narrow</code>, which the generator insists on so a sheet cannot overwrite its full-width twin:</p>
 <pre><code>cd parts/bore/concept/swept-curve &amp;&amp; python3 ribbon_bore.py \
     --shape=spiral --port --port-square --cap --narrow \

@@ -94,10 +94,12 @@ and pays two panels for it.
 ## Rebuild it
 
 The generator is `ribbon_bore.py`, in
-`../parts/bore/concept/swept-curve/`. Report only, writing nothing:
+`parts/bore/concept/swept-curve/`, and both commands run from the repository
+root. Report only, writing nothing:
 
 ```
-python3 ribbon_bore.py --shape=spiral --port --port-square --cap --narrow
+cd parts/bore/concept/swept-curve && python3 ribbon_bore.py \
+    --shape=spiral --port --port-square --cap --narrow --no-write
 ```
 
 Every number on this page comes off that report. Writing needs an `--out` whose
