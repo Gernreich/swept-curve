@@ -725,7 +725,7 @@ hole through one 3mm cheek.
 engraved panel numbers visible along every seam, with the ring-stack bell
 standing vertically out of the plane of the coil where its shank seats in the
 square port, and the mouthpiece on the lead at the far
-end](../../../../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-glued-up_web.jpg)
+end](../../../../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-press-fit_web.jpg)
 
 **THE MOUTHPIECE IS NOT ON A PORT ON EITHER BUILT INSTRUMENT.** Look at the
 photograph again: the bell stands in the port, and the mouthpiece is out on the

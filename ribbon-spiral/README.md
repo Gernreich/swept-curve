@@ -43,7 +43,7 @@ Both sheets are cut now, and the bore is press-fit — the wall panels standing 
 the mortices between the two cheeks, a mouthpiece on the straight tail and a
 bell on the port at the inner end.
 
-![The spiral press-fit on a dark wood floor: a pale ply band winding a little over two turns, cornered at every facet, both rims crenellated with tabs and a number engraved beside each one; a straight tail leaves the outer end and carries a dark, glossy mouthpiece, and a bell engraved 10. stands on a dark ribbed throat at the inner end](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-glued-up_web.jpg)
+![The spiral press-fit on a dark wood floor: a pale ply band winding a little over two turns, cornered at every facet, both rims crenellated with tabs and a number engraved beside each one; a straight tail leaves the outer end and carries a dark, glossy mouthpiece, and a bell engraved 10. stands on a dark ribbed throat at the inner end](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-press-fit_web.jpg)
 
 It is not airtight. A press-fit with this many joints — a mitre at every facet and
 a tab at every mortice — leaves air gaps all along both rims, and they are
