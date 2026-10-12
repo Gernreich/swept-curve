@@ -905,23 +905,11 @@ the page it links to. It drops three lines the embed declares for itself; the
 first version sliced off the leading blank line instead, left `const D`
 declared twice, and rendered a blank canvas.
 
-`gernreich.github.io` embeds one. Regenerate it from here when the geometry
-changes:
-
-```sh
-python3 ribbon_view.py --shape=serpentine --embed \
-    --out=../../../../../Gernreich.github.io/bore-viewer.html \
-    --home=https://gernreich.github.io/trumpet-elbows-allowed/
-```
-
-An embed follows `prefers-color-scheme`, because it sits inside somebody
-else's page. It cannot see an explicit theme toggle on the host — a frame is
-its own document — so it matches by default and not after a manual switch.
-
-**all-gates.sh gates it**, by running the command above into a temp file and
-comparing. It is the only artefact crossing two repositories, so without that
-gate the published copy drifts from what this generator draws and nothing
-reports it.
+`gernreich.github.io` embedded the serpentine this way, gated by `all-gates.sh`
+against a fresh `--embed` run, until 2026-10-12, when its front page moved to the
+greek spiral's lattice viewer. Nothing embeds one now; `--embed` remains for the
+next page that wants one. It follows `prefers-color-scheme`, because it sits
+inside somebody else's page and cannot see an explicit theme toggle on the host.
 
 That gate compares bytes, which is not the same as looking: a render can be
 wrong while every check passes. Look at the page after changing it.

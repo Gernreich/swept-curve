@@ -157,11 +157,6 @@ python3 ribbon_bore.py --narrow --out=x-narrow.svg
 python3 ribbon_view.py --shape=serpentine \
     --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
 
-# Gernreich.github.io embed: regenerate when the geometry changes
-python3 ribbon_view.py --shape=serpentine --embed \
-    --out=../../../../../Gernreich.github.io/bore-viewer.html \
-    --home=https://gernreich.github.io/trumpet-elbows-allowed/
-
 # Every current sheet into the ONE previews/ here (explicit output path)
 for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*'); do
   python3 $G/make-preview.py "$f" "previews/$(basename $f)"
