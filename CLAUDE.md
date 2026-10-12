@@ -23,7 +23,7 @@ brackets. Read that section before changing the code it names.
 
 - The centreline polyline **is** the facet plan. Keep the assert in `walls()`
   that checks which side came out inner. [The geometry, in one paragraph]
-- `dspiral` samples an Archimedean spiral and the other shapes are
+- `double-spiral` samples an Archimedean spiral and the other shapes are
   constant-radius arcs. Neither is the "correct" one.
   [Which curve each shape's vertices sit on]
 - Walls are offset to their **faces**: `wall_off() = (BORE + THICK)/2`.

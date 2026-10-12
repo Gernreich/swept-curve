@@ -33,7 +33,7 @@ Both are geometry, not parameters. Interleaving a return arm so that both ends
 reach the rim is the piece of work that would fix (1) and, with one extra
 facet, (2) with it.
 
-DONE, 2026-09-08, as `ribbon_bore.py --shape=volute`. Interleaving the return
+DONE, 2026-09-08, as `ribbon_bore.py --shape=double-volute`. Interleaving the return
 arm fixed both, and (2) fell out more cheaply than expected: the arm's centres
 alternate between two points, so the eye is the midpoint of them, and putting
 the eye on the origin makes the return arm the first arm turned through 180

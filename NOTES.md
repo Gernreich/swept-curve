@@ -65,14 +65,15 @@ The centreline polyline IS the facet plan, so the only thing separating one
 shape from another is where its vertices were placed. Two constructions are in
 use, and they are not variants of each other.
 
-**Constant-radius arcs** — `serpentine`, `opposed`, `wave`, `spiral`,
-`volute`. The radius holds all the way across an arc and changes only at a join,
-where a mitre already expects a corner. `spiral` is the classical compass
-spiral: one arc per facet, the radius stepping by a fixed amount. **`volute` is
-a chain of SEMICIRCLES** of stepping radius about two alternating centres —
+**Constant-radius arcs** — `serpentine`,
+`three-lobe-serpentine-with-collinear-ends`, `ess`, `spiral`, `double-volute`.
+The radius holds all the way across an arc and changes only at a join, where a
+mitre already expects a corner. `spiral` is the classical compass spiral: one
+arc per facet, the radius stepping by a fixed amount. **`double-volute` is a
+chain of SEMICIRCLES** of stepping radius about two alternating centres —
 which is the case `volute/volute.py` exists to argue.
 
-**A smooth Archimedean spiral, sampled** — `dspiral` alone. **Its vertices sit
+**A smooth Archimedean spiral, sampled** — `double-spiral` alone. **Its vertices sit
 on `r = R0 + b*theta`, taken every FACET degrees**, so the radius differs at
 every vertex and no two consecutive facets share one.
 
@@ -83,12 +84,12 @@ where those meet.
 
 **The two are the same skeleton on different curves.** Both wind in, cross the
 eye, wind back out, and are point-symmetric so that both ends reach the rim;
-the volute reuses the double spiral's crossover solver almost verbatim. Only
+the double volute reuses the double spiral's crossover solver almost verbatim. Only
 the curve differs, and neither can be turned into the other: the double
-spiral's vertices lie on one spiral about one centre, the volute's on circular
+spiral's vertices lie on one spiral about one centre, the double volute's on circular
 arcs about two alternating centres. Two shapes, not two spellings of one.
 
-Do not read that as the volute being the correct one and the double spiral a
+Do not read that as the double volute being the correct one and the double spiral a
 compromise. See the note beside `DS_PITCH`: offsetting a faceted centreline is
 exact whatever placed its vertices, and the airway check measures 4.1e-14mm on
 the double spiral. The constant-radius argument is about offsetting a SMOOTH
@@ -180,15 +181,17 @@ shape is written down somewhere other than here.
 
 A trace file carries the stations **and the provenance** - where they came
 from, how they were taken, and what was measured off them. A traced number
-without that is a number nobody can check. `traces/volute.json` is the one kept:
-six semicircles of stepping radius from `volute/volute.py`, with its closest
-approach and the angle between its openings recorded beside them.
+without that is a number nobody can check. No trace is kept at present: the one
+there was, six semicircles of stepping radius from `volute/volute.py`, was
+removed on 2026-10-12. The page drawn from it stays, as
+`volute/single-volute/single-volute-bore10-45deg.html`, and cannot be redrawn
+until a trace is written again.
 
 **The total turning of a trace is worth checking, and it is 0.** An opening
 faces out of the tube, so the mouth faces back along the run and the bell
 forwards; they are opposed when the turns cancel. 180 degrees is the wrong
-answer and puts both openings on the same heading - `--shape=opposed` exists
-to get it right. The volute's openings come out 135
+answer and puts both openings on the same heading - `--shape=three-lobe-serpentine-with-collinear-ends` exists
+to get it right. The single volute's openings come out 135
 degrees apart, and its bore comes within 7.75mm of itself, which is why it is
 drawn and not cut.
 
@@ -639,9 +642,9 @@ pass on panel corners that jam at every mitre.
   below, which is why.
 - *the two walls stand a bore apart* — 3mm on a hairpin tighter than its own wall
 - *no two wall panels share plan area* — one jamming pair per mitre, all eight designs
-- *the cheek outline does not cross itself* — four packed spirals and a tight dspiral
-- *every slot corner is inside its cheek* — the wave at a R25 trough
-- *the web outboard of a slot is cuttable* — the same wave, and any WEB under 1.5
+- *the cheek outline does not cross itself* — four packed spirals and a tight double spiral
+- *every slot corner is inside its cheek* — the ess at a R25 trough
+- *the web outboard of a slot is cuttable* — the same ess, and any WEB under 1.5
 - *panels merged by `--merge-lead` keep their own teeth and numbers* — not a
   check but a rule, and the reason `merge_lead()` is forty lines rather than
   four. `teeth()` reads a panel's length alone, so the 43.2mm merged panel
@@ -702,7 +705,7 @@ the comparison carries a 1e-9 slack; without it the sum came out
 
 The square port is nothing like as tight, because `--merge-lead` gives it a
 whole facet to sit in: 2.2 to 4.5mm of margin across the eight square-ported
-designs, the volute narrowest at 3.736mm and the R36to144 spiral widest at
+designs, the double volute narrowest at 3.736mm and the R36to144 spiral widest at
 5.950mm. The eighth is the 1000mm double spiral, which is square-ported at BOTH
 ends and reports the same 4.672mm at each -- `--port-both` folds the tail lead
 as well, so its far port gets the whole facet the mouth's does.
@@ -756,14 +759,13 @@ which the built spiral pays.
 
 The two-port set is the one that needs nothing plugged and puts the mouthpiece
 and the bell on opposite faces. It is also the one whose mouth port has never
-been made. Cut the 240mm coupon first if that is the one you want.
+been made. Generate and cut the 240mm coupon first if that is the one you want
+(`--ds-half --ds-facets=2 --lead=42`, below); its sheets no longer ship.
 
-Each has a page of its own, because the airways differ. In
-`dspiral/ribbon-dspiral-bore10-30deg-R62-pitch46-1000mm/`, the page named for
-the folder is the TWO-port bore and the one whose name ends `-ported-square` is
-the one-port — which is the opposite of how the sheets read, where the plainer
-name is the plainer part. The page takes the folder's name because that is what
-every other design does and what `ribbon_view.py` writes without `--out`.
+Only the one-port bore has a page: in
+`double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm/`, the one
+whose name ends `-ported-square`. The two-port bore's page was removed on
+2026-10-12; its sheets are still in the folder.
 
 `cap()`'s own docstring has it the other way round — *"the mouthpiece goes into
 the port and the run simply stops a bore further on"* — and the built spiral

@@ -46,7 +46,7 @@ THICK = 3.0          # ply, NOMINAL: what the design is dimensioned on
 # Setting THICK to 2.94 instead was tried first and is wrong. It moves the
 # geometry: the wall offset goes 6.5 -> 6.47, the band 20 -> 19.88, and the
 # tooth 6 -> 5.88, which invalidates every shape whose parameters were solved
-# to land on 1000.0mm inside a 20mm band. It failed 'opposed' outright -- a
+# to land on 1000.0mm inside a 20mm band. It failed 'three-lobe-serpentine-with-collinear-ends' outright -- a
 # 2.14mm panel where 9.88mm is needed -- and took the serpentine's web from
 # 2.05mm to 1.106mm. The bore's walls being 0.06mm thinner than drawn opens the
 # airway to 10.06mm, which is the harmless direction and not worth re-solving
@@ -66,7 +66,7 @@ SHEET = 3.0
 WEB = 2.0            # material left outboard of a slot; the cheek's thin part
 # --narrow: put the cheek's edge ON the mortice's outboard edge, so there is no
 # web at all and the band is only as wide as the duct. It was done by hand in
-# Inkscape first, on the dspiral halftest, by dragging the rim onto the slot
+# Inkscape first, on the double-spiral halftest, by dragging the rim onto the slot
 # corners; this is that edit as an option, and it lands in the same place
 # because both take their figure from the same slot_half().
 #
@@ -144,7 +144,7 @@ BURN = 0.15          # kerf, the FULL width the laser takes out, centred on the
 # that value too, because too loose is a worse joint and too tight is no joint
 # at all.
 PLAY_BY_BORE = {10.0: 0.025}
-# The dspiral halftest assembled loose, and the cause was these two constants,
+# The double-spiral halftest assembled loose, and the cause was these two constants,
 # not the clearance. THICK was 3.0 against a sheet that calipers at 2.94, and
 # BURN was 0.1 against a kerf of 0.13. Every kerf compensation in the file was
 # therefore 0.03mm out, in the direction that makes parts smaller and holes
@@ -192,15 +192,16 @@ PORT = False         # --port: a 7 x 14mm opening through the cheek at the
                      # bore-square: see PORT_ACROSS for why it cannot be
 BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
 
-# --shape. 'dspiral' is the double spiral, the shape this file is aimed at and
+# --shape. 'double-spiral' is the double spiral, the shape this file is aimed at and
 # the default; 'serpentine' is a run of alternating half-circles joined by
 # straight verticals, which is that shape generalised. LOBES/LOBE_R/RISE
 # describe it. The 180 degree 'coupon' that used to be the default is gone,
 # deleted 2026-09-14, and with it the fall-through that drew it: an unknown
 # --shape is now refused by name rather than quietly drawing a test piece.
-SHAPES = ('dspiral', 'serpentine', 'opposed', 'wave', 'spiral', 'volute',
-          'torus', 'scallop', 'racetrack', 'oval')
-SHAPE = 'dspiral'
+SHAPES = ('double-spiral', 'serpentine',
+          'three-lobe-serpentine-with-collinear-ends', 'ess', 'spiral',
+          'double-volute', 'torus', 'scallop', 'racetrack', 'oval')
+SHAPE = 'double-spiral'
 # Solved against this generator's own faceted centreline, not a smooth arc:
 # an inscribed chord is 1.14% short of the arc it spans, so a radius picked
 # from the arc comes out 11mm long over a metre. R here gives 1000.0mm.
@@ -356,7 +357,7 @@ CAP = False
 # itself". Kept as a number so the next person does not spend the afternoon
 # rediscovering it.
 PORT_LEAD_REJECTED = 30.0
-# 'opposed' cannot reuse those. Its closing quarter turn runs outward rather
+# 'three-lobe-serpentine-with-collinear-ends' cannot reuse those. Its closing quarter turn runs outward rather
 # than folding back inside the lobes, which spends 82mm of width the
 # serpentine never spends, and R71.754 puts the cheek at 614mm on a bed with
 # 580 of usable width. A half-circle advances 2/pi of its own length in x
@@ -460,9 +461,9 @@ OVAL_SIDE_FLAT = 12.5
 # The angle each shape is drawn at, where it is not FACET's default 30.
 # scallop: 24 divides 72, which is 360/5, so a five-lobe ring can be built at
 # all. 30 does not divide 72 and refuses; the shipped ring is 24.
-FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0,
+FACET_BY_SHAPE = {'ess': 45.0, 'spiral': 45.0, 'double-volute': 45.0,
                   'scallop': 24.0, 'racetrack': 45.0}
-# 'dspiral' is two spiral arms half a turn apart about one centre, crossed at
+# 'double-spiral' is two spiral arms half a turn apart about one centre, crossed at
 # the middle by a straight - the double spiral. Arm B IS arm A rotated 180
 # degrees, so the whole path is point-symmetric about the centre and the gap
 # between neighbouring passes is DS_PITCH/2 by construction rather than by
@@ -483,7 +484,7 @@ FACET_BY_SHAPE = {'wave': 45.0, 'spiral': 45.0, 'volute': 45.0,
 # not chosen. A tangent from the centre to that arc only exists when the arm's
 # inner end is outside twice the arc radius, so DS_R0 > 2 * DS_CROSS_R is a hard
 # floor and the reason the middle is open rather than tight.
-# These are the shipped design, so a bare --shape=dspiral rebuilds the sheets
+# These are the shipped design, so a bare --shape=double-spiral rebuilds the sheets
 # beside this file rather than something near them. R28 was the default while
 # the design was cut at R30, and a bare run refused on a 9.77mm inner panel.
 DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 30.0
@@ -491,7 +492,7 @@ DS_PITCH, DS_R0, DS_FACETS, DS_CROSS_R = 46.0, 62.0, 14, 30.0
 # and run out from there. The crossover is the part of this shape that had
 # to be solved rather than chosen, so it is the part a test piece should prove.
 DS_HALF = False
-# 'volute' is the same idea drawn the way volute.py argued it should be: not a
+# 'double-volute' is the same idea drawn the way volute.py argued it should be: not a
 # smooth spiral sampled at facets, but a chain of semicircles whose radius holds
 # across each arc and steps only at the joins, where a mitre already expects a
 # corner. offset() mitres a vertex assuming the curvature either side is
@@ -507,7 +508,7 @@ DS_HALF = False
 # Interleaving a return arm answers both, which is what that file said the work
 # was. Two centres, so the arm is a classical two-centre volute and its eye is
 # the midpoint of them, at (-VOL_STEP/4, 0); put the eye on the origin and arm B
-# is arm A turned through 180 degrees, exactly as in 'dspiral'. Then there is no
+# is arm A turned through 180 degrees, exactly as in 'double-spiral'. Then there is no
 # inner end to enclose, and the openings come out 180.00 degrees apart from the
 # symmetry alone -- the 8k+1 rule never binds, because the two ends are one end
 # and its own half-turn.
@@ -522,10 +523,10 @@ DS_HALF = False
 # what came back from sweeping the generator itself rather than the geometry:
 # 1179.9mm, 21.28mm of clearance, and the openings 180.00 degrees apart.
 VOL_R0, VOL_STEP, VOL_SEMIS, VOL_CROSS_R = 94.0, 60.0, 2, 22.0
-# 'wave' is the drawn shape: level, down into a trough, up over a crest,
+# 'ess' is the drawn shape: level, down into a trough, up over a crest,
 # and out level again. It is the easiest bore here and worth saying why -
 # nothing nests. A coil has to hold every pass 20mm off every other pass it
-# wraps around, which is what made the spiral hard; a wave only has to
+# wraps around, which is what made the spiral hard; an ess only has to
 # clear its own two lobes, and it does that by 97mm.
 #
 # Equal arc counts either side of the middle make the turns cancel, so the
@@ -560,7 +561,7 @@ def walk(spec):
                     f'--facet={FACET:g} does not divide a {deg:g} degree turn '
                     f'a whole number of times; {n} facets would turn '
                     f'{n * FACET:g} degrees.')
-            R = LOBE_R if SHAPE in ('serpentine', 'opposed') else RADIUS
+            R = LOBE_R if SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends') else RADIUS
             cx = x - sign * R * math.sin(a)
             cy = y + sign * R * math.cos(a)
             t0 = math.atan2(y - cy, x - cx)
@@ -775,7 +776,7 @@ def centreline():
             raise ValueError(f'--facet={FACET:g} does not divide a full turn '
                              f'a whole number of times.')
         return flip(walk([('a', 360, +1)]))
-    if SHAPE == 'wave':
+    if SHAPE == 'ess':
         floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
             math.radians(FACET / 2))
         tight = min(WAVE_LEAD_R, WAVE_TROUGH_R, WAVE_CREST_R)
@@ -838,7 +839,7 @@ def centreline():
             m = math.hypot(dx, dy)
             return (u[0] + dx / m * LEAD, u[1] + dy / m * LEAD)
         return flip([tail(pts[0], pts[1])] + pts + [tail(pts[-1], pts[-2])])
-    if SHAPE == 'volute':
+    if SHAPE == 'double-volute':
         floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
             math.radians(FACET / 2))
         per = int(round(180.0 / FACET))
@@ -875,7 +876,7 @@ def centreline():
         eye = VOL_STEP / 4.0
         arm = [(x + eye, y) for x, y in arm]      # put the eye on the origin
 
-        # the crossover, as in 'dspiral': an arc off the inner end and then a
+        # the crossover, as in 'double-spiral': an arc off the inner end and then a
         # straight that has to LAND on the eye. Solve the turn, do not pick it
         # - a turn that misses leaves the two arms not joined.
         S = arm[-1]
@@ -932,7 +933,7 @@ def centreline():
             m = math.hypot(dx, dy)
             return (u[0] + dx / m * LEAD, u[1] + dy / m * LEAD)
         return flip([tail(pts[0], pts[1])] + pts + [tail(pts[-1], pts[-2])])
-    if SHAPE == 'dspiral':
+    if SHAPE == 'double-spiral':
         b = DS_PITCH / (2 * math.pi)
         floor = wall_off() + (TOOTH + 2 * SHOULDER) / 2 / math.sin(
             math.radians(FACET / 2))
@@ -1031,7 +1032,7 @@ def centreline():
             m = math.hypot(dx, dy)
             return (u[0] + dx / m * LEAD, u[1] + dy / m * LEAD)
         return flip([tail(pts[0], pts[1])] + pts + [tail(pts[-1], pts[-2])])
-    if SHAPE in ('serpentine', 'opposed'):
+    if SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends'):
         # a lead-in, a quarter turn up, then alternating half-circles joined
         # by straight verticals, and a tail. The verticals are what make it
         # fit: a half-circle advances only 2/pi of its own length in x, so a
@@ -1042,7 +1043,7 @@ def centreline():
             spec.append(('a', 180, -1 if i % 2 == 0 else +1))
             if i < LOBES - 1:
                 spec.append(('s', RISE))
-        # 'opposed' closes with one more quarter turn, which is the whole
+        # 'three-lobe-serpentine-with-collinear-ends' closes with one more quarter turn, which is the whole
         # difference between the two. What a mouthpiece and a bell want is
         # their two openings facing opposite ways - you blow towards the
         # instrument and it speaks away from you. An opening faces out of the
@@ -1055,7 +1056,7 @@ def centreline():
         # same quarter turn reaches 180, which puts both openings on the same
         # heading and aims the bell back into the lobes with 0.2mm to spare.
         # It costs 111.4mm of centreline and no bed at all.
-        if SHAPE == 'opposed':
+        if SHAPE == 'three-lobe-serpentine-with-collinear-ends':
             spec.append(('a', 90, +1))
         spec.append(('s', LEAD))
         return flip(walk(spec))
@@ -1557,7 +1558,7 @@ def build():
             # ply either side of the point where their centrelines meet. On the
             # concave side that ply runs past the mitre by (THICK/2)tan(phi/2)
             # on each panel, and the two corners jam: they butt before either
-            # panel is seated. Cut and found at the bench on the dspiral
+            # panel is seated. Cut and found at the bench on the double-spiral
             # halftest, where it is 0.81mm a joint over 14 joints; at 45
             # degrees it is 1.24mm. Nothing saw it, because the airway check
             # compares two offsets of one polyline and cannot fail, and no
@@ -2254,7 +2255,7 @@ def checks(c, inn, out, parts, cheekpoly, written, ink, cut_slots):
     # --- the panels have to fit round the bend as SOLIDS, not as lines
     # The airway check compares two offsets of one polyline and cannot fail;
     # it passes a hairpin tighter than its own wall. Nothing here looked at a
-    # panel as a body until the dspiral halftest was cut and its corners
+    # panel as a body until the double-spiral halftest was cut and its corners
     # jammed. In plan a panel is a THICK-wide rectangle on its own segment,
     # and two neighbours must not share any of it.
     def plan_rect(q):
@@ -2479,25 +2480,25 @@ def main(write=True):
     c, inn, out, parts, report = build()
     over = 100 * (1 / math.cos(math.radians(FACET) / 2) - 1)
     R = bend_radius()
-    what = (f'a wave: a trough of R{WAVE_TROUGH_R:g} and a crest of '
+    what = (f'an ess: a trough of R{WAVE_TROUGH_R:g} and a crest of '
             f'R{WAVE_CREST_R:g}, level at both ends'
-            if SHAPE == 'wave' else
+            if SHAPE == 'ess' else
             f'a flat coil, {SPIRAL_FACETS} facets, R{SPIRAL_RI:g} at the '
             f'centre out to R{SPIRAL_RO:g} at the rim'
             if SHAPE == 'spiral' else
             f'two arms half a turn apart on an Archimedean spiral, '
             f'{DS_FACETS} facets each from R{DS_R0:g}, rising {DS_PITCH:g}mm '
             f'a turn, crossed at the centre by a straight off R{DS_CROSS_R:g}'
-            if SHAPE == 'dspiral' else
+            if SHAPE == 'double-spiral' else
             f'a double volute: a chain of {VOL_SEMIS} semicircles an arm '
             f'from R{VOL_R0:g} stepping {VOL_STEP:g}mm a turn, the return arm '
             f'interleaved half a turn away, joined at the eye by an arc off '
             f'R{VOL_CROSS_R:g}'
-            if SHAPE == 'volute' else
+            if SHAPE == 'double-volute' else
             f'{LOBES} half-circles of R{R:g} joined by {RISE:g}mm straights'
             + (', then a quarter turn to bring the ends opposed'
-               if SHAPE == 'opposed' else '')
-            if SHAPE in ('serpentine', 'opposed') else
+               if SHAPE == 'three-lobe-serpentine-with-collinear-ends' else '')
+            if SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends') else
             f'a closed ring of {int(round(360.0 / FACET))} facets, R{R:g} '
             f'circumradius to the centreline vertices'
             if SHAPE == 'torus' else
@@ -2551,25 +2552,27 @@ def main(write=True):
     L = sum(seglen(a, b) for a, b in zip(c, c[1:]))
     # the group goes before -cut-files, not after: every sheet in this
     # project ends -cut-files.svg and a reader sorts on the tail
-    if SHAPE == 'wave':
-        stem = (f'ribbon-wave-bore{BORE:g}-{FACET:g}deg-'
+    if SHAPE == 'ess':
+        stem = (f'ribbon-ess-bore{BORE:g}-{FACET:g}deg-'
                 f'{WAVE_LOBE_ARCS}arc-{L:.0f}mm.svg')
     elif SHAPE == 'spiral':
         stem = (f'ribbon-spiral-bore{BORE:g}-{FACET:g}deg-'
                 f'R{SPIRAL_RI:.0f}to{SPIRAL_RO:.0f}-{L:.0f}mm.svg')
-    elif SHAPE == 'dspiral':
+    elif SHAPE == 'double-spiral':
         # 'half-' for --ds-half, because the two are different bores of the
-        # same family and the length alone does not say which: the shipped
+        # same family and the length alone does not say which: the
         # test piece has been called half-196mm since it was cut, and without
         # this the generator named it 196mm and wrote a second set beside it.
-        stem = (f'ribbon-dspiral-bore{BORE:g}-{FACET:g}deg-'
+        stem = (f'ribbon-double-spiral-bore{BORE:g}-{FACET:g}deg-'
                 f'R{DS_R0:.0f}-pitch{DS_PITCH:.0f}-'
                 + ('half-' if DS_HALF else '') + f'{L:.0f}mm.svg')
-    elif SHAPE == 'volute':
-        stem = (f'ribbon-volute-bore{BORE:g}-{FACET:g}deg-'
+    elif SHAPE == 'double-volute':
+        stem = (f'ribbon-double-volute-bore{BORE:g}-{FACET:g}deg-'
                 f'R{VOL_R0:.0f}-step{VOL_STEP:.0f}-{L:.0f}mm.svg')
-    elif SHAPE in ('serpentine', 'opposed'):
-        stem = (f'ribbon-{SHAPE}-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
+    elif SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends'):
+        stem = (('three-lobe-serpentine-with-collinear-ends' if SHAPE == 'three-lobe-serpentine-with-collinear-ends'
+                 else 'ribbon-serpentine')
+                + f'-bore{BORE:g}-{FACET:g}deg-{LOBES}lobes'
                 f'-R{LOBE_R:.0f}-{L:.0f}mm.svg')
     elif SHAPE == 'torus':
         stem = (f'ribbon-torus-bore{BORE:g}-{FACET:g}deg'
@@ -2800,13 +2803,13 @@ def read_flags(a):
             raise SystemExit(f'error: {hit[0]} is not a '
                              f'{"whole number" if cast is int else "number"}.')
     # per-shape defaults, and only where the caller has not spoken
-    if SHAPE == 'opposed':
+    if SHAPE == 'three-lobe-serpentine-with-collinear-ends':
         if not any(x.startswith('--lobe-r=') for x in a):
             LOBE_R = OPPOSED_R
         if not any(x.startswith('--rise=') for x in a):
             RISE = OPPOSED_RISE
-    # FACET defaults to 30, and the wave and the spirals are
-    # 45 degree designs. A bare --shape=wave therefore built arcs that do not
+    # FACET defaults to 30, and the ess and the spirals are
+    # 45 degree designs. A bare --shape=ess therefore built arcs that do not
     # close and reported six check failures, not one of which said "facet";
     # a bare --shape=spiral refused, because 17 facets turn 480 degrees at 30
     # and the ends only come out opposed on a whole number of turns. Both
@@ -2901,15 +2904,15 @@ def bend_radius():
 
     For the spiral this is its inner radius; the page quotes the range.
     """
-    if SHAPE == 'wave':
+    if SHAPE == 'ess':
         return min(WAVE_LEAD_R, WAVE_TROUGH_R, WAVE_CREST_R)
     if SHAPE == 'spiral':
         return min(SPIRAL_RI, SPIRAL_RO)
-    if SHAPE == 'dspiral':
+    if SHAPE == 'double-spiral':
         return DS_CROSS_R
-    if SHAPE == 'volute':
+    if SHAPE == 'double-volute':
         return VOL_CROSS_R
-    if SHAPE in ('serpentine', 'opposed'):
+    if SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends'):
         return LOBE_R
     if SHAPE == 'scallop':
         return min(LOBE_R, SCALLOP_IN_R)

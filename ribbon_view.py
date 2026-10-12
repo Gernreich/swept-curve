@@ -217,11 +217,11 @@ def data_for():
         'shape': B.SHAPE,
         # What curve the vertices were placed on. Two constructions are in use
         # and the drawing cannot tell them apart, so the panel says which:
-        # every shape but 'dspiral' is built from arcs whose radius holds all
-        # the way across, and 'dspiral' samples a smooth Archimedean spiral.
+        # every shape but 'double-spiral' is built from arcs whose radius holds all
+        # the way across, and 'double-spiral' samples a smooth Archimedean spiral.
         # See "Which curve each shape's vertices sit on" in NOTES.md.
-        'curve': {'dspiral': 'Archimedean spiral, sampled',
-                  'volute': 'chain of semicircles',
+        'curve': {'double-spiral': 'Archimedean spiral, sampled',
+                  'double-volute': 'chain of semicircles',
                   'spiral': 'compass spiral, stepping arcs',
                   'traced': 'traced stations'}.get(
                       B.SHAPE, 'constant-radius arcs'),
@@ -608,9 +608,9 @@ def main():
 
     here = os.path.dirname(os.path.abspath(__file__))
     # --trace draws a centreline from stations fixed somewhere other than this
-    # generator's own parameters. Each trace is kept with its provenance in
-    # traces/ -- where it came from, how it was taken, what was measured -- so a
-    # traced number is one somebody can check.
+    # generator's own parameters. A trace carries its provenance -- where it
+    # came from, how it was taken, what was measured -- so a traced number is
+    # one somebody can check. None ships at present.
     tr = [x for x in a if x.startswith('--trace=')]
     if tr:
         import json
@@ -648,13 +648,13 @@ def main():
         title = f'Closed Oval, Flattened Ends, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'scallop':
         title = (f'Closed Serpentine, {B.LOBES} Lobes, {B.BORE:g}mm Bore')
-    elif B.SHAPE == 'wave':
-        title = f'Ribbon Wave, {B.BORE:g}mm Bore'
+    elif B.SHAPE == 'ess':
+        title = f'Ribbon Ess, {B.BORE:g}mm Bore'
     elif B.SHAPE == 'spiral':
         title = f'Ribbon Spiral, {B.BORE:g}mm Bore'
-    elif B.SHAPE == 'volute':
+    elif B.SHAPE == 'double-volute':
         title = f'Ribbon Double Volute, {B.BORE:g}mm Bore'
-    elif B.SHAPE == 'dspiral':
+    elif B.SHAPE == 'double-spiral':
         # --ds-half is a different bore, not a view of the same one: it stops at
         # the centre and runs out from there. Without this it took the full
         # spiral's name and title, which is the mistake the else-branch below
@@ -662,9 +662,9 @@ def main():
         title = ('Ribbon Double Spiral, Centre Half, %gmm Bore' % B.BORE
                  if B.DS_HALF
                  else f'Ribbon Double Spiral, {B.BORE:g}mm Bore')
-    elif B.SHAPE in ('serpentine', 'opposed'):
-        title = ('Ribbon Opposed-Ends Bore, %gmm' % B.BORE
-                 if B.SHAPE == 'opposed'
+    elif B.SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends'):
+        title = ('Three-Lobe Serpentine with Collinear Ends, %gmm Bore' % B.BORE
+                 if B.SHAPE == 'three-lobe-serpentine-with-collinear-ends'
                  else f'Ribbon Serpentine, {B.BORE:g}mm Bore')
     else:
         # This used to be the coupon's branch with no test on the shape, so a
