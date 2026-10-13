@@ -321,8 +321,8 @@ arch and down the sides the duct is 30 x 30mm; below the hole it opens to the
 whole gap, about 200mm along the axis, which is the resonator. It imports the
 panel, mortice, label, packer, sheet and ring-contour code from `ribbon_bore`
 and adds only the two outlines and the checks a constant bore made
-unnecessary. Its cut files go to `~/LaserMadeMusic/GIT/lyre-harp/`, where
-nothing gates them.
+unnecessary. Its cut files go to `~/LaserMadeMusic/GIT/lyre-harp/`, whose
+`.repro` records the command for each and is gated since 2026-10-13.
 
 The front cheek carries a sound hole: the 2-lead 7-bight knot from
 `knotwork-soundholes`, read from that repository's cut file and placed
@@ -372,12 +372,16 @@ has a vertex -- the string hole's wall carries one every facet -- so both
 builders drop a repeated point first: a zero-length run has no direction to
 offset along, and the kerf offset came back as a 300mm spike.
 
-**The lyre-harp is cut at a 0.17mm kerf, not this file's 0.15.** The test came
-off the bed with loose finger joints (2026-09-20), and a wider kerf draws each
-tab wider and each mortice narrower by half of the difference a side: 0.02mm on
-each, 0.04mm of interference a joint. `lyre_harp.KERF` sets `ribbon_bore.BURN`
-for its own run and nothing else. Raising it HERE would redraw all 61 shipped
-ribbon sheets, which are the record of parts already cut.
+**The lyre-harp keeps the measured 0.13mm kerf and tightens its joints with
+`FIT`, 0.25.** The test came off the bed with loose finger joints (2026-09-20),
+and the kerf was first raised to 0.17 and then 0.20 to tighten them. That
+worked, because an overstated kerf draws each tab fat and each mortice thin,
+but it also drew every other line 0.07mm out: outlines oversize, holes
+undersize, the duct and the knot with them. So the kerf went back to the truth
+and the interference moved to `FIT`, which only the joints read, then up to
+0.25 for a fit that needs a rubber mallet. `lyre_harp.KERF` sets
+`ribbon_bore.BURN` for its own run and nothing else. Raising `BURN` HERE would
+redraw every shipped ribbon sheet, and those are the record of parts already cut.
 
 `--test=PATH` writes an ARCH TEST PIECE: the string-hole wall's panels
 TEST_FROM..TEST_TO, every outer panel that overlaps the arc they cover, and a

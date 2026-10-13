@@ -16,8 +16,9 @@ brackets. Read that section before changing the code it names.
 - `TOOTH = 2 * THICK` is Boxes.py's tooth and does **not** scale with the bore.
   Boxes.py (Florian Festi, GPL-3.0-or-later) is an external checkout, not a copy.
 - `lyre_harp.py` is a separate closed-duct generator that imports from
-  `ribbon_bore`. Its output goes to `~/LaserMadeMusic/GIT/lyre-harp/`, where
-  nothing gates it. [`lyre_harp.py`: a closed duct whose width changes]
+  `ribbon_bore`. Its output goes to `~/LaserMadeMusic/GIT/lyre-harp/`, whose
+  `.repro` runs it from there: a change here that moves a byte of the frame fails
+  the gate until those files are redrawn. [`lyre_harp.py`: a closed duct whose width changes]
 
 ## Geometry rules
 
@@ -80,7 +81,8 @@ brackets. Read that section before changing the code it names.
   nearest-point bijection; never zip sorted lists. [Both cheeks are the same part]
 - To change the cheek rim, change `WEB` (2mm; 1.5mm is the floor), not `MARGIN`.
   Panel numbers are engraved in the channel. [The cheek stops 2mm outboard]
-- Lyre-harp kerf is 0.17 via `lyre_harp.KERF`. **Never raise `BURN` here**: it
+- Lyre-harp kerf is the measured 0.13 via `lyre_harp.KERF`; its joints are
+  tightened by `FIT` (0.25), not by the kerf. **Never raise `BURN` here**: it
   would redraw every shipped ribbon sheet.
 - A port seats a **bell**. No mouthpiece has been seated in one. The 1000mm double
   spiral ships three sheet sets, and its page names are the reverse of its sheet
