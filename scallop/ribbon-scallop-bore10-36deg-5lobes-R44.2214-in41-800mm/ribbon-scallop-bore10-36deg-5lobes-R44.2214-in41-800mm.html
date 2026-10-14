@@ -242,8 +242,9 @@ $('nums').innerHTML = [
 if (D.ends){
   const g = document.createElement('div'); g.className = 'grp';
   g.innerHTML = '<h2>Ends</h2><label class="chk"><input type="checkbox" id="ends" checked>'
-    + ' bell and mouthpiece</label><div class="hint">The cheeks are not drawn, so the bell'
-    + ' stands 3mm off the bore: that gap is the cheek it seats on.</div>';
+    + ' bell and mouthpiece</label>' + (D.ends.port ? '<div class="hint">The cheeks are'
+    + ' not drawn, so the bell stands 3mm off the bore: that gap is the cheek it seats'
+    + ' on.</div>' : '');
   $('key').parentNode.before(g);
   $('ends').onchange = e => { showEnds = e.target.checked; C = centre(); key(); draw(); };
 }

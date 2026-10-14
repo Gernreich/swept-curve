@@ -195,11 +195,24 @@ def place(V, Q, part, origin, ex, ez, f):
 
 
 def ends(c, V, Q, spans, h):
-    """The bell standing on the outside of the bottom cheek over the first
-    port, and the mouthpiece on the far end. Returns what the panel says."""
+    """With a port: the bell standing on the outside of the bottom cheek over
+    it, and the mouthpiece on the far end, as the built spiral has them. With
+    none: the mouthpiece on the mouth and the bell on the far end, each on the
+    tube end. Returns what the panel says."""
     pv = part_view()
     bell = pv.data_for(os.path.join(PARTS, BELL_SVG), 32)
     mp = pv.data_for(os.path.join(PARTS, MOUTHPIECE_SVG), 32)
+    if not spans:
+        L = B.seglen(c[0], c[1])
+        t = [(c[0][0] - c[1][0]) / L, (c[0][1] - c[1][1]) / L, 0.0]
+        place(V, Q, mp, [c[0][0], c[0][1], 0.0], [-t[1], t[0], 0.0], t, 7)
+        L = B.seglen(c[-2], c[-1])
+        t = [(c[-1][0] - c[-2][0]) / L, (c[-1][1] - c[-2][1]) / L, 0.0]
+        place(V, Q, bell, [c[-1][0], c[-1][1], 0.0], [-t[1], t[0], 0.0], t, 6)
+        return {'bell': f"{bell['rings']} rings, {bell['height']:g}mm, "
+                        f"\u00f8{bell['rim']:g} rim, on the far end",
+                'mouthpiece': f"{mp['rings']} rings, {mp['height']:g}mm, "
+                              f"on the mouth", 'port': False}
     i, t0, t1 = spans[0]
     tm = (t0 + t1) / 2
     px = c[i][0] + (c[i + 1][0] - c[i][0]) * tm
@@ -213,7 +226,7 @@ def ends(c, V, Q, spans, h):
     return {'bell': f"{bell['rings']} rings, {bell['height']:g}mm, "
                     f"\u00f8{bell['rim']:g} rim, on the port",
             'mouthpiece': f"{mp['rings']} rings, {mp['height']:g}mm, "
-                          f"on the far end"}
+                          f"on the far end", 'port': True}
 
 
 def data_for():
@@ -579,8 +592,9 @@ $('nums').innerHTML = [
 if (D.ends){
   const g = document.createElement('div'); g.className = 'grp';
   g.innerHTML = '<h2>Ends</h2><label class="chk"><input type="checkbox" id="ends" checked>'
-    + ' bell and mouthpiece</label><div class="hint">The cheeks are not drawn, so the bell'
-    + ' stands 3mm off the bore: that gap is the cheek it seats on.</div>';
+    + ' bell and mouthpiece</label>' + (D.ends.port ? '<div class="hint">The cheeks are'
+    + ' not drawn, so the bell stands 3mm off the bore: that gap is the cheek it seats'
+    + ' on.</div>' : '');
   $('key').parentNode.before(g);
   $('ends').onchange = e => { showEnds = e.target.checked; C = centre(); key(); draw(); };
 }
@@ -718,15 +732,17 @@ def main():
                  'belongs beside the cut files it describes, in the design\'s '
                  'own folder.')
     path = out[0].split('=', 1)[1]
-    # --ends puts the bell in the port and the mouthpiece on the far end. It
-    # needs a port for the bell and an open far end for the mouthpiece, so a
-    # closed ring or a design with both ends capped is refused.
+    # --ends puts the mouthpiece and the bell on: the bell in the port and the
+    # mouthpiece on the far end where there is a port, as the built spiral has
+    # them, and otherwise the mouthpiece on the mouth and the bell on the far
+    # end. A closed ring has no ends, so it is refused.
     global ENDS
     ENDS = '--ends' in a
-    if ENDS and (not B.PORT or B.PORT_BOTH or B.PORT_AT is not None):
-        sys.exit('ribbon_view: --ends seats the bell in the port and the '
-                 'mouthpiece on the open far end, so it needs --port, and '
-                 'neither --port-both nor --port-at.')
+    if ENDS and (B.PORT_BOTH or B.PORT_AT is not None
+                 or B.SHAPE in ('torus', 'scallop', 'racetrack', 'oval')):
+        sys.exit('ribbon_view: --ends needs two ends to put a mouthpiece and a '
+                 'bell on: a closed ring has none, and --port-both and '
+                 '--port-at move both openings into the cheeks.')
 
     here = os.path.dirname(os.path.abspath(__file__))
     # --trace draws a centreline from stations fixed somewhere other than this

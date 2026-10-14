@@ -845,17 +845,20 @@ The embed's drawing code is cut out at `<script>\nconst D = `, not at the first
 `<script>`: since 2026-10-14 the first one on the page is the theme follower, and
 splitting there extracted the wrong script.
 
-**`--ends` is the one exception to "nothing else", and it is the built
-instrument.** Added 2026-10-14 so the built spiral's page looks like the
-photograph: the bell standing on the outside of the bottom cheek over the port,
-and the mouthpiece's 16mm plate on the open far end, axis along the tail. Both
+**`--ends` is the one exception to "nothing else": the rest of the trumpet.**
+Added 2026-10-14, first so the built spiral's page looks like the photograph —
+the bell standing on the outside of the bottom cheek over the port, and the
+mouthpiece's 16mm plate on the open far end, axis along the tail — and then on
+every open design, where with no port the mouthpiece goes on the mouth and the
+bell on the far end, each on the tube end. Both
 are read from their cut files by trumpet-elbows-allowed's `parts/part-view.py`
 (its `data_for(path, n)`), imported from that checkout, so a redesigned bell or
 mouthpiece redraws here, and the page gate fails until it is. Each lands by a
 rotation, never a reflection, so their faces keep the winding the painter reads
 facing from. The cheeks are still not drawn, so the bell stands 3mm off the
-airway, and the page says that gap is the cheek. It needs `--port` and an open
-far end, so `--port-both`, `--port-at` and closed rings are refused. A checkbox
+airway, and a page with a port says that gap is the cheek. A closed ring has no
+ends, and `--port-both` and `--port-at` put both openings in the cheeks, so all
+three are refused. A checkbox
 takes the ends off, and the fit and the centre then follow the bore alone.
 
 ## Previews, because a cut file is invisible on a page

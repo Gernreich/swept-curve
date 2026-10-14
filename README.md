@@ -43,8 +43,9 @@ with the bell in its port and the mouthpiece on its tail.
 
 ## Designed, not yet cut
 
-Each has its cut files and a viewer you can turn. Each takes a mouthpiece at one
-end and the bell at the other, so each is a whole trumpet once those are fitted.
+Each has its cut files and a viewer you can turn, drawn with the mouthpiece on
+one end and the bell on the other, so each is a whole trumpet once those are
+fitted.
 
 | design | centreline | facets | what it is |
 | --- | ---: | --- | --- |

@@ -164,7 +164,8 @@ python3 ribbon_view.py --shape=serpentine \
 python3 ribbon_view.py --shape=spiral --port --port-square --cap --ends \
     --out=built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html
     # the built spiral as built: --ends adds the bell and the mouthpiece, read
-    # from ../trumpet-elbows-allowed/parts. [`ribbon_view.py` draws the airway]
+    # from ../trumpet-elbows-allowed/parts. Every open design's page takes
+    # --ends; the closed rings cannot. [`ribbon_view.py` draws the airway]
 
 # Every current sheet into the ONE previews/ here (explicit output path)
 # (the built spiral keeps its own previews/, beside its cut files)
