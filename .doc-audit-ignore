@@ -30,3 +30,25 @@ x-narrow.svg
 # same reason: a scratch stem in a code fence, and a file of this name would
 # mean somebody had run the example in the folder it documents.
 x-ported-both-square.svg
+
+# The shared gate tools, in the sibling repository lasermade-tools checked out
+# beside this one, named in CLAUDE.md and NOTES.md as the commands you run. They
+# exist, just not here. Came over from trumpet-elbows-allowed's list, 2026-10-14.
+svg-stroke-check.py
+make-preview.py
+flat-part-check.py
+
+# Generators in sibling repositories, named where the notes say what they
+# borrow from this one: lyre-harp's lyre_harp.py, square-flute's square_flute.py,
+# and trumpet-elbows-allowed's lattice viewer, tools/viewer.py.
+lyre_harp.py
+square_flute.py
+viewer.py
+
+# Names in the notes that are not files by design: x.svg and x-ported.svg are
+# throwaway trial outputs, and the bare -cheek-x2-cut-files.svg and
+# -panels-cut-files.svg are a filename template with the design's part elided.
+x.svg
+x-ported.svg
+cheek-x2-cut-files.svg
+panels-cut-files.svg
