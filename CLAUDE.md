@@ -161,6 +161,10 @@ python3 ribbon_bore.py --narrow --out=x-narrow.svg
     # rim flush to the mortices; same naming rule; NOT --web=0
 python3 ribbon_view.py --shape=serpentine \
     --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
+python3 ribbon_view.py --shape=spiral --port --port-square --cap --ends \
+    --out=built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html
+    # the built spiral as built: --ends adds the bell and the mouthpiece, read
+    # from ../trumpet-elbows-allowed/parts. [`ribbon_view.py` draws the airway]
 
 # Every current sheet into the ONE previews/ here (explicit output path)
 # (the built spiral keeps its own previews/, beside its cut files)

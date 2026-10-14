@@ -144,6 +144,78 @@ def framed(V, a, d, h, i, t0, t1, s0, s1, top):
     return out
 
 
+# --ends: the bell in the port and the mouthpiece on the far end, as the built
+# spiral has them. Both are drawn from their own cut files by trumpet-elbows-
+# allowed's part-view.py, read out of that checkout beside this one rather than
+# copied, so a redesigned bell or mouthpiece redraws here too. The cheeks are
+# not drawn (see "ribbon_view.py draws the airway" in NOTES.md), so the bell
+# stands 3mm off the airway: that gap is the cheek it seats on. The mouthpiece's
+# 16mm plate butts the tube end, where the walls are.
+ENDS = False
+PARTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..',
+                     'trumpet-elbows-allowed', 'parts')
+BELL_SVG = 'bell/cut-files/bell-round10-153mm-17rings-x3-rim86-cut-files.svg'
+MOUTHPIECE_SVG = 'mouthpiece/cut-files/mouthpiece-bore10-trumpet-parts-cut-files.svg'
+# part-view.py's own face order is ring face, outside, the bore, underside;
+# these are its four shades, so the ends read the way they do on their pages
+END_SHADE = [1.06, 0.95, 0.6, 0.72]
+
+
+def part_view():
+    """trumpet-elbows-allowed's part-view.py, imported from its file. It reads
+    bell-view.py's helpers by executing that script up to the line that reads
+    argv, and that prefix checks argv is long enough, so give it two names."""
+    import importlib.util
+    f = os.path.join(PARTS, 'part-view.py')
+    if not os.path.exists(f):
+        sys.exit('ribbon_view: --ends draws the bell and mouthpiece from '
+                 'trumpet-elbows-allowed, and needs that repository cloned '
+                 'beside this one.')
+    argv, sys.argv = sys.argv, ['part-view.py', '-', '-']
+    try:
+        spec = importlib.util.spec_from_file_location('part_view', f)
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+    finally:
+        sys.argv = argv
+    return m
+
+
+def place(V, Q, part, origin, ex, ez, f):
+    """Append a part-view solid to V and Q, its local x along ex and z along ez.
+    ey = ez x ex, so the map is a rotation and every face keeps its winding."""
+    ey = [ez[1] * ex[2] - ez[2] * ex[1], ez[2] * ex[0] - ez[0] * ex[2],
+          ez[0] * ex[1] - ez[1] * ex[0]]
+    base = len(V)
+    for x, y, z in part['V']:
+        V.append([origin[k] + x * ex[k] + y * ey[k] + z * ez[k] for k in range(3)])
+    for q in part['Q']:
+        Q.append({'v': [base + i for i in q['v']], 'f': f, 's': 0,
+                  'k': END_SHADE[q['f']]})
+
+
+def ends(c, V, Q, spans, h):
+    """The bell standing on the outside of the bottom cheek over the first
+    port, and the mouthpiece on the far end. Returns what the panel says."""
+    pv = part_view()
+    bell = pv.data_for(os.path.join(PARTS, BELL_SVG), 32)
+    mp = pv.data_for(os.path.join(PARTS, MOUTHPIECE_SVG), 32)
+    i, t0, t1 = spans[0]
+    tm = (t0 + t1) / 2
+    px = c[i][0] + (c[i + 1][0] - c[i][0]) * tm
+    py = c[i][1] + (c[i + 1][1] - c[i][1]) * tm
+    L = B.seglen(c[i], c[i + 1])
+    u = [(c[i + 1][0] - c[i][0]) / L, (c[i + 1][1] - c[i][1]) / L, 0.0]
+    place(V, Q, bell, [px, py, -(h + B.THICK)], u, [0.0, 0.0, -1.0], 6)
+    L = B.seglen(c[-2], c[-1])
+    t = [(c[-1][0] - c[-2][0]) / L, (c[-1][1] - c[-2][1]) / L, 0.0]
+    place(V, Q, mp, [c[-1][0], c[-1][1], 0.0], [-t[1], t[0], 0.0], t, 7)
+    return {'bell': f"{bell['rings']} rings, {bell['height']:g}mm, "
+                    f"\u00f8{bell['rim']:g} rim, on the port",
+            'mouthpiece': f"{mp['rings']} rings, {mp['height']:g}mm, "
+                          f"on the far end"}
+
+
 def data_for():
     """Vertices and quads for the airway, plus what each face is."""
     c = B.centreline()
@@ -198,6 +270,10 @@ def data_for():
     # passage is 10 -- the numbers panel says in words, and the cut files show.
 
     n = len(c) - 1
+    nb = len(V)                           # the airway's vertices end here
+    endnote = None
+    if ENDS:
+        endnote = ends(c, V, Q, spans, h)
     if not shut:
         Q.append({'v': [0, 1, 2, 3], 'f': 4, 's': 0})                   # mouth
         Q.append({'v': [4*n+3, 4*n+2, 4*n+1, 4*n+0], 'f': 5, 's': n-1})  # far end
@@ -245,10 +321,14 @@ def data_for():
         # were the only holes on a page whose real holes it did not draw.
         'faces': ['inner wall', 'outer wall', 'top cheek', 'bottom cheek',
                   'cap (mouth)' if B.CAP else 'mouth',
-                  'cap (far end)' if B.CAP and B.PORT_BOTH else 'far end'],
+                  'cap (far end)' if B.CAP and B.PORT_BOTH else 'far end',
+                  'bell', 'mouthpiece'],
         'facecol': ['#5aa9e6', '#3d7ebd', '#c9d6e3', '#8fa3b8',
                     '#b08968' if B.CAP else '#1c1c20',
-                    '#b08968' if B.CAP and B.PORT_BOTH else '#e0457b'],
+                    '#b08968' if B.CAP and B.PORT_BOTH else '#e0457b',
+                    '#d8b445', '#8a5a2b'],
+        'nb': nb,
+        'ends': endnote,
         'ports': len(spans),
         'portsize': [B.PORT_ACROSS, B.PORT_ALONG] if B.PORT else None,
         'percheek': B.PORT_PER_CHEEK,
@@ -290,6 +370,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .sw{width:12px;height:12px;border-radius:3px;flex:0 0 auto;
     box-shadow:inset 0 0 0 1px var(--swring)}
 .hint{color:var(--dim);font-size:12px;margin-top:10px}
+.chk{display:flex;align-items:center;gap:7px;font-size:12.5px;cursor:pointer}
+.chk input{accent-color:var(--accent);margin:0}
 dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:12.5px}
 dt{color:var(--dim)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:720px){main{grid-template-columns:1fr;height:auto}
@@ -335,11 +417,15 @@ let yaw = -0.62, pitch = D.flat ? -0.95 : -0.42, zoom = 1,
     mode = 'face', reveal = D.segs;
 
 /* --- the model, centred on its own middle so rotation feels right --- */
-const C = (() => {
+let showEnds = !!D.ends;
+/* the vertices on show: the ends' come after the airway's, from D.nb */
+const VIS = () => (showEnds || !D.nb) ? D.V : D.V.slice(0, D.nb);
+let C = centre();
+function centre(){
   let lo = [1e9,1e9,1e9], hi = [-1e9,-1e9,-1e9];
-  for (const v of D.V) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
+  for (const v of VIS()) for (let i=0;i<3;i++){ lo[i]=Math.min(lo[i],v[i]); hi[i]=Math.max(hi[i],v[i]); }
   return [(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2];
-})();
+}
 function rot(p){
   const x=p[0]-C[0], y=p[1]-C[1], z=p[2]-C[2];
   const cy=Math.cos(yaw), sy=Math.sin(yaw);
@@ -350,7 +436,7 @@ function rot(p){
 /* extent at this angle, so the fit does not jump as it turns */
 function span(){
   let lo=[1e9,1e9], hi=[-1e9,-1e9];
-  for (const v of D.V){ const r=rot(v);
+  for (const v of VIS()){ const r=rot(v);
     for (let i=0;i<2;i++){ lo[i]=Math.min(lo[i],r[i]); hi[i]=Math.max(hi[i],r[i]); } }
   return [hi[0]-lo[0], hi[1]-lo[1], (lo[0]+hi[0])/2, (lo[1]+hi[1])/2];
 }
@@ -369,6 +455,8 @@ function draw(){
   for (const q of D.Q){
     if (q.f < 4 && q.s >= reveal) continue;
     if (q.f === 5 && reveal < D.segs) continue;
+    if (q.f >= 6 && !showEnds) continue;
+    if (q.f === 7 && reveal < D.segs) continue;   /* the mouthpiece is on the far end */
     const pts = q.v.map(i => P(D.V[i]));
     const z = pts.reduce((a,p)=>a+p[2],0)/pts.length;
     /* facing, from the projected winding: a back face winds the other way */
@@ -385,7 +473,8 @@ function draw(){
             : (q.f >= 4 ? D.facecol[q.f] : D.pal[q.s % D.pal.length]);
     /* one flat light, so the form reads; back faces sit darker */
     const k = it.front ? 1 : 0.55;
-    cx.fillStyle = shade(col, k * (q.f===2?1.06:q.f===3?0.72:q.f===0?0.86:0.95));
+    cx.fillStyle = shade(col, k * (q.k !== undefined ? q.k
+      : q.f===2?1.06:q.f===3?0.72:q.f===0?0.86:0.95));
     cx.beginPath();
     cx.moveTo(it.pts[0][0], it.pts[0][1]);
     for (let i=1;i<it.pts.length;i++) cx.lineTo(it.pts[i][0], it.pts[i][1]);
@@ -446,7 +535,8 @@ function key(){
   k.innerHTML = '';
   const rows = mode === 'face'
     ? D.faces.map((n,i) => [D.facecol[i], n, i])
-        .filter(([,,i]) => D.Q.some(q => q.f === i)).map(([c,n]) => [c,n])
+        .filter(([,,i]) => (i < 6 || showEnds) && D.Q.some(q => q.f === i))
+        .map(([c,n]) => [c,n])
     : (D.shut ? [] : [[D.facecol[4],D.faces[4]], [D.facecol[5],D.faces[5]]]).concat(
       [[D.pal[0], 'facet 1'], [D.pal[Math.floor(D.segs/2) % D.pal.length],
         'facet ' + (Math.floor(D.segs/2)+1)],
@@ -482,7 +572,18 @@ $('nums').innerHTML = [
      : (D.R/D.bore).toFixed(1)],
   ['facet', D.facet + '\u00b0'], ['area at a mitre', '+' + D.over + '%'],
 ].concat(D.ports ? [['ports', portrow()]] : [])
+ .concat(D.ends ? [['bell', D.ends.bell], ['mouthpiece', D.ends.mouthpiece]] : [])
  .map(([a,b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+
+/* the ends, when the page has them: on by default, as built */
+if (D.ends){
+  const g = document.createElement('div'); g.className = 'grp';
+  g.innerHTML = '<h2>Ends</h2><label class="chk"><input type="checkbox" id="ends" checked>'
+    + ' bell and mouthpiece</label><div class="hint">The cheeks are not drawn, so the bell'
+    + ' stands 3mm off the bore: that gap is the cheek it seats on.</div>';
+  $('key').parentNode.before(g);
+  $('ends').onchange = e => { showEnds = e.target.checked; C = centre(); key(); draw(); };
+}
 
 key(); revn();
 addEventListener('resize', draw);
@@ -578,7 +679,7 @@ def build(title, embed=False, home=''):
                     .replace('__DATA__', json.dumps(d, separators=(',', ':'))))
     # the drawing code is shared verbatim: one place decides what this looks
     # like, so an embed cannot quietly diverge from the page it links to
-    body = HTML.split('<script>', 1)[1]
+    body = HTML.split('<script>\nconst D = ', 1)[1]
     draw = body.split("/* --- controls --- */", 1)[0]
     # Drop the three lines the embed declares for itself. Slicing off the
     # first line instead removed the blank line above them and left `const D`
@@ -602,7 +703,7 @@ def main():
     # did not have, --ds-half, the port flags, --trace refused. The last state of
     # it drew pages for --port-at with --cap, which the generator refuses. Only
     # the four flags that are about the page are taken out first.
-    VIEW = ('--out=', '--home=', '--embed', '--trace=')
+    VIEW = ('--out=', '--home=', '--embed', '--trace=', '--ends')
     B.read_flags([x for x in a if not x.startswith(VIEW)])
     # --out IS REQUIRED. This used to guess the page's path from a filename rule
     # of its own, a third naming scheme beside the generator's sheet names and
@@ -617,6 +718,15 @@ def main():
                  'belongs beside the cut files it describes, in the design\'s '
                  'own folder.')
     path = out[0].split('=', 1)[1]
+    # --ends puts the bell in the port and the mouthpiece on the far end. It
+    # needs a port for the bell and an open far end for the mouthpiece, so a
+    # closed ring or a design with both ends capped is refused.
+    global ENDS
+    ENDS = '--ends' in a
+    if ENDS and (not B.PORT or B.PORT_BOTH or B.PORT_AT is not None):
+        sys.exit('ribbon_view: --ends seats the bell in the port and the '
+                 'mouthpiece on the open far end, so it needs --port, and '
+                 'neither --port-both nor --port-at.')
 
     here = os.path.dirname(os.path.abspath(__file__))
     # --trace draws a centreline from stations fixed somewhere other than this

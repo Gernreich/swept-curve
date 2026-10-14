@@ -9,8 +9,9 @@ mitre where a 90° lattice corner grows 41.4%.
 <!-- readme-only -->
 **[Read this page](https://gernreich.github.io/swept-curve/ribbon-spiral/)**
 
-Its viewer is a page of its own: drag to rotate, and the slider reveals the
-spiral a facet at a time. **[Turn it →](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
+Its viewer is a page of its own, drawn as built: the bell in the port and the
+mouthpiece on the straight tail, with a box to take them off. Drag to rotate, and
+the slider reveals the spiral a facet at a time. **[Turn it →](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
 
 ## The cheek is the whole drawing
 
@@ -55,7 +56,7 @@ had them.
 
 The spiral has had them too, and it is finished: shellacked the same amber-brown
 as the three-turn, the tabs along both rims standing out darker than the faces
-around them.
+around them. It has been blown; its note is not yet reported.
 
 ![The finished spiral standing upright on its bell on grey card: the bell's round rim flat on the card and its ribbed throat rising into the port at the inner end of the coil, the faceted band winding a little over two turns above it in glossy amber-brown with darker tabs along both rims, and the straight tail leaving the outer end to carry a dark ring-stacked mouthpiece up to the top left](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-finished_web.jpg)
 

@@ -35,8 +35,9 @@ The grid walk packs into a box; a swept curve lies flat and turns gently.
 
 **[The spiral bore](ribbon-spiral/)** — 1000mm in 19 facets of 45°, winding out
 from R34.7 to R112.9. Both sheets cut, press-fit, a bell in its square port and a
-mouthpiece on its straight tail, finished in shellac and not yet blown.
-**[Turn it in 3D](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
+mouthpiece on its straight tail, finished in shellac and blown; its note is not yet reported.
+**[Turn it in 3D](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**,
+with the bell in its port and the mouthpiece on its tail.
 
 ![The finished spiral standing upright on its bell on grey card: the bell's round rim flat on the card and its ribbed throat rising into the port at the inner end of the coil, the faceted band winding a little over two turns above it in glossy amber-brown with darker tabs along both rims, and the straight tail leaving the outer end to carry a dark ring-stacked mouthpiece up to the top left](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-finished_web.jpg)
 
