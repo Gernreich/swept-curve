@@ -859,7 +859,10 @@ facing from. The cheeks are still not drawn, so the bell stands 3mm off the
 airway, and a page with a port says that gap is the cheek. A closed ring has no
 ends, and `--port-both` and `--port-at` put both openings in the cheeks, so all
 three are refused. A checkbox
-takes the ends off, and the fit and the centre then follow the bore alone.
+takes the ends off, and the fit and the centre then follow the bore alone. With
+the bell in a port that goes through both cheeks, the top cheek's hole is drawn
+plugged, as the unused side is: drawn open, it was a window down the bell's
+throat from the back.
 
 ## Previews, because a cut file is invisible on a page
 

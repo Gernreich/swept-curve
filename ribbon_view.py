@@ -261,6 +261,13 @@ def data_for():
     if B.PORT_PER_CHEEK:
         top_h = {spans[0][0]: spans[0][1:]}
         bot_h = {spans[1][0]: spans[1][1:]}
+    elif ENDS:
+        # Drawn as built, the bell is seated in the bottom cheek's port, and
+        # the same hole in the top cheek is the side you are not using, which
+        # is plugged. Drawn open, it was a window straight down the bell's
+        # throat from the back (the author, 2026-10-14).
+        top_h = {}
+        bot_h = {i: (t0, t1) for i, t0, t1 in spans}
     else:
         top_h = bot_h = {i: (t0, t1) for i, t0, t1 in spans}
     for i in range(len(c) - 1):
@@ -566,7 +573,8 @@ function portrow(){
   const caps = [4,5].filter(i => D.faces[i].startsWith('cap')).length;
   const shut = caps === 2 ? 'both ends capped'
              : caps === 1 ? 'the mouth capped' : 'neither end capped';
-  const where = D.percheek ? 'one a cheek, opposite faces' : 'through both cheeks';
+  const where = D.percheek ? 'one a cheek, opposite faces'
+    : D.ends && D.ends.port ? 'through both cheeks, the top one plugged' : 'through both cheeks';
   return `${D.ports} \u00d7 ${D.portsize[0]} \u00d7 ${D.portsize[1]}mm, `
        + `${where}, ${shut}`;
 }
