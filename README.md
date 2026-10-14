@@ -55,8 +55,6 @@ fitted.
 | **[three-lobe serpentine](three-lobe-serpentine-with-collinear-ends/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64.html)** | 1000.0mm | 30° | three rounded lobes in a row, a straight lead at each end pointing opposite ways |
 | **[serpentine](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html)** | 1000.0mm | 30° | three lobes of R72 |
 | **[ess](ess/ribbon-ess-bore10-45deg-5arc/ribbon-ess-bore10-45deg-5arc.html)** | 836.5mm | 45° | a trough and a crest of R55, doubling back into a long narrow loop, level at both ends |
-| **[spiral, R74 to R144](spiral/ribbon-spiral-bore10-45deg-R74to144/ribbon-spiral-bore10-45deg-R74to144.html)** | 1458.2mm | 45° | the built spiral's construction, opened at the centre and run further out |
-| **[spiral, R36 to R144](spiral/ribbon-spiral-bore10-45deg-R36to144/ribbon-spiral-bore10-45deg-R36to144.html)** | 1766.9mm | 45° | the longest here: the built spiral's construction run out to R144 |
 
 One more is drawn and not cut: the **[single volute](volute/single-volute/single-volute-bore10-45deg.html)**,
 six semicircles of stepping radius from `volute/volute.py`. Its inner end is
@@ -187,7 +185,7 @@ which expects this repository cloned beside it.
 | --- | --- |
 | `built/` | the spiral bore, which exists in wood: its cut files, previews, photographs and viewer |
 | `ribbon-spiral/` | the spiral bore's page |
-| `double-spiral/` · `volute/` · `three-lobe-serpentine-with-collinear-ends/` · `serpentine/` · `ess/` · `spiral/` | the open designs, a folder each: cut files and a viewer |
+| `double-spiral/` · `volute/` · `three-lobe-serpentine-with-collinear-ends/` · `serpentine/` · `ess/` | the open designs, a folder each: cut files and a viewer |
 | `torus/` · `scallop/` · `racetrack/` · `oval/` | the closed rings, the same way |
 | `previews/` | display renderings of the designs' cut files — **not** cut files |
 | `ribbon_bore.py` · `ribbon_view.py` | the generator and the viewer |

@@ -633,7 +633,8 @@ the comparison carries a 1e-9 slack; without it the sum came out
 The square port is nothing like as tight, because `--merge-lead` gives it a
 whole facet to sit in: 2.2 to 4.5mm of margin across the eight square-ported
 designs, the double volute narrowest at 3.736mm and the R36to144 spiral widest at
-5.950mm. The eighth is the 1000mm double spiral, which is square-ported at BOTH
+5.950mm. (Measured before the R36to144 and R74to144 spirals were dropped, on
+2026-10-14: the built spiral already has their shape.) The eighth is the 1000mm double spiral, which is square-ported at BOTH
 ends and reports the same 4.672mm at each -- `--port-both` folds the tail lead
 as well, so its far port gets the whole facet the mouth's does.
 
