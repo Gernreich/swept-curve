@@ -122,7 +122,7 @@ def cheek_off():
 
 def band():
     return 2 * cheek_off()
-# 0.15 from 2026-09-13, on the author's instruction, and bore_split.py's KERF
+# 0.15 from 2026-09-13, on the author's instruction, and trumpet-elbows-allowed's bore_split.py's KERF
 # is the same number from the same day. They have to agree: the two generators
 # cut parts of one instrument on one machine, and a bore whose cheeks were
 # drawn at one kerf and whose blocks were drawn at another is a bore whose

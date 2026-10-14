@@ -102,7 +102,7 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <nav><b>Contents</b><a class="l1" href="#the-spiral-bore">The spiral bore</a><a class="l2" href="#the-cheek-is-the-whole-drawing">The cheek is the whole drawing</a><a class="l2" href="#press-fit-and-not-airtight">Press-fit, and not airtight</a><a class="l2" href="#finished">Finished</a><a class="l2" href="#the-numbers">The numbers</a><a class="l2" href="#three-sheets-and-which-one-was-cut">Three sheets, and which one was cut</a><a class="l2" href="#rebuild-it">Rebuild it</a><a class="l2" href="#the-rest">The rest</a></nav>
 <main>
 <h1 id="the-spiral-bore">The spiral bore</h1>
-<p><strong>The second design here that exists in wood</strong>, and the only one that is not a lattice walk. A rectangle swept along a flat coil: <strong>1000mm of centreline</strong> in 19 facets of 45° — 17 of them the coil, with a straight lead in and out — winding out from <strong>R34.7 to R112.9</strong>. Two faces of the tube are flat and two are faceted, which is what a swept curve buys — the section grows <strong>+8.2%</strong> at a mitre where a 90° lattice corner grows 41.4%.</p>
+<p><strong>The swept-curve trumpet that exists in wood.</strong> A rectangle swept along a flat coil: <strong>1000mm of centreline</strong> in 19 facets of 45° — 17 of them the coil, with a straight lead in and out — winding out from <strong>R34.7 to R112.9</strong>. Two faces of the tube are flat and two are faceted, which is what a swept curve buys — the section grows <strong>+8.2%</strong> at a mitre where a 90° lattice corner grows 41.4%.</p>
 <p>Its viewer is a page of its own: drag to rotate, and the slider reveals the spiral a facet at a time. <strong><a href="../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html">Turn it →</a></strong></p>
 <h2 id="the-cheek-is-the-whole-drawing">The cheek is the whole drawing</h2>
 <p>The cheek sheet has been cut, and cut twice, because the two cheeks are the same part and both go on the same way up.</p>
@@ -112,7 +112,7 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <h2 id="press-fit-and-not-airtight">Press-fit, and not airtight</h2>
 <p>Both sheets are cut now, and the bore is press-fit — the wall panels standing in the mortices between the two cheeks, a mouthpiece on the straight tail and a bell on the port at the inner end.</p>
 <figure><img src="../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-press-fit_web.jpg" alt="The spiral press-fit on a dark wood floor: a pale ply band winding a little over two turns, cornered at every facet, both rims crenellated with tabs and a number engraved beside each one; a straight tail leaves the outer end and carries a dark, glossy mouthpiece, and a bell engraved 10. stands on a dark ribbed throat at the inner end"></figure>
-<p>It is not airtight. A press-fit with this many joints — a mitre at every facet and a tab at every mortice — leaves air gaps all along both rims, and they are closed the same way they are closed on the built instrument: <strong>several coats of shellac</strong>, which seal the ply and fill the gaps in the same pass. <strong><a href="../three-turn/">The three-turn trumpet</a></strong> is the colour it is because it has had them.</p>
+<p>It is not airtight. A press-fit with this many joints — a mitre at every facet and a tab at every mortice — leaves air gaps all along both rims, and they are closed the same way they are closed on the built instrument: <strong>several coats of shellac</strong>, which seal the ply and fill the gaps in the same pass. <strong><a href="https://gernreich.github.io/trumpet-elbows-allowed/three-turn/">The three-turn trumpet</a></strong>, the grid-block trumpet, is the colour it is because it has had them.</p>
 <h2 id="finished">Finished</h2>
 <p>The spiral has had them too, and it is finished: shellacked the same amber-brown as the three-turn, the tabs along both rims standing out darker than the faces around them.</p>
 <figure><img src="../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-finished_web.jpg" alt="The finished spiral standing upright on its bell on grey card: the bell&#x27;s round rim flat on the card and its ribbed throat rising into the port at the inner end of the coil, the faceted band winding a little over two turns above it in glossy amber-brown with darker tabs along both rims, and the straight tail leaving the outer end to carry a dark ring-stacked mouthpiece up to the top left"></figure>
@@ -207,16 +207,16 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 </div>
 <p>The square-ported one is what the photographs show. A round port needs no lead panel moved and so keeps all 38; the square one asks for the bore's own section and pays two panels for it.</p>
 <h2 id="rebuild-it">Rebuild it</h2>
-<p>The generator is <code>ribbon_bore.py</code>, in <code>parts/bore/concept/swept-curve/</code>, and both commands run from the repository root. Report only, writing nothing:</p>
-<pre><code>cd parts/bore/concept/swept-curve &amp;&amp; python3 ribbon_bore.py \
+<p>The generator is <code>ribbon_bore.py</code>, at the root of this repository, and both commands run from there. Report only, writing nothing:</p>
+<pre><code>python3 ribbon_bore.py \
     --shape=spiral --port --port-square --cap --narrow --no-write</code></pre>
 <p>Every number on this page comes off that report. Writing needs an <code>--out</code> whose name says <code>narrow</code>, which the generator insists on so a sheet cannot overwrite its full-width twin:</p>
-<pre><code>cd parts/bore/concept/swept-curve &amp;&amp; python3 ribbon_bore.py \
+<pre><code>python3 ribbon_bore.py \
     --shape=spiral --port --port-square --cap --narrow \
-    --out=../../../../built/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg</code></pre>
+    --out=built/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg</code></pre>
 <p><strong>These sheets were cut.</strong> Both of them reproduce byte-identically from the line above, which is what makes the numbers here measurements rather than notes.</p>
 <h2 id="the-rest">The rest</h2>
-<p><strong><a href="../three-turn/">the three-turn trumpet</a></strong> · <strong><a href="../switchback/">the switchback trumpet</a></strong> · <strong><a href="../greek-spiral/">the greek spiral</a></strong> · <strong><a href="../ends/">the bell and the mouthpiece</a></strong></p>
+<p><strong><a href="../">every swept-curve design</a></strong> · <strong><a href="https://gernreich.github.io/trumpet-elbows-allowed/ends/">the bell and the mouthpiece</a></strong>, from trumpet-elbows-allowed · <strong><a href="https://gernreich.github.io/trumpet-elbows-allowed/">the grid-block trumpets</a></strong></p>
 </main>
 </div>
 <script>

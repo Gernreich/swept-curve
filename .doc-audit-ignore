@@ -3,6 +3,30 @@
 Boxes.py
 
 # Named in prose because this construction is the alternative to it, but it
-# lives in ../../../../../../tools. Naming it beats copying it.
+# lives in trumpet-elbows-allowed/tools. Naming it beats copying it.
 
 bore_split.py
+
+# The --out= stem on the spiral bore's page. ribbon_bore.py takes ONE name and
+# writes TWO sheets from it, appending -cheek-x2-cut-files and -panels-cut-files,
+# so the stem itself is never a file and never should be. The two sheets it does
+# write are named on that page and both exist. Came over from
+# trumpet-elbows-allowed's list with the page, 2026-10-14.
+ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg
+
+# Placeholder --out= names in the command blocks of CLAUDE.md and NOTES.md, added
+# 2026-09-13 in trumpet-elbows-allowed and moved here with them.
+# The three lines that demonstrate --port-square, --merge-lead and --narrow on
+# their own write to a scratch name rather than a shipped one, precisely so a
+# reader trying the flag does not overwrite a sheet. "x-" is the prefix that
+# says scratch. They are arguments in a code fence, not files, and no file of
+# these names should ever exist -- which is what makes the exemption safe: it
+# suppresses a name the repository is never meant to contain.
+x-ported-square.svg
+x-merged.svg
+x-narrow.svg
+
+# The fourth of them, added 2026-09-14 with --port-both. Same class and the
+# same reason: a scratch stem in a code fence, and a file of this name would
+# mean somebody had run the example in the folder it documents.
+x-ported-both-square.svg

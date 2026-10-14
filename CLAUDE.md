@@ -6,8 +6,11 @@ brackets. Read that section before changing the code it names.
 
 ## What lives here
 
-- **No README in this folder.** The writeup is the swept-curve section of
-  `../../../../README.md`.
+- The writeup is `README.md` here, published at gernreich.github.io/swept-curve.
+  The built spiral has its own page, `ribbon-spiral/README.md`. Both are rendered
+  to `index.html` beside them. This was trumpet-elbows-allowed's
+  `parts/bore/concept/swept-curve/` until 2026-10-14; the bell and mouthpiece
+  every design here takes are still in that repository's `parts/`.
 - Every sheet kept here is the **10mm bore**. `--bore` still takes any value.
 - **No 45 degree ring is kept here**: it belongs to another build. The 13-facet
   torus in `torus/` is kept. `--trace=` is kept but unused.
@@ -15,10 +18,10 @@ brackets. Read that section before changing the code it names.
   3mm birch, xTool P2S.
 - `TOOTH = 2 * THICK` is Boxes.py's tooth and does **not** scale with the bore.
   Boxes.py (Florian Festi, GPL-3.0-or-later) is an external checkout, not a copy.
-- `lyre_harp.py` is a separate closed-duct generator that imports from
-  `ribbon_bore`. Its output goes to `~/LaserMadeMusic/GIT/lyre-harp/`, whose
-  `.repro` runs it from there: a change here that moves a byte of the frame fails
-  the gate until those files are redrawn. [`lyre_harp.py`: a closed duct whose width changes]
+- `lyre_harp.py` lives in `../lyre-harp/` since 2026-10-14 and imports
+  `ribbon_bore` from here, as `../square-flute/square_flute.py` does. A change here
+  that moves a byte of either fails that repository's `.repro` gate until its files
+  are redrawn. [`lyre_harp.py` moved to the lyre-harp repository]
 
 ## Geometry rules
 
@@ -81,9 +84,9 @@ brackets. Read that section before changing the code it names.
   nearest-point bijection; never zip sorted lists. [Both cheeks are the same part]
 - To change the cheek rim, change `WEB` (2mm; 1.5mm is the floor), not `MARGIN`.
   Panel numbers are engraved in the channel. [The cheek stops 2mm outboard]
-- Lyre-harp kerf is the measured 0.13 via `lyre_harp.KERF`; its joints are
-  tightened by `FIT` (0.25), not by the kerf. **Never raise `BURN` here**: it
-  would redraw every shipped ribbon sheet.
+- The lyre-harp sets `BURN` to its own measured 0.13 for its own run only.
+  **Never raise `BURN` here** to suit another instrument: it would redraw every
+  shipped ribbon sheet.
 - A port seats a **bell**. No mouthpiece has been seated in one. The 1000mm double
   spiral ships three sheet sets, and its page names are the reverse of its sheet
   names. `cap()`'s docstring describes the unbuilt arrangement.
@@ -130,7 +133,7 @@ brackets. Read that section before changing the code it names.
 
 ## Commands
 
-Defaults are 3.0mm ply and 0.15mm kerf, matching `bore_split.py`. Sheets in
+Defaults are 3.0mm ply and 0.15mm kerf, matching trumpet-elbows-allowed's `bore_split.py`. Sheets in
 `cut-files/old/` need `--sheet=2.94 --kerf=0.13`. Every shipped sheet is
 `--narrow`, so a bare `ribbon_bore.py` reproduces none of them and drops stray
 files in this folder. Each flag's full rationale is in NOTES.md, Commands.
@@ -160,7 +163,8 @@ python3 ribbon_view.py --shape=serpentine \
     --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
 
 # Every current sheet into the ONE previews/ here (explicit output path)
-for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*'); do
+# (the built spiral keeps its own previews/, beside its cut files)
+for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*' -not -path './built/*'); do
   python3 $G/make-preview.py "$f" "previews/$(basename $f)"
 done
 
@@ -168,7 +172,8 @@ python3 $G/flat-part-check.py --dir . --min-edge 1.5
 python3 $G/svg-stroke-check.py --dir . --quiet
 
 # The writeup is the root README; regenerate and audit it there
-$G/rebuild-page.sh ../../../.. --links
+$G/rebuild-page.sh . --links
+$G/rebuild-page.sh ribbon-spiral --links
 ```
 
 **Read the audit output before pushing.** It ends with a pass/fail tally.

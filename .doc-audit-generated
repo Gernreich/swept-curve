@@ -1,0 +1,18 @@
+# Directories whose contents are machine output, documented collectively by the
+# directory rather than file by file: ribbon_bore.py's cut files, ribbon_view.py's
+# pages and make-preview.py's renderings. README.md says what each holds, and
+# CLAUDE.md how to rebuild it. Declared here rather than inferred, so nothing
+# hides from the check by accident.
+
+built
+double-spiral
+volute
+three-lobe-serpentine-with-collinear-ends
+serpentine
+ess
+spiral
+torus
+scallop
+racetrack
+oval
+previews

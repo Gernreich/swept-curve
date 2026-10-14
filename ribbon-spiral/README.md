@@ -1,14 +1,13 @@
 # The spiral bore
 
-**The second design here that exists in wood**, and the only one that is not a
-lattice walk. A rectangle swept along a flat coil: **1000mm of centreline** in
+**The swept-curve trumpet that exists in wood.** A rectangle swept along a flat coil: **1000mm of centreline** in
 19 facets of 45° — 17 of them the coil, with a straight lead in and out —
 winding out from **R34.7 to R112.9**. Two faces of the tube are flat and two are
 faceted, which is what a swept curve buys — the section grows **+8.2%** at a
 mitre where a 90° lattice corner grows 41.4%.
 
 <!-- readme-only -->
-**[Read this page](https://gernreich.github.io/trumpet-elbows-allowed/ribbon-spiral/)**
+**[Read this page](https://gernreich.github.io/swept-curve/ribbon-spiral/)**
 
 Its viewer is a page of its own: drag to rotate, and the slider reveals the
 spiral a facet at a time. **[Turn it →](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
@@ -49,7 +48,7 @@ It is not airtight. A press-fit with this many joints — a mitre at every facet
 a tab at every mortice — leaves air gaps all along both rims, and they are
 closed the same way they are closed on the built instrument: **several coats of
 shellac**, which seal the ply and fill the gaps in the same pass.
-**[The three-turn trumpet](../three-turn/)** is the colour it is because it has
+**[The three-turn trumpet](https://gernreich.github.io/trumpet-elbows-allowed/three-turn/)**, the grid-block trumpet, is the colour it is because it has
 had them.
 
 ## Finished
@@ -93,12 +92,11 @@ and pays two panels for it.
 
 ## Rebuild it
 
-The generator is `ribbon_bore.py`, in
-`parts/bore/concept/swept-curve/`, and both commands run from the repository
-root. Report only, writing nothing:
+The generator is `ribbon_bore.py`, at the root of this repository, and both
+commands run from there. Report only, writing nothing:
 
 ```
-cd parts/bore/concept/swept-curve && python3 ribbon_bore.py \
+python3 ribbon_bore.py \
     --shape=spiral --port --port-square --cap --narrow --no-write
 ```
 
@@ -107,9 +105,9 @@ name says `narrow`, which the generator insists on so a sheet cannot overwrite
 its full-width twin:
 
 ```
-cd parts/bore/concept/swept-curve && python3 ribbon_bore.py \
+python3 ribbon_bore.py \
     --shape=spiral --port --port-square --cap --narrow \
-    --out=../../../../built/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg
+    --out=built/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg
 ```
 
 **These sheets were cut.** Both of them reproduce byte-identically from the line
@@ -117,6 +115,6 @@ above, which is what makes the numbers here measurements rather than notes.
 
 ## The rest
 
-**[the three-turn trumpet](../three-turn/)**
-· **[the switchback trumpet](../switchback/)** · **[the greek spiral](../greek-spiral/)**
-· **[the bell and the mouthpiece](../ends/)**
+**[every swept-curve design](../)**
+· **[the bell and the mouthpiece](https://gernreich.github.io/trumpet-elbows-allowed/ends/)**, from trumpet-elbows-allowed
+· **[the grid-block trumpets](https://gernreich.github.io/trumpet-elbows-allowed/)**

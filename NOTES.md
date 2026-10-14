@@ -3,9 +3,11 @@
 The reasoning, history and measurements behind the rules in `CLAUDE.md`, which
 states them short. When the two disagree, fix both.
 
-**There is no README in this folder.** The swept curve has its own section in the
-repository's writeup at `../../../../README.md`. This file is the note that sits
-beside the generator.
+**The writeup is `README.md`, beside this file.** These designs were the
+swept-curve section of trumpet-elbows-allowed until 2026-10-14, in its
+`parts/bore/concept/swept-curve/`, and they became their own repository because a
+swept curve is not a walk through cubes: no grid, no elbow, nothing that could be
+built in Minecraft. This file is the note that sits beside the generator.
 
 **Every sheet kept here is 10mm.** `--bore` is untouched and takes any value; nothing
 is shipped at another.
@@ -311,93 +313,14 @@ long as it is wide: 220.7mm of centreline, a 124 x 79mm cheek, 20 panels.
 a half-circle — a hexagon cut in half, 15.5% over at every mitre — and over 30,
 which needs R27.8.
 
-### `lyre_harp.py`: a closed duct whose width changes
+### `lyre_harp.py` moved to the lyre-harp repository
 
-Not a `--shape`, because every shape in `ribbon_bore.py` is two walls a fixed
-bore either side of one centreline. The lyre-harp frame (2026-09-16) is two
-independent closed walls: a stadium 400mm long outside, and a string hole with
-a concentric arch, parallel sides and a bump between tangent corners. Over the
-arch and down the sides the duct is 30 x 30mm; below the hole it opens to the
-whole gap, about 200mm along the axis, which is the resonator. It imports the
-panel, mortice, label, packer, sheet and ring-contour code from `ribbon_bore`
-and adds only the two outlines and the checks a constant bore made
-unnecessary. Its cut files go to `~/LaserMadeMusic/GIT/lyre-harp/`, whose
-`.repro` records the command for each and is gated since 2026-10-13.
-
-The front cheek carries a sound hole: the 2-lead 7-bight knot from
-`knotwork-soundholes`, read from that repository's cut file and placed
-unchanged, centred on the axis two thirds of the way up the resonator's air
-from the far end. So the cheeks are two parts now, A with the knot and B
-without, each cut once. The knot's waste is cut with the mortices and its
-crossing marks engraved. Two of those marks end 0.0007 and 0.0018mm past the
-edge of a waste cut, rounding in the knot file, so a mark counts as in a hole
-only when it is deeper than half a kerf.
-
-`--drawing=PATH` draws the review drawing in `~/LaserMadeMusic/GIT/lyre-harp/` from the same `build()`: the
-cheek's rims as cut, the air's faces, the knot as placed, and dimensions
-measured off them. It stands the part upright by a quarter turn, not by
-swapping x and y, which is a reflection and drew the knot mirrored.
-
-`--render=PATH` writes the interactive 3D page that sits beside the cut files
-in `~/LaserMadeMusic/GIT/lyre-harp/`: both cheeks with their holes and the knot,
-and every panel as a board at its own position, angle and length, drawn with the
-Three library, release r128, loaded from cdnjs. Tabs, slots and engraving are left off.
-
-The hitch-pin block: loop-end strings go over hitch pins driven through the
-bottom wall, and 3mm of ply cannot hold a pin, so six 3mm laminations are glued
-up inside the bottom end, 18mm deep. In plan each lies against the outer wall's
-face and is 30mm wide from it, over 8 facets' length centred on the axis. The
-bottom end has an odd number of facets with one centred on the axis, so 8
-whole facets cannot be symmetric: the span is 7 whole facets and a half at each
-end, which also keeps the block's ends off the panel joints. Its checks compare
-against 8 and 30 as asked, not against the constants that drew it.
-
-Seven hitch pins, 2mm, 16mm apart across the axis and centred on it, go
-through the front cheek into the block. Each sits on the block's mid-line, 15mm
-in from the wall face, so the row follows the curve of the bottom end. They
-are ENGRAVED on cheek A as drilling marks -- a 2mm circle with a cross through
-it -- not cut: a hole in the cheek alone would not guide a drill on into the
-block. A spacing the block cannot reach across is refused.
-
-The tuning-pin block is the same idea at the arch: 6 laminations filling the
-duct there, touching the outer wall's face and the string hole's, 30mm between
-them. It spans 120 degrees -- out to the facet midpoint past the last pin,
-which leaves 33.7mm of wood beyond it -- and carries one tuning pin above each
-hitch pin, on the mid-line of the band and in line with it across the
-instrument. Those marks are a cross with no circle: a tuning pin's diameter is
-the builder's choice, and a ring drawn at a guess reads as the hole to drill.
-
-Both blocks are written by one lamination_sheet(). Each span ends where a face
-has a vertex -- the string hole's wall carries one every facet -- so both
-builders drop a repeated point first: a zero-length run has no direction to
-offset along, and the kerf offset came back as a 300mm spike.
-
-**The lyre-harp keeps the measured 0.13mm kerf and tightens its joints with
-`FIT`, 0.25.** The test came off the bed with loose finger joints (2026-09-20),
-and the kerf was first raised to 0.17 and then 0.20 to tighten them. That
-worked, because an overstated kerf draws each tab fat and each mortice thin,
-but it also drew every other line 0.07mm out: outlines oversize, holes
-undersize, the duct and the knot with them. So the kerf went back to the truth
-and the interference moved to `FIT`, which only the joints read, then up to
-0.25 for a fit that needs a rubber mallet. `lyre_harp.KERF` sets
-`ribbon_bore.BURN` for its own run and nothing else. Raising `BURN` HERE would
-redraw every shipped ribbon sheet, and those are the record of parts already cut.
-
-`--test=PATH` writes an ARCH TEST PIECE: the string-hole wall's panels
-TEST_FROM..TEST_TO, every outer panel that overlaps the arc they cover, and a
-sector of the cheek for each side carrying their mortices, with TEST_MARGIN of
-rim past the outermost one. It is for trying the joints before committing a
-whole frame. Two things the first cut of it got wrong: angles wrap at the
-resonator end, so a panel down there read as an arch angle and joined the list
-until the outer run was pinned to the arch side; and choosing outer panels by
-their midpoint dropped the two at the ends of the arc, which share their joint
-with the inner run, so they are chosen by overlap instead. It refuses to write
-if a mortice corner falls outside the sector.
-
-The faces are drawn and the walls derived from them. Drawn the other way the
-duct over the arch came out 29.72mm (on-circle vertices on the outer wall),
-then 29.987mm (the hole face's mitred vertices), and `the duct is never
-narrower than the bore` caught both.
+The lyre-harp frame is a closed duct whose width changes round the loop, drawn
+with this folder's panels, mortices and sheets. Its generator and its notes
+moved to [lyre-harp](https://github.com/Gernreich/lyre-harp) on 2026-10-14:
+it is its own instrument, not a swept-curve trumpet. It still imports
+`ribbon_bore.py` from here, so a change here can move its sheets, and its
+gate is what says so.
 
 ### Two ports on a ring are two paths, and that is not a duct
 
@@ -729,7 +652,7 @@ hole through one 3mm cheek.
 engraved panel numbers visible along every seam, with the ring-stack bell
 standing vertically out of the plane of the coil where its shank seats in the
 square port, and the mouthpiece on the lead at the far
-end](../../../../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-press-fit_web.jpg)
+end](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow-cheek-x2-press-fit_web.jpg)
 
 **THE MOUTHPIECE IS NOT ON A PORT ON EITHER BUILT INSTRUMENT.** Look at the
 photograph again: the bell stands in the port, and the mouthpiece is out on the
@@ -740,7 +663,7 @@ three-turn trumpet does the same at both of its ends.
 scorched, shellacked birch with its finger joints alternating light and dark
 along every seam, the stacked-ring mouthpiece seated in the end of the square
 run at one end and the flared ring-stack bell at the
-other](../../../../built/coil-fold2-long-straight-3t/bore10-coil-fold2-long-straight-3t_web.jpg)
+other](https://gernreich.github.io/trumpet-elbows-allowed/built/coil-fold2-long-straight-3t/bore10-coil-fold2-long-straight-3t_web.jpg)
 
 They are different joints, and only one of the two has been asked to hold a
 mouthpiece. A bell sits where it is put; a mouthpiece takes lip pressure and
@@ -898,7 +821,7 @@ in this file that a second copy of the argument handling can quietly lose.
 
 It reuses `offset()` for the wall faces rather than reading the cut files, so
 it cannot disagree with the generator about where anything is. It is *not* the
-lattice viewer in `../../../../tools/viewer.py`: that one is built on integer cells and cube
+lattice viewer in trumpet-elbows-allowed's `tools/viewer.py`: that one is built on integer cells and cube
 faces with occupancy-based hidden-face removal, and there is no lattice here.
 
 `--embed` writes a compact build for an iframe: canvas only, a caption, a slow
@@ -1118,7 +1041,7 @@ done
 python3 $G/svg-stroke-check.py --dir . --quiet
 
 # The writeup is the root README; regenerate and audit it there
-$G/rebuild-page.sh ../../../.. --links
+$G/rebuild-page.sh . --links
 ```
 
 **Read the audit output before pushing.** It ends with a pass/fail tally.
