@@ -50,7 +50,7 @@ fitted.
 | design | centreline | facets | what it is |
 | --- | ---: | --- | --- |
 | **[double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1506mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1506mm.html)** | 1506.4mm | 30° | two interleaved arms winding in to meet at the centre, a straight lead leaving the rim at the top and another at the bottom |
-| **[short double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm-ported-square.html)** | 1000.0mm | 30° | the same with five facets off each arm, and the only design ported at both ends |
+| **[short double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm.html)** | 1000.0mm | 30° | the same with five facets off each arm, and the only design ported at both ends |
 | **[double volute](volute/double-volute-bore10-45deg-R94-step60/ribbon-double-volute-bore10-45deg-R94-step60.html)** | 1179.9mm | 45° | two interleaved arms of straight-sided semicircles winding in to meet at the eye |
 | **[three-lobe serpentine](three-lobe-serpentine-with-collinear-ends/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64.html)** | 1000.0mm | 30° | three rounded lobes in a row, a straight lead at each end pointing opposite ways |
 | **[serpentine](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html)** | 1000.0mm | 30° | three lobes of R72 |
