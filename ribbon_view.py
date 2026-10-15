@@ -277,11 +277,18 @@ def data_for():
         if i in top_h:
             Q += framed(V, a, d, h, i, *top_h[i], across, 1 - across, True)
         else:
-            Q.append({'v': [p + 1, p + 2, q + 2, q + 1], 'f': 2, 's': i})  # top
+            Q.append({'v': [p + 1, p + 2, q + 2, q + 1], 'f': 2, 's': i,
+                      'm': [1, 3]})                                    # top
         if i in bot_h:
             Q += framed(V, a, d, h, i, *bot_h[i], across, 1 - across, False)
         else:
-            Q.append({'v': [p + 0, q + 0, q + 3, p + 3], 'f': 3, 's': i})  # bottom
+            Q.append({'v': [p + 0, q + 0, q + 3, p + 3], 'f': 3, 's': i,
+                      'm': [0, 2]})                                    # bottom
+    # 'm' names a cheek quad's two edges that run ALONG the duct. Its other two
+    # lie on mitres, and a cheek is one part cut whole, so outlining every
+    # facet drew it as a row of separate plates, one per wall panel (the
+    # author, 2026-10-14). By face, those mitre edges take the fill colour and
+    # only the edges along are outlined; by facet, every facet keeps its outline.
     # The two cheek plates used to be drawn here as well, at full band width,
     # 3mm proud of the airway top and bottom -- faces 6 and 7, 'ply, top' and
     # 'ply, bottom'. They are gone (2026-09-13): every view of the inside was
@@ -499,6 +506,14 @@ function draw(){
     cx.moveTo(it.pts[0][0], it.pts[0][1]);
     for (let i=1;i<it.pts.length;i++) cx.lineTo(it.pts[i][0], it.pts[i][1]);
     cx.closePath(); cx.fill();
+    if (q.m && mode === 'face'){
+      /* a cheek is one part: its mitre lines are no seam, so they take the
+         fill, which also covers the hairline between neighbouring quads */
+      cx.strokeStyle = cx.fillStyle; cx.lineWidth = 0.8; cx.stroke();
+      cx.beginPath();
+      for (const e of q.m){ const a = it.pts[e], b = it.pts[(e+1) % 4];
+        cx.moveTo(a[0], a[1]); cx.lineTo(b[0], b[1]); }
+    }
     cx.strokeStyle = EDGE; cx.lineWidth = 0.6; cx.stroke();
   }
 }
