@@ -190,7 +190,7 @@ PORT = False         # --port: a 7 x 14mm opening through the cheek at the
                      # mouth, so a mouthpiece or a bell can go in at 90
                      # degrees to the plane the bore is wound in. NOT
                      # bore-square: see PORT_ACROSS for why it cannot be
-BED_W, BED_H = 600.0, 308.0        # xTool P2S work area
+BED_W, BED_H = 600.0, 305.0        # xTool P2S work area (cut-tested 2026-10-19)
 
 # --shape. 'double-spiral' is the double spiral, the shape this file is aimed at and
 # the default; 'serpentine' is a run of alternating half-circles joined by
@@ -412,11 +412,11 @@ SPIRAL_FACETS, SPIRAL_RI, SPIRAL_RO = 17, 34.662, 112.903
 SCALLOP_IN_R, SCALLOP_IN_DEG = 34.0, 48.0
 # --shape=racetrack: a closed serpentine that is NOT radially symmetric, which
 # is the whole reason it exists. A scallop repeats one lobe LOBES times about a
-# centre, so its envelope is circular and the bed's 288mm of HEIGHT bounds it in
+# centre, so its envelope is circular and the bed's 285mm of HEIGHT bounds it in
 # both axes -- the 580mm of width goes unused, and the shipped 800mm scallop is
 # already within a millimetre of the limit. 1600mm needs twice the envelope and
 # there is no scallop that has it: deepening the lobes shrinks the figure, but
-# the cheek starts crossing itself before it gets under 288. Measured across
+# the cheek starts crossing itself before it gets under 285. Measured across
 # 5/8/10/12 lobes and facets 24 to 72; there is no window.
 #
 # So this one is 2-FOLD symmetric and long. Half the loop is a 180 degree cap
@@ -429,7 +429,7 @@ SCALLOP_IN_R, SCALLOP_IN_DEG = 34.0, 48.0
 # 15mm facets whose inner panels are 11.2mm, and a bore-square port takes every
 # tooth on a panel that short. A straight turns nothing, so it costs the closure
 # argument nothing and buys a panel long enough to carry one.
-RACE_CAP_R, RACE_STRAIGHT = 134.115704, 30.0
+RACE_CAP_R, RACE_STRAIGHT = 132.809141, 31.0
 # --shape=oval: a closed ellipse with its two long ends flattened, and no ports.
 #
 # Built like the racetrack, as half a loop taken twice, so it closes by the same
@@ -719,7 +719,7 @@ def centreline():
         pts[-1] = pts[0]
         # LAID ALONG THE BED. The run of half-circles marches across the
         # direction the half set out in, so the figure comes out long in y.
-        # The bed is 580 x 288 and pack() does not rotate a part, so a
+        # The usable bed is 580 x 285 and pack() does not rotate a part, so a
         # 84 x 418 cheek is refused although it fits turned. One quarter turn
         # here, where the shape is still a list of points, costs nothing.
         pts = [(y, -x) for x, y in pts]

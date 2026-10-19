@@ -403,9 +403,9 @@ port facets is a table about no particular ring.
 | | n = 12 (`--facet=30`) | n = 13 (`--facet=27.6923076923`) |
 | --- | --- | --- |
 | floor | **R32.9** (R32.8 refuses, 16.98mm of facet) | **R36** (R35.5 refuses, 16.99mm) |
-| ceiling | **R133**, sheet 594 x 307 | **R135**, sheet 599 x 306 |
-| first refused | R134, *"a part is 289 x 289mm"* | R136, *"a part is 290 x 288mm"* |
-| duct at the ceiling | 826mm | 840mm |
+| ceiling | **R132**, cheek sheet 305 x 305 | **R134**, cheek sheet 306 x 304 |
+| first refused | R133, *"a part is 287 x 287mm"* | R135, *"a part is 288 x 286mm"* |
+| duct at the ceiling | 820mm | 834mm |
 
 The FLOOR is not the bend radius and not the tooth. A port needs
 `PORT_FROM_TIP + PORT_ALONG/2` = **17mm of the facet it is measured along**, and
@@ -419,7 +419,7 @@ one. **Radius is the dial.** A reader reaching for `--port-at` on a default ring
 (R30, 15.53mm of facet) hits this before anything else.
 
 The CEILING is the cheek against the bed. It is one part and a disc, so the
-bed's **288mm of usable height** is what runs out, not its 580mm of width. The
+bed's **285mm of usable height** is what runs out, not its 580mm of width. The
 1000mm the shipped designs run to needs R160.7 at n=13 and a 338 x 336mm cheek;
 nesting cannot save it, because the cheek is one part.
 
@@ -428,17 +428,17 @@ they are measured against different things:
 
 | | limit | set in | applies to |
 | --- | --- | --- | --- |
-| *the sheet* | 600 x 308 | the `every sheet fits the P2S bed` check, `w > BED_W or h > BED_H` | a finished sheet |
-| *the part* | 580 x 288 | `pack()`, `use_w, use_h = BED_W - 2*margin, BED_H - 2*margin` | one part, and it is what a refusal quotes |
+| *the sheet* | 600 x 305 | the `every sheet fits the P2S bed` check, `w > BED_W or h > BED_H` | a finished sheet |
+| *the part* | 580 x 285 | `pack()`, `use_w, use_h = BED_W - 2*margin, BED_H - 2*margin` | one part, and it is what a refusal quotes |
 
 The part limit is the smaller because `pack()` packs into the bed **minus a
 margin all round**, and its docstring says why: filling to the edge gave *"a
 sheet 600 x 307 on a 600 x 308 bed, which passes a fits-the-bed check and
 cannot be positioned on a real machine"*.
 
-So a ring at its ceiling prints a sheet taller than 288 — 599 x 306 at n=13 —
-and is correct, because that number is measured against 308 and not against
-288. Reading `306 > 288` off that row concludes the opposite, and it is the
+So a ring at its ceiling prints a sheet taller than 285 — 306 x 304 at n=13 —
+and is correct, because that number is measured against 305 and not against
+285. Reading `304 > 285` off that row concludes the opposite, and it is the
 inference the two limits invite: the row that reports a sheet sits directly
 beneath refusals that quote a part.
 

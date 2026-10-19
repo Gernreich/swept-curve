@@ -73,7 +73,7 @@ between them. None has been cut.
 | --- | ---: | --- | --- |
 | **[ring](torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm/ribbon-torus-bore10-27.6923deg-R128.572-800mm.html)** · **[square-ported](torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm/ribbon-torus-bore10-27.6923deg-R128.572-800mm-ported-square.html)** | 800mm | 13 of 27.7° | a 13-facet ring, ported on facets 0 and 6 |
 | **[scallop](scallop/ribbon-scallop-bore10-36deg-5lobes-R44.2214-in41-800mm/ribbon-scallop-bore10-36deg-5lobes-R44.2214-in41-800mm.html)** | 800.0mm | 36° | five lobes, ported on facets 1 and 14 |
-| **[racetrack](racetrack/ribbon-racetrack-bore10-45deg-4lobes-R22-cap134.116-1600mm/ribbon-racetrack-bore10-45deg-4lobes-R22-cap134.116-1600mm.html)** | 1600.0mm | 45° | four lobes and two caps; no port clears a neighbouring mortice, so it is unported |
+| **[racetrack](racetrack/ribbon-racetrack-bore10-45deg-4lobes-R22-cap132.809-1600mm/ribbon-racetrack-bore10-45deg-4lobes-R22-cap132.809-1600mm.html)** | 1600.0mm | 45° | four lobes and two caps; no port clears a neighbouring mortice, so it is unported |
 | **[oval](oval/ribbon-oval-bore10-30deg-end60-R28-side-R72-flat12.2-sideflat12.5-314mm/ribbon-oval-bore10-30deg-end60-R28-side-R72-flat12.2-sideflat12.5-314mm.html)** | 314.4mm | 30° | a small closed loop, unported |
 
 ## The double spiral

@@ -63,8 +63,8 @@ brackets. Read that section before changing the code it names.
 - The port separation K (1 to `n//2`) tunes the ring. An odd n cannot give equal
   paths, and that is intended. [The port separation is the ring's tuning dial]
 - Ported-ring floor: `R >= 17 / (2 sin(pi/n))`. The ceiling is the cheek against
-  the bed. **Two bed limits**: a sheet is checked against 600 x 308, a part
-  against 580 x 288 (`pack()` margin). Never read the ceiling off the sheet size.
+  the bed. **Two bed limits**: a sheet is checked against 600 x 305, a part
+  against 580 x 285 (`pack()` margin). Never read the ceiling off the sheet size.
   Always say which n a number is for. [A ported ring's window depends on n]
 - `--facet=60` has no passing radius. **Zero FAIL lines can mean zero checks
   ran**: always look at the PASS count too. Sweep across a boundary before
