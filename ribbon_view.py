@@ -430,7 +430,7 @@ dt{color:var(--dim)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nu
     </div>
     <div class="grp"><h2>Key</h2><div id="key"></div></div>
     <div class="grp"><h2>Numbers</h2><dl id="nums"></dl></div>
-    <div class="hint">Drag to turn. Scroll to zoom. Double-click to reset.</div>
+    <div class="hint">Drag to turn. Right-drag, shift-drag or two fingers to pan. Scroll or pinch to zoom. Double-click a part to turn round it, or empty space to reset.</div>
   </aside>
 </main>
 <script>
@@ -467,6 +467,7 @@ function span(){
     for (let i=0;i<2;i++){ lo[i]=Math.min(lo[i],r[i]); hi[i]=Math.max(hi[i],r[i]); } }
   return [hi[0]-lo[0], hi[1]-lo[1], (lo[0]+hi[0])/2, (lo[1]+hi[1])/2];
 }
+let panX = 0, panY = 0, pivot = null, drawn = [], lastP = null;   /* pan; the point turned round, once a part is picked; what was drawn, for picking */
 function draw(){
   const dpr = Math.min(devicePixelRatio||1, 2);
   const w = cv.clientWidth, h = cv.clientHeight;
@@ -475,8 +476,9 @@ function draw(){
   cx.clearRect(0,0,w,h);
   const [sw,sh,mx,my] = span();
   const s = Math.min(w/(sw||1), h/(sh||1)) * 0.86 * zoom;
+  const [ax, ay] = pivot ? rot(pivot) : [mx, my];   /* the shape's middle, or the part picked to turn round */
   const P = p => { const r = rot(p);
-    return [w/2 + (r[0]-mx)*s, h/2 + (r[1]-my)*s, r[2]]; };
+    return [w/2 + (r[0]-ax)*s + panX, h/2 + (r[1]-ay)*s + panY, r[2]]; };
 
   const items = [];
   for (const q of D.Q){
@@ -493,6 +495,7 @@ function draw(){
     items.push({q, pts, z, front: area < 0});
   }
   items.sort((a,b) => a.z - b.z);          /* painter: far first */
+  drawn = items; lastP = P;
 
   for (const it of items){
     const q = it.q;
@@ -524,27 +527,65 @@ function shade(hex, k){
 }
 
 /* --- controls --- */
-let drag = null;
+/* turn, pan, zoom: drag turns; right-drag, shift-drag or two fingers pan;
+   scroll or pinch zooms about the pointer; double-click a part to turn round it */
+const pts = new Map(); let drag = null, pinch = null;
+const at = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+const two = () => { const [a, b] = [...pts.values()];
+  return { h: Math.hypot(a[0] - b[0], a[1] - b[1]), x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 }; };
+function zoomBy(f, x, y) {   /* about canvas point (x, y), which stays where it is */
+  const z0 = zoom; zoom = Math.max(0.35, Math.min(6, zoom * f));
+  const u = x - cv.clientWidth / 2, v = y - cv.clientHeight / 2, k = zoom / z0;
+  panX = u - (u - panX) * k; panY = v - (v - panY) * k;
+}
+const mid3 = it => [0, 1, 2].map(i => it.q.v.reduce((a, j) => a + D.V[j][i], 0) / it.q.v.length);
+function pick(x, y) {   /* the part drawn on top at (x, y) */
+  for (let i = drawn.length - 1; i >= 0; i--) {
+    const p = drawn[i].pts; let inside = false;
+    for (let j = 0, k = p.length - 1; j < p.length; k = j++)
+      if ((p[j][1] > y) !== (p[k][1] > y)
+          && x < (p[k][0] - p[j][0]) * (y - p[j][1]) / (p[k][1] - p[j][1]) + p[j][0]) inside = !inside;
+    if (inside) return mid3(drawn[i]);
+  }
+  return null;
+}
 cv.addEventListener('pointerdown', e => {
-  drag = [e.clientX, e.clientY]; cv.classList.add('drag');
-  cv.setPointerCapture(e.pointerId);
+  cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, at(e)); cv.classList.add('drag');
+  if (pts.size === 1) drag = { pan: e.button === 1 || e.button === 2 || e.shiftKey };
+  else { drag = null; pinch = two(); }
 });
 cv.addEventListener('pointermove', e => {
-  if (!drag) return;
-  yaw += (e.clientX - drag[0]) * 0.008;
-  pitch += (e.clientY - drag[1]) * 0.008;
-  pitch = Math.max(-1.5, Math.min(1.5, pitch));
-  drag = [e.clientX, e.clientY]; draw();
-});
-for (const ev of ['pointerup','pointercancel'])
-  cv.addEventListener(ev, () => { drag = null; cv.classList.remove('drag'); });
-cv.addEventListener('wheel', e => {
-  e.preventDefault();
-  zoom = Math.max(0.35, Math.min(6, zoom * (e.deltaY < 0 ? 1.1 : 1/1.1)));
+  if (!pts.has(e.pointerId)) return;
+  const [x0, y0] = pts.get(e.pointerId), [x, y] = at(e); pts.set(e.pointerId, [x, y]);
+  if (pinch) {   /* two fingers: move together to pan, pinch to zoom */
+    const m = two(); panX += m.x - pinch.x; panY += m.y - pinch.y;
+    if (pinch.h && m.h) zoomBy(m.h / pinch.h, m.x, m.y); pinch = m;
+  } else if (drag && drag.pan) { panX += x - x0; panY += y - y0; }
+  else if (drag) {
+    yaw += (x - x0) * 0.008;
+    pitch = Math.max(-1.5, Math.min(1.5, pitch + (y - y0) * 0.008));
+  }
   draw();
-}, {passive:false});
-cv.addEventListener('dblclick', () => {
-  yaw = -0.62; pitch = D.flat ? -0.95 : -0.42; zoom = 1; draw();
+});
+const lift = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null;
+  if (!pts.size) { drag = null; cv.classList.remove('drag'); } };
+cv.addEventListener('pointerup', lift);
+cv.addEventListener('pointercancel', lift);
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('wheel', e => {
+  e.preventDefault(); const [x, y] = at(e);
+  zoomBy((e.deltaY < 0 ? 1.1 : 1 / 1.1), x, y); draw();
+}, { passive: false });
+cv.addEventListener('dblclick', e => {
+  const [x, y] = at(e), p = pick(x, y);
+  if (!p) { yaw = -0.62; pitch = D.flat ? -0.95 : -0.42; zoom = 1; panX = panY = 0; pivot = null; draw(); return; }
+  /* p holds the middle from now on: start it where it is, then glide it in */
+  const s = lastP(p); pivot = p;
+  const x1 = panX = s[0] - cv.clientWidth / 2, y1 = panY = s[1] - cv.clientHeight / 2, t0 = performance.now();
+  const glide = t => { const k = Math.min(1, (t - t0) / 300), f = 1 - k * (2 - k);
+    panX = x1 * f; panY = y1 * f; draw(); if (k < 1) requestAnimationFrame(glide); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { panX = panY = 0; draw(); }
+  else requestAnimationFrame(glide);
 });
 
 const $ = id => document.getElementById(id);
@@ -673,30 +714,72 @@ function tick(t){
   if (idle){ yaw = -0.75 + Math.sin((t - t0) / 6000) * 0.5; draw(); }
   requestAnimationFrame(tick);
 }
-let drag = null;
 function stop(){
   if (!idle) return;
   idle = false;
   const h = document.getElementById('hint');
   h.style.opacity = 0;
 }
+/* turn, pan, zoom: drag turns; right-drag, shift-drag or two fingers pan;
+   scroll or pinch zooms about the pointer; double-click a part to turn round it */
+const pts = new Map(); let drag = null, pinch = null;
+const at = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+const two = () => { const [a, b] = [...pts.values()];
+  return { h: Math.hypot(a[0] - b[0], a[1] - b[1]), x: (a[0] + b[0]) / 2, y: (a[1] + b[1]) / 2 }; };
+function zoomBy(f, x, y) {   /* about canvas point (x, y), which stays where it is */
+  const z0 = zoom; zoom = Math.max(0.4, Math.min(5, zoom * f));
+  const u = x - cv.clientWidth / 2, v = y - cv.clientHeight / 2, k = zoom / z0;
+  panX = u - (u - panX) * k; panY = v - (v - panY) * k;
+}
+const mid3 = it => [0, 1, 2].map(i => it.q.v.reduce((a, j) => a + D.V[j][i], 0) / it.q.v.length);
+function pick(x, y) {   /* the part drawn on top at (x, y) */
+  for (let i = drawn.length - 1; i >= 0; i--) {
+    const p = drawn[i].pts; let inside = false;
+    for (let j = 0, k = p.length - 1; j < p.length; k = j++)
+      if ((p[j][1] > y) !== (p[k][1] > y)
+          && x < (p[k][0] - p[j][0]) * (y - p[j][1]) / (p[k][1] - p[j][1]) + p[j][0]) inside = !inside;
+    if (inside) return mid3(drawn[i]);
+  }
+  return null;
+}
 cv.addEventListener('pointerdown', e => {
-  stop(); drag = [e.clientX, e.clientY];
-  cv.classList.add('drag'); cv.setPointerCapture(e.pointerId);
+  stop(); cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, at(e)); cv.classList.add('drag');
+  if (pts.size === 1) drag = { pan: e.button === 1 || e.button === 2 || e.shiftKey };
+  else { drag = null; pinch = two(); }
 });
 cv.addEventListener('pointermove', e => {
-  if (!drag) return;
-  yaw += (e.clientX - drag[0]) * 0.008;
-  pitch = Math.max(-1.5, Math.min(1.5, pitch + (e.clientY - drag[1]) * 0.008));
-  drag = [e.clientX, e.clientY]; draw();
-});
-for (const ev of ['pointerup','pointercancel'])
-  cv.addEventListener(ev, () => { drag = null; cv.classList.remove('drag'); });
-cv.addEventListener('wheel', e => {
-  e.preventDefault(); stop();
-  zoom = Math.max(0.4, Math.min(5, zoom * (e.deltaY < 0 ? 1.1 : 1/1.1)));
+  if (!pts.has(e.pointerId)) return;
+  const [x0, y0] = pts.get(e.pointerId), [x, y] = at(e); pts.set(e.pointerId, [x, y]);
+  if (pinch) {   /* two fingers: move together to pan, pinch to zoom */
+    const m = two(); panX += m.x - pinch.x; panY += m.y - pinch.y;
+    if (pinch.h && m.h) zoomBy(m.h / pinch.h, m.x, m.y); pinch = m;
+  } else if (drag && drag.pan) { panX += x - x0; panY += y - y0; }
+  else if (drag) {
+    yaw += (x - x0) * 0.008;
+    pitch = Math.max(-1.5, Math.min(1.5, pitch + (y - y0) * 0.008));
+  }
   draw();
-}, {passive:false});
+});
+const lift = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = null;
+  if (!pts.size) { drag = null; cv.classList.remove('drag'); } };
+cv.addEventListener('pointerup', lift);
+cv.addEventListener('pointercancel', lift);
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('wheel', e => {
+  e.preventDefault(); stop(); const [x, y] = at(e);
+  zoomBy((e.deltaY < 0 ? 1.1 : 1 / 1.1), x, y); draw();
+}, { passive: false });
+cv.addEventListener('dblclick', e => {
+  const [x, y] = at(e), p = pick(x, y);
+  if (!p) { stop(); yaw = -0.75; pitch = -0.45; zoom = 1; panX = panY = 0; pivot = null; draw(); return; }
+  /* p holds the middle from now on: start it where it is, then glide it in */
+  const s = lastP(p); pivot = p;
+  const x1 = panX = s[0] - cv.clientWidth / 2, y1 = panY = s[1] - cv.clientHeight / 2, t0 = performance.now();
+  const glide = t => { const k = Math.min(1, (t - t0) / 300), f = 1 - k * (2 - k);
+    panX = x1 * f; panY = y1 * f; draw(); if (k < 1) requestAnimationFrame(glide); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { panX = panY = 0; draw(); }
+  else requestAnimationFrame(glide);
+});
 
 document.getElementById('cap').innerHTML =
   `<b>${D.bore} \u00d7 ${D.bore}mm</b> <span>constant section, </span>`
@@ -721,7 +804,7 @@ def build(title, embed=False, home=''):
     # Drop the three lines the embed declares for itself. Slicing off the
     # first line instead removed the blank line above them and left `const D`
     # declared twice, which is a SyntaxError and a blank canvas.
-    drop = ('const D =', 'const cv =', 'let yaw =')
+    drop = ('__DATA__;', 'const D =', 'const cv =', 'let yaw =')   # the split leaves the first as a line of its own
     draw = '\n'.join(l for l in draw.splitlines()
                      if not l.startswith(drop))
     assert 'function draw(' in draw and 'const D =' not in draw, 'bad extract'
