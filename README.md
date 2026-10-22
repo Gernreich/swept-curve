@@ -1,5 +1,7 @@
 # Trumpet, swept curve
 
+**[← All projects](https://gernreich.github.io/)**
+
 <!-- readme-only -->
 **[Read the writeup](https://gernreich.github.io/swept-curve/)**
 
@@ -201,7 +203,7 @@ Until 2026-10-14 all of this was `parts/bore/concept/swept-curve/` and part of
 Built for **[LaserMadeMusic](https://www.youtube.com/@LaserMadeMusic)**, where the
 cutting and the playing are shown.
 
-**[The rest of the build files](https://gernreich.github.io/)** — every instrument,
+**[The rest of the build files](https://gernreich.github.io/lasermademusic.html)** — every instrument,
 each with its own writeup.
 
 **[Download everything as a ZIP](https://github.com/Gernreich/swept-curve/archive/refs/heads/main.zip)**
