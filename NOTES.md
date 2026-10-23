@@ -835,8 +835,8 @@ declared twice, and rendered a blank canvas.
 
 `gernreich.github.io` embedded the serpentine this way, gated by `all-gates.sh`
 against a fresh `--embed` run, until 2026-10-12, when its front page moved to the
-greek spiral's lattice viewer. Nothing embeds one now; `--embed` remains for the
-next page that wants one. It follows `prefers-color-scheme`, because it sits
+greek spiral's lattice viewer. Since 2026-10-23 this repository's own page opens
+with one: the built spiral's `-embed.html`, gated the same way. It follows `prefers-color-scheme`, because it sits
 inside somebody else's page and cannot see an explicit theme toggle on the host.
 
 That gate compares bytes, which is not the same as looking: a render can be

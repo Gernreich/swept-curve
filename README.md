@@ -8,7 +8,7 @@
 
 <!-- page-only **[Read the README](https://github.com/Gernreich/swept-curve)** · **[Turn the built spiral in 3D on a page of its own](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)** -->
 
-<!-- page-only <iframe src="built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html" title="The built spiral bore as solid parts you can drag to turn: the faceted band winding out between its two cheeks, with the bell in its port and the mouthpiece on its tail" style="width:100%;height:560px;border:0"></iframe> -->
+<!-- page-only <iframe src="built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-embed.html" title="The built spiral's airway, 1000mm of 10mm square bore winding out on a planar spiral, with the bell in its port and the mouthpiece on its tail, turning slowly until you drag it" style="width:100%;height:560px;border:0"></iframe> -->
 
 A trumpet bore cut flat from 3mm birch ply, swept along a curve rather than
 walked through a grid of cubes. A **10mm square** airway is drawn along a
@@ -188,7 +188,7 @@ which expects this repository cloned beside it.
 
 | | |
 | --- | --- |
-| `built/` | the spiral bore, which exists in wood: its cut files, previews, photographs and viewer |
+| `built/` | the spiral bore, which exists in wood: its cut files, previews, photographs, viewer, and the framed build of the viewer this page opens with |
 | `ribbon-spiral/` | the spiral bore's page |
 | `double-spiral/` · `volute/` · `three-lobe-serpentine-with-collinear-ends/` · `serpentine/` · `ess/` | the open designs, a folder each: cut files and a viewer |
 | `torus/` · `scallop/` · `racetrack/` · `oval/` | the closed rings, the same way |
