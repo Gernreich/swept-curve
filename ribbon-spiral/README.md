@@ -1,5 +1,7 @@
 # The spiral bore
 
+<!-- page-only <iframe src="../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-embed.html" title="The built spiral's airway, 1000mm of 10mm square bore winding out on a planar spiral, with the bell in its port and the mouthpiece on its tail, turning slowly until you drag it" style="width:100%;height:560px;border:0"></iframe> -->
+
 **The swept-curve trumpet that exists in wood.** A rectangle swept along a flat coil: **1000mm of centreline** in
 19 facets of 45° — 17 of them the coil, with a straight lead in and out —
 winding out from **R34.7 to R112.9**. Two faces of the tube are flat and two are
@@ -9,9 +11,9 @@ mitre where a 90° lattice corner grows 41.4%.
 <!-- readme-only -->
 **[Read this page](https://gernreich.github.io/swept-curve/ribbon-spiral/)**
 
-Its viewer is a page of its own, drawn as built: the bell in the port and the
-mouthpiece on the straight tail, with a box to take them off. Drag to rotate, and
-the slider reveals the spiral a facet at a time. **[Turn it →](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
+It turns at the top of the published page, and on a page of its own, drawn as
+built: the bell in the port and the mouthpiece on the straight tail, with a box to
+take them off. Drag to rotate, and the slider reveals the spiral a facet at a time. **[Turn it →](../built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
 
 ## The cheek is the whole drawing
 
