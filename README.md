@@ -3,9 +3,12 @@
 **[← All projects](https://gernreich.github.io/)**
 
 <!-- readme-only -->
-**[Read the writeup](https://gernreich.github.io/swept-curve/)**
+**[Read the writeup](https://gernreich.github.io/swept-curve/)** ·
+**[Turn the built spiral in 3D](https://gernreich.github.io/swept-curve/built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**
 
-<!-- page-only **[Read the README](https://github.com/Gernreich/swept-curve)** -->
+<!-- page-only **[Read the README](https://github.com/Gernreich/swept-curve)** · **[Turn the built spiral in 3D on a page of its own](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)** -->
+
+<!-- page-only <iframe src="built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html" title="The built spiral bore as solid parts you can drag to turn: the faceted band winding out between its two cheeks, with the bell in its port and the mouthpiece on its tail" style="width:100%;height:560px;border:0"></iframe> -->
 
 A trumpet bore cut flat from 3mm birch ply, swept along a curve rather than
 walked through a grid of cubes. A **10mm square** airway is drawn along a
