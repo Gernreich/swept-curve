@@ -11,11 +11,11 @@ brackets. Read that section before changing the code it names.
   to `index.html` beside them. This was trumpet-elbows-allowed's
   `parts/bore/concept/swept-curve/` until 2026-10-14; the bell and mouthpiece
   every design here takes are still in that repository's `parts/`.
-- Every sheet kept here is the **10mm bore**. `--bore` still takes any value.
+- Every sheet kept here is the **10 mm bore**. `--bore` still takes any value.
 - **No 45 degree ring is kept here**: it belongs to another build. The 13-facet
   torus in `torus/` is kept. `--trace=` is kept but unused.
 - `ribbon_bore.py` is the authority. Its SVGs are regenerated, never edited.
-  3mm birch, xTool P2S.
+  3 mm birch, xTool P2S.
 - `TOOTH = 2 * THICK` is Boxes.py's tooth and does **not** scale with the bore.
   Boxes.py (Florian Festi, GPL-3.0-or-later) is an external checkout, not a copy.
 - `lyre_harp.py` lives in `../lyre-harp/` since 2026-10-14 and imports
@@ -34,7 +34,7 @@ brackets. Read that section before changing the code it names.
   `wall_off()`, `cheek_off()`, `band()` and `caps()` must stay **functions**,
   not constants, or `--bore` is ignored. [The walls are offset to their FACES]
 - The tooth, not the geometry, sets the minimum bend: R25 at 30 degree facets,
-  R35 at 20, R45 at 15 (10mm bore). `build()` refuses below it.
+  R35 at 20, R45 at 15 (10 mm bore). `build()` refuses below it.
   [What limits a bend]
 - Solve radii against the **faceted** centreline, never a smooth arc (a chord is
   1.14% short). [A half-circle advances 2/pi]
@@ -82,15 +82,15 @@ brackets. Read that section before changing the code it names.
   off the slot, never the tab. [Kerf goes opposite ways]
 - `flippable()` and `rotatable()` **report** and do not guess. Match points as a
   nearest-point bijection; never zip sorted lists. [Both cheeks are the same part]
-- To change the cheek rim, change `WEB` (2mm; 1.5mm is the floor), not `MARGIN`.
-  Panel numbers are engraved in the channel. [The cheek stops 2mm outboard]
+- To change the cheek rim, change `WEB` (2 mm; 1.5 mm is the floor), not `MARGIN`.
+  Panel numbers are engraved in the channel. [The cheek stops 2 mm outboard]
 - The lyre-harp sets `BURN` to its own measured 0.13 for its own run only.
   **Never raise `BURN` here** to suit another instrument: it would redraw every
   shipped ribbon sheet.
-- A port seats a **bell**. No mouthpiece has been seated in one. The 1000mm double
+- A port seats a **bell**. No mouthpiece has been seated in one. The 1000 mm double
   spiral ships three sheet sets, and its page names are the reverse of its sheet
   names. `cap()`'s docstring describes the unbuilt arrangement.
-  [A port seats a BELL in 3mm of ply]
+  [A port seats a BELL in 3 mm of ply]
 - The round-ported designs sit at **zero margin** on *the ply between two holes
   survives the kerf*. After any change to `MIN_FEATURE`, `BURN` or `THICK`,
   re-measure them all. [Every check, against geometry it should reject]
@@ -133,7 +133,7 @@ brackets. Read that section before changing the code it names.
 
 ## Commands
 
-Defaults are 3.0mm ply and 0.15mm kerf, matching trumpet-elbows-allowed's `bore_split.py`. Sheets in
+Defaults are 3.0 mm ply and 0.15 mm kerf, matching trumpet-elbows-allowed's `bore_split.py`. Sheets in
 `cut-files/old/` need `--sheet=2.94 --kerf=0.13`. Every shipped sheet is
 `--narrow`, so a bare `ribbon_bore.py` reproduces none of them and drops stray
 files in this folder. Each flag's full rationale is in NOTES.md, Commands.

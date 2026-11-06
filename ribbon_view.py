@@ -869,7 +869,7 @@ def main():
         # the trace names itself; this used to be hard-coded to the first
         # traced bore, which put that title on every other one
         title = (doc['name'].replace('-', ' ').title()
-                 + f', {B.BORE:g}mm \u2014 traced')
+                 + f', {B.BORE:g} mm \u2014 traced')
         page = build(title)
         open(path, 'w').write(page)
         d = data_for()
@@ -884,32 +884,32 @@ def main():
         # right there in the panel below it. The ring says how many sides it
         # has.
         title = (f'Closed Ring, {int(round(360.0 / B.FACET))} Facets, '
-                 f'{B.BORE:g}mm Bore')
+                 f'{B.BORE:g} mm Bore')
     elif B.SHAPE == 'racetrack':
         title = (f'Closed Serpentine Racetrack, {B.LOBES} Lobes a Side, '
-                 f'{B.BORE:g}mm Bore')
+                 f'{B.BORE:g} mm Bore')
     elif B.SHAPE == 'oval':
-        title = f'Closed Oval, Flattened Ends, {B.BORE:g}mm Bore'
+        title = f'Closed Oval, Flattened Ends, {B.BORE:g} mm Bore'
     elif B.SHAPE == 'scallop':
-        title = (f'Closed Serpentine, {B.LOBES} Lobes, {B.BORE:g}mm Bore')
+        title = (f'Closed Serpentine, {B.LOBES} Lobes, {B.BORE:g} mm Bore')
     elif B.SHAPE == 'ess':
-        title = f'Ribbon Ess, {B.BORE:g}mm Bore'
+        title = f'Ribbon Ess, {B.BORE:g} mm Bore'
     elif B.SHAPE == 'spiral':
-        title = f'Ribbon Spiral, {B.BORE:g}mm Bore'
+        title = f'Ribbon Spiral, {B.BORE:g} mm Bore'
     elif B.SHAPE == 'double-volute':
-        title = f'Ribbon Double Volute, {B.BORE:g}mm Bore'
+        title = f'Ribbon Double Volute, {B.BORE:g} mm Bore'
     elif B.SHAPE == 'double-spiral':
         # --ds-half is a different bore, not a view of the same one: it stops at
         # the centre and runs out from there. Without this it took the full
         # spiral's name and title, which is the mistake the else-branch below
         # exists to stop, one level further in.
-        title = ('Ribbon Double Spiral, Centre Half, %gmm Bore' % B.BORE
+        title = ('Ribbon Double Spiral, Centre Half, %g mm Bore' % B.BORE
                  if B.DS_HALF
-                 else f'Ribbon Double Spiral, {B.BORE:g}mm Bore')
+                 else f'Ribbon Double Spiral, {B.BORE:g} mm Bore')
     elif B.SHAPE in ('serpentine', 'three-lobe-serpentine-with-collinear-ends'):
-        title = ('Three-Lobe Serpentine with Collinear Ends, %gmm Bore' % B.BORE
+        title = ('Three-Lobe Serpentine with Collinear Ends, %g mm Bore' % B.BORE
                  if B.SHAPE == 'three-lobe-serpentine-with-collinear-ends'
-                 else f'Ribbon Serpentine, {B.BORE:g}mm Bore')
+                 else f'Ribbon Serpentine, {B.BORE:g} mm Bore')
     else:
         # This used to be the coupon's branch with no test on the shape, so a
         # shape added to the generator and not to this list came out headed

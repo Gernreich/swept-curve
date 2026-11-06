@@ -8,10 +8,10 @@
 
 <!-- page-only **[Read the README](https://github.com/Gernreich/swept-curve)** · **[Turn the built spiral in 3D on a page of its own](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)** -->
 
-<!-- page-only <iframe src="built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-embed.html" title="The built spiral's airway, 1000mm of 10mm square bore winding out on a planar spiral, with the bell in its port and the mouthpiece on its tail, turning slowly until you drag it" style="width:100%;height:560px;border:0"></iframe> -->
+<!-- page-only <iframe src="built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113-embed.html" title="The built spiral's airway, 1000 mm of 10 mm square bore winding out on a planar spiral, with the bell in its port and the mouthpiece on its tail, turning slowly until you drag it" style="width:100%;height:560px;border:0"></iframe> -->
 
-A trumpet bore cut flat from 3mm birch ply, swept along a curve rather than
-walked through a grid of cubes. A **10mm square** airway is drawn along a
+A trumpet bore cut flat from 3 mm birch ply, swept along a curve rather than
+walked through a grid of cubes. A **10 mm square** airway is drawn along a
 planar curve, so two faces of the tube are flat — the two **cheeks**, each one
 plate — and the other two are faceted, a wall panel standing in mortices at
 every facet. Nothing about it sits on a grid and nothing in it is an elbow, so
@@ -20,7 +20,7 @@ grid-block trumpets in
 **[trumpet-elbows-allowed](https://gernreich.github.io/trumpet-elbows-allowed/)**, the same instrument walked through cubes.
 
 They are versions of that same trumpet, not a different instrument. The airway
-is the same 10mm square, and every design here takes the **same bell and the
+is the same 10 mm square, and every design here takes the **same bell and the
 same mouthpiece**, which live in trumpet-elbows-allowed:
 **[the bell and the mouthpiece](https://gernreich.github.io/trumpet-elbows-allowed/ends/)**.
 
@@ -38,7 +38,7 @@ The grid walk packs into a box; a swept curve lies flat and turns gently.
 
 ## Built
 
-**[The spiral bore](ribbon-spiral/)** — 1000mm in 19 facets of 45°, winding out
+**[The spiral bore](ribbon-spiral/)** — 1000 mm in 19 facets of 45°, winding out
 from R34.7 to R112.9. Both sheets cut, press-fit, a bell in its square port and a
 mouthpiece on its straight tail, finished in shellac and blown; its note is not yet reported.
 **[Turn it in 3D](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html)**,
@@ -54,12 +54,12 @@ fitted.
 
 | design | centreline | facets | what it is |
 | --- | ---: | --- | --- |
-| **[double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1506mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1506mm.html)** | 1506.4mm | 30° | two interleaved arms winding in to meet at the centre, a straight lead leaving the rim at the top and another at the bottom |
-| **[short double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm.html)** | 1000.0mm | 30° | the same with five facets off each arm, and the only design ported at both ends |
-| **[double volute](volute/double-volute-bore10-45deg-R94-step60/ribbon-double-volute-bore10-45deg-R94-step60.html)** | 1179.9mm | 45° | two interleaved arms of straight-sided semicircles winding in to meet at the eye |
-| **[three-lobe serpentine](three-lobe-serpentine-with-collinear-ends/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64.html)** | 1000.0mm | 30° | three rounded lobes in a row, a straight lead at each end pointing opposite ways |
-| **[serpentine](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html)** | 1000.0mm | 30° | three lobes of R72 |
-| **[ess](ess/ribbon-ess-bore10-45deg-5arc/ribbon-ess-bore10-45deg-5arc.html)** | 836.5mm | 45° | a trough and a crest of R55, doubling back into a long narrow loop, level at both ends |
+| **[double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1506mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1506mm.html)** | 1506.4 mm | 30° | two interleaved arms winding in to meet at the centre, a straight lead leaving the rim at the top and another at the bottom |
+| **[short double spiral](double-spiral/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm/ribbon-double-spiral-bore10-30deg-R62-pitch46-1000mm.html)** | 1000.0 mm | 30° | the same with five facets off each arm, and the only design ported at both ends |
+| **[double volute](volute/double-volute-bore10-45deg-R94-step60/ribbon-double-volute-bore10-45deg-R94-step60.html)** | 1179.9 mm | 45° | two interleaved arms of straight-sided semicircles winding in to meet at the eye |
+| **[three-lobe serpentine](three-lobe-serpentine-with-collinear-ends/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64/three-lobe-serpentine-with-collinear-ends-bore10-30deg-3lobes-R64.html)** | 1000.0 mm | 30° | three rounded lobes in a row, a straight lead at each end pointing opposite ways |
+| **[serpentine](serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html)** | 1000.0 mm | 30° | three lobes of R72 |
+| **[ess](ess/ribbon-ess-bore10-45deg-5arc/ribbon-ess-bore10-45deg-5arc.html)** | 836.5 mm | 45° | a trough and a crest of R55, doubling back into a long narrow loop, level at both ends |
 
 One more is drawn and not cut: the **[single volute](volute/single-volute/single-volute-bore10-45deg.html)**,
 six semicircles of stepping radius from `volute/volute.py`. Its inner end is
@@ -76,21 +76,21 @@ between them. None has been cut.
 
 | design | centreline | facets | what it is |
 | --- | ---: | --- | --- |
-| **[ring](torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm/ribbon-torus-bore10-27.6923deg-R128.572-800mm.html)** · **[square-ported](torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm/ribbon-torus-bore10-27.6923deg-R128.572-800mm-ported-square.html)** | 800mm | 13 of 27.7° | a 13-facet ring, ported on facets 0 and 6 |
-| **[scallop](scallop/ribbon-scallop-bore10-36deg-5lobes-R44.2214-in41-800mm/ribbon-scallop-bore10-36deg-5lobes-R44.2214-in41-800mm.html)** | 800.0mm | 36° | five lobes, ported on facets 1 and 14 |
-| **[racetrack](racetrack/ribbon-racetrack-bore10-45deg-4lobes-R22-cap132.809-1600mm/ribbon-racetrack-bore10-45deg-4lobes-R22-cap132.809-1600mm.html)** | 1600.0mm | 45° | four lobes and two caps; no port clears a neighbouring mortice, so it is unported |
-| **[oval](oval/ribbon-oval-bore10-30deg-end60-R28-side-R72-flat12.2-sideflat12.5-314mm/ribbon-oval-bore10-30deg-end60-R28-side-R72-flat12.2-sideflat12.5-314mm.html)** | 314.4mm | 30° | a small closed loop, unported |
+| **[ring](torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm/ribbon-torus-bore10-27.6923deg-R128.572-800mm.html)** · **[square-ported](torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm/ribbon-torus-bore10-27.6923deg-R128.572-800mm-ported-square.html)** | 800 mm | 13 of 27.7° | a 13-facet ring, ported on facets 0 and 6 |
+| **[scallop](scallop/ribbon-scallop-bore10-36deg-5lobes-R44.2214-in41-800mm/ribbon-scallop-bore10-36deg-5lobes-R44.2214-in41-800mm.html)** | 800.0 mm | 36° | five lobes, ported on facets 1 and 14 |
+| **[racetrack](racetrack/ribbon-racetrack-bore10-45deg-4lobes-R22-cap132.809-1600mm/ribbon-racetrack-bore10-45deg-4lobes-R22-cap132.809-1600mm.html)** | 1600.0 mm | 45° | four lobes and two caps; no port clears a neighbouring mortice, so it is unported |
+| **[oval](oval/ribbon-oval-bore10-30deg-end60-R28-side-R72-flat12.2-sideflat12.5-314mm/ribbon-oval-bore10-30deg-end60-R28-side-R72-flat12.2-sideflat12.5-314mm.html)** | 314.4 mm | 30° | a small closed loop, unported |
 
 ## The double spiral
 
 The **double spiral** is one of two shapes here whose two arms interleave — the
 double volute is the other, the same skeleton drawn on semicircles. Two arms
 half a turn apart about one centre, crossed in the middle by a straight:
-1506.4mm of bore on a cheek plate 232 × 241mm. Arm B *is* arm A turned through
+1506.4 mm of bore on a cheek plate 232 × 241 mm. Arm B *is* arm A turned through
 180°, so the gap between neighbouring passes is half the radial pitch by
 construction rather than by search — choose the pitch and you have chosen the
-gap. The cheek is a 20mm band, so 46mm a turn is the first pitch that clears it,
-and the two passes come out 23.00mm apart.
+gap. The cheek is a 20 mm band, so 46 mm a turn is the first pitch that clears it,
+and the two passes come out 23.00 mm apart.
 
 Its centreline is the one that does not step its arc radius facet by facet.
 Vertices sit on a smooth spiral `r = R0 + b·θ` sampled every facet instead, which
@@ -98,14 +98,14 @@ the note beside `--shape=spiral` warns is the construction `offset()` cannot
 follow. That note is about offsetting a smooth curve and faceting the result
 separately; offsetting the faceted centreline is exact whatever placed its
 vertices, and the airway measures 4.4e-14mm from the bore here. The stepping
-construction could not be used anyway — its polar radius advances 7mm across one
-half turn and 32mm across another, and two arms interleaved at those radii
+construction could not be used anyway — its polar radius advances 7 mm across one
+half turn and 32 mm across another, and two arms interleaved at those radii
 collide.
 
 The open middle is forced, not styled. A straight through the centre is tangent
 to the crossover arc only when the arm's inner end lies outside **twice** that
 arc's radius, so R62 against R30 is a floor; tighten it and the inner panels stop
-being long enough to hold a 6mm tooth, and the generator refuses rather than
+being long enough to hold a 6 mm tooth, and the generator refuses rather than
 drawing one. Both openings still come out on the rim facing opposite ways, which
 is what a total turning of 0° buys.
 
@@ -117,16 +117,16 @@ crossings.
 The **short double spiral** is that same spiral with five facets taken off each
 arm, 14 down to 9 — a trim and not a redraw: the pitch, the R62 start and the
 R30 crossover are the shipped design's, and the shape stays point-symmetric
-because a facet comes off each end at once. 1000.0mm on a 186 × 236mm cheek,
-against 1506.4mm on 232 × 241mm.
+because a facet comes off each end at once. 1000.0 mm on a 186 × 236 mm cheek,
+against 1506.4 mm on 232 × 241 mm.
 
 The **facet** is what quantises it and the **lead** is what lands it. Nine
-facets an arm give 956.0mm and ten give 1058.2, so the trim alone cannot reach
+facets an arm give 956.0 mm and ten give 1058.2, so the trim alone cannot reach
 1000 —
-whole facets are the only thing that comes off, and they come off about 100mm
-at a time. The last 44mm is bought by lengthening both leads from 20mm to 42:
+whole facets are the only thing that comes off, and they come off about 100 mm
+at a time. The last 44 mm is bought by lengthening both leads from 20 mm to 42:
 the lead is a straight run tangent to the arm, so it adds length without moving
-a single facet of the coil. That it costs 42mm of straight tail at each rim is
+a single facet of the coil. That it costs 42 mm of straight tail at each rim is
 the price, and the reason the figure is quoted as a choice and not as what the
 generator happened to give.
 
@@ -143,12 +143,12 @@ lead panels drop and not one surviving tooth shifts.
 It ships **two port arrangements**, and the difference is which joints have been
 made before. The one-port set is the spiral's: the port takes the bell, its stub
 is capped, and the far rim end stays open so the mouthpiece seats on the tube
-end, where four walls grip the full 16mm. That is the arrangement standing in
+end, where four walls grip the full 16 mm. That is the arrangement standing in
 ply on **[the spiral bore's page](ribbon-spiral/)**, where the photograph shows
 the bell on its throat in the port and the mouthpiece out on the tail.
 
 The two-port set below is the one where the mouthpiece must seat in a port —
-10 × 10mm through a single 3mm cheek — which a bell has done and a mouthpiece
+10 × 10 mm through a single 3 mm cheek — which a bell has done and a mouthpiece
 has not. A bell sits where it is put; a
 mouthpiece takes lip pressure.
 
@@ -158,7 +158,7 @@ both cheeks is a socket right through, and the side you are not using is an
 open hole to plug; two of those are waste. `--port-per-cheek` puts one port on
 each sheet instead — `cheek-a` carries the mouth, `cheek-b` the far end, each
 cut once — so the mouthpiece **enters one face and the bell leaves the other**,
-at points 222.5mm apart and exactly opposite through the coil's centre. The
+at points 222.5 mm apart and exactly opposite through the coil's centre. The
 openings are no longer in the plane at all, so the total-turning-zero argument
 that sets the two rim ends on opposite headings has stopped describing how it
 is played: those ends are the capped ones. `rotatable()` reports that the two

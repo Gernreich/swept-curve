@@ -9,7 +9,7 @@ swept-curve section of trumpet-elbows-allowed until 2026-10-14, in its
 swept curve is not a walk through cubes: no grid, no elbow, nothing that could be
 built in Minecraft. This file is the note that sits beside the generator.
 
-**Every sheet kept here is 10mm.** `--bore` is untouched and takes any value; nothing
+**Every sheet kept here is 10 mm.** `--bore` is untouched and takes any value; nothing
 is shipped at another.
 
 **No 45 degree ring is kept here** - no 45 degree torus, no traced eight-facet
@@ -17,7 +17,7 @@ trumpet, no viewer page or trace for either. That line used to read "no torus",
 and `--shape=torus` was kept on the argument that "the next closed ring will
 want it". The next closed ring turned up:
 `torus/ribbon-torus-bore10-27.6923deg-R128.572-800mm` is a **13-facet ring**,
-ports on facets 0 and 6, one per cheek, 800.0mm of centreline. Thirteen facets
+ports on facets 0 and 6, one per cheek, 800.0 mm of centreline. Thirteen facets
 is not eight, so that sentence still holds - it is the 45 degree ring
 that is not kept, and the reason is that it belongs to another build, not
 that a ring cannot live here.
@@ -28,7 +28,7 @@ that a ring cannot live here.
 
 A laser-cutting build repository. `ribbon_bore.py` is the generator and the
 authority; the SVG beside it is its output and is regenerated, not edited.
-Everything is 3mm birch on an xTool P2S.
+Everything is 3 mm birch on an xTool P2S.
 
 `ribbon_bore.py` draws its own sheets rather than going through Boxes.py, but it
 keeps Boxes.py's tooth: `TOOTH = 2 * THICK` at line 180, the figure Boxes.py's
@@ -50,7 +50,7 @@ variations on each other:
 
 Sweep a rectangle along a curve **in a plane**, with one axis normal to that
 plane, and the duct has two flat faces and two cylindrical ones. Flat cuts from
-the sheet; cylindrical does not, because 3mm birch will not bend to these
+the sheet; cylindrical does not, because 3 mm birch will not bend to these
 radii. So the curved pair are faceted, and the facet angle is the only dial:
 the section is exactly `bore × bore` along a facet and `bore² / cos(φ/2)` at
 each mitre.
@@ -126,7 +126,7 @@ The inner wall is the centreline offset inward by `bore/2`, so there is no bore
 at all below `R = bore/2`. **But the tooth runs out long before the geometry
 does.** A Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
 the same fact that forces `pin_width()` in `bore_split.py` to floor at the
-tooth. At the 10mm bore and 30° facets:
+tooth. At the 10 mm bore and 30° facets:
 
     R 15   inner panel 5.09mm   shorter than one tooth
     R 20   inner panel 7.67mm   still no room for shoulders
@@ -139,14 +139,14 @@ drawing a panel that cannot hold its tab.
 ## A half-circle advances 2/pi of its own length
 
 Which is the whole reason the serpentine has three lobes and long straight
-runs. A 1000mm run of half-circles wants **637mm of width** whatever the lobe
+runs. A 1000 mm run of half-circles wants **637 mm of width** whatever the lobe
 count, and the bed is 600 — dividing it finer only claws back the lead-in and
 shortens the panels until they cannot hold a tooth. The straight verticals are
 what make it fit, because they buy length in y where there is room.
 
 **Solve the radius against this generator's own faceted centreline**, never
 against a smooth arc: an inscribed chord is **1.14% short** of the arc it
-spans, so a radius picked from the arc comes out 11mm long over a metre.
+spans, so a radius picked from the arc comes out 11 mm long over a metre.
 
 ## The geometry is worked out y-up and flipped once, in flip()
 
@@ -167,7 +167,7 @@ wrong.
 ## Long panels get more than one tooth
 
 `teeth(L)` gives `floor((L - 2*SHOULDER + TOOTH) / (2*TOOTH))`, alternating
-tooth and gap of equal width. One tab in a 90mm straight run is a hinge: it
+tooth and gap of equal width. One tab in a 90 mm straight run is a hinge: it
 pivots about the tab and the seam opens. It was written so that every panel on
 the short test piece then shipping still took exactly one and that sheet's cut
 geometry did not move — checked by comparing the cut groups as
@@ -194,7 +194,7 @@ faces out of the tube, so the mouth faces back along the run and the bell
 forwards; they are opposed when the turns cancel. 180 degrees is the wrong
 answer and puts both openings on the same heading - `--shape=three-lobe-serpentine-with-collinear-ends` exists
 to get it right. The single volute's openings come out 135
-degrees apart, and its bore comes within 7.75mm of itself, which is why it is
+degrees apart, and its bore comes within 7.75 mm of itself, which is why it is
 drawn and not cut.
 
 A trace measured off a cut file is not exact: widths scatter, turns land a few
@@ -206,7 +206,7 @@ generate it instead and delete the trace.**
 
 `--shape=torus` is a closed regular ring of FACET turns, and `offset()` mitres
 a closed polyline's seam like any other vertex. Without that the two facets
-either side of the join come out over-long - 53.35mm against 48.17 - and the
+either side of the join come out over-long - 53.35 mm against 48.17 - and the
 ring does not close.
 
 At FACET 45 that is an octagon: eight facets, sitting at apothem
@@ -230,7 +230,7 @@ last vertex are one vertex and it turns there like any other.
 So the two panels either side of the seam kept the ply the trim exists to take
 off, and **`no two wall panels share plan area` failed with exactly 2 jamming
 pairs — one per wall — on every torus at every facet count and every radius**.
-0.37mm a panel at 13 facets, 0.62mm at 8, which is the 1.24mm the trim's own
+0.37 mm a panel at 13 facets, 0.62 mm at 8, which is the 1.24 mm the trim's own
 comment quotes from the bench. `turn_at()` now wraps, the way `offset()`
 already did at the seam mitre and for the same reason.
 
@@ -281,15 +281,15 @@ at each long end, a parallel straight in the middle of each long side, at least
 two facets on each end arc, and a long axis at least 1.4 times the short.
 
 At 30 degree facets: ends R28 turning 60, sides R72 turning 30 either side of a
-12.5mm straight, 12.2mm flats — **314.4mm of centreline, a 148 x 116mm cheek**,
+12.5 mm straight, 12.2 mm flats — **314.4 mm of centreline, a 148 x 116 mm cheek**,
 32 panels. What stops it shrinking is `the shortest panel still holds a tooth`:
-10.09mm against 10. A 12.1mm flat, a 12mm side straight or R27.5 at the ends
+10.09 mm against 10. A 12.1 mm flat, a 12 mm side straight or R27.5 at the ends
 fails it. 22.5 degrees is the only other facet that divides both turns with two
-facets an end, and its smallest is 354mm.
+facets an end, and its smallest is 354 mm.
 
-The first oval (same day) had no side straights: 338.7mm, R95 sides of two
+The first oval (same day) had no side straights: 338.7 mm, R95 sides of two
 facets meeting at a point in the middle of each long side. A single side facet
-is smaller still, 260.9mm, but its long sides are one straight panel from end
+is smaller still, 260.9 mm, but its long sides are one straight panel from end
 arc to end arc and it reads as a stretched decagon.
 
 ### The stadium: an o cut in half with straights put in
@@ -305,9 +305,9 @@ moved to `~/LaserMadeMusic/GIT/lyre-harp/` as a prototype and deleted there on
 2026-09-16. `ribbon_bore.py --shape=oval --facet=45 --oval-end-deg=90
 --oval-end-r=21.8 --oval-flat=0 --oval-side-flat=43.6 --narrow` still draws it:
 45 degree facets, four per half-circle, at **R21.8, the tightest radius any
-check passes** — R21.7 leaves a 9.98mm inner panel against the 10mm a tooth
-needs. The straights are the o's own diameter, 43.6mm, so the loop is twice as
-long as it is wide: 220.7mm of centreline, a 124 x 79mm cheek, 20 panels.
+check passes** — R21.7 leaves a 9.98 mm inner panel against the 10 mm a tooth
+needs. The straights are the o's own diameter, 43.6 mm, so the loop is twice as
+long as it is wide: 220.7 mm of centreline, a 124 x 79 mm cheek, 20 panels.
 
 45 degrees was chosen over 60, which is tighter at R19.5 but only three facets
 a half-circle — a hexagon cut in half, 15.5% over at every mitre — and over 30,
@@ -331,7 +331,7 @@ port, verified identical on all six shapes, and the flag subsumes the old path
 rather than sitting beside it.
 
 It exists because a closed ring has no ends. `cline[0]` and `cline[-1]` are one
-vertex on a torus, so `--port-both` put both ports 19.4mm apart either side of
+vertex on a torus, so `--port-both` put both ports 19.4 mm apart either side of
 the seam and nothing moved them. Almost nothing else had to learn about it: the
 per-cheek split, `teeth_kept()`, the label dodge, three checks and the
 narrow-rim web all read `port_holes()` and never ask where a port came from.
@@ -355,12 +355,12 @@ correction — indicative, not a measurement:
 
 | K | paths (facets) | ratio | R40 difference | null | R135 difference | null |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 1 / 12 | 1:12 | 210.6mm | 814 Hz | 710.8mm | 241 Hz |
-| 2 | 2 / 11 | 2:11 | 172.3mm | 995 Hz | 581.5mm | 295 Hz |
-| 3 | 3 / 10 | 3:10 | 134.0mm | 1280 Hz | 452.3mm | 379 Hz |
-| 4 | 4 / 9 | 4:9 | 95.7mm | 1792 Hz | 323.1mm | 531 Hz |
-| 5 | 5 / 8 | 5:8 | 57.4mm | 2986 Hz | 193.8mm | 885 Hz |
-| 6 | 6 / 7 | 6:7 | 19.1mm | 8958 Hz | 64.6mm | 2654 Hz |
+| 1 | 1 / 12 | 1:12 | 210.6 mm | 814 Hz | 710.8 mm | 241 Hz |
+| 2 | 2 / 11 | 2:11 | 172.3 mm | 995 Hz | 581.5 mm | 295 Hz |
+| 3 | 3 / 10 | 3:10 | 134.0 mm | 1280 Hz | 452.3 mm | 379 Hz |
+| 4 | 4 / 9 | 4:9 | 95.7 mm | 1792 Hz | 323.1 mm | 531 Hz |
+| 5 | 5 / 8 | 5:8 | 57.4 mm | 2986 Hz | 193.8 mm | 885 Hz |
+| 6 | 6 / 7 | 6:7 | 19.1 mm | 8958 Hz | 64.6 mm | 2654 Hz |
 
 **K=6 is the least uneven split a 13 ring has, not the most**, which is worth
 saying because `--port-at=0,6` reads like the natural middle and is one end of
@@ -373,7 +373,7 @@ antipodal — two identical branches, in phase, the effect gone. 13 has no such 
 its closest split still differs by one facet. That is a reason to choose an odd
 facet count, not an accident of having chosen one. More lopsided than 1:12 means
 a bigger n: `--facet=14.4` is n=25, floor R68 (it grows as `17/(2 sin(pi/n))`),
-ceiling R134, and K=1 there is 1:24 — 33mm against 782mm at R130, first null
+ceiling R134, and K=1 there is 1:24 — 33 mm against 782 mm at R130, first null
 229Hz.
 
 Every K from 1 to `n//2` passes all twelve checks at every radius in the band,
@@ -402,25 +402,25 @@ port facets is a table about no particular ring.
 
 | | n = 12 (`--facet=30`) | n = 13 (`--facet=27.6923076923`) |
 | --- | --- | --- |
-| floor | **R32.9** (R32.8 refuses, 16.98mm of facet) | **R36** (R35.5 refuses, 16.99mm) |
+| floor | **R32.9** (R32.8 refuses, 16.98 mm of facet) | **R36** (R35.5 refuses, 16.99 mm) |
 | ceiling | **R132**, cheek sheet 305 x 305 | **R134**, cheek sheet 306 x 304 |
-| first refused | R133, *"a part is 287 x 287mm"* | R135, *"a part is 288 x 286mm"* |
-| duct at the ceiling | 820mm | 834mm |
+| first refused | R133, *"a part is 287 x 287 mm"* | R135, *"a part is 288 x 286 mm"* |
+| duct at the ceiling | 820 mm | 834 mm |
 
 The FLOOR is not the bend radius and not the tooth. A port needs
-`PORT_FROM_TIP + PORT_ALONG/2` = **17mm of the facet it is measured along**, and
+`PORT_FROM_TIP + PORT_ALONG/2` = **17 mm of the facet it is measured along**, and
 a ring's facet is `2*R*sin(pi/n)`, so
 
     R >= 17 / (2 sin(pi/n))          32.84 at n=12,  35.52 at n=13
 
-and the generator refuses below it by name — *"the port spans 3.00 to 17.00mm
-along facet 0, which is 16.99mm long"* — which reads like a port problem and is
+and the generator refuses below it by name — *"the port spans 3.00 to 17.00 mm
+along facet 0, which is 16.99 mm long"* — which reads like a port problem and is
 one. **Radius is the dial.** A reader reaching for `--port-at` on a default ring
-(R30, 15.53mm of facet) hits this before anything else.
+(R30, 15.53 mm of facet) hits this before anything else.
 
 The CEILING is the cheek against the bed. It is one part and a disc, so the
-bed's **285mm of usable height** is what runs out, not its 580mm of width. The
-1000mm the shipped designs run to needs R160.7 at n=13 and a 338 x 336mm cheek;
+bed's **285 mm of usable height** is what runs out, not its 580 mm of width. The
+1000 mm the shipped designs run to needs R160.7 at n=13 and a 338 x 336 mm cheek;
 nesting cannot save it, because the cheek is one part.
 
 **Do not read the ceiling off the sheet size.** There are TWO bed limits and
@@ -446,13 +446,13 @@ beneath refusals that quote a part.
 
 Coarsening `--facet` widens the facet and does not rescue a ring. At
 `--facet=60` — n=6, so the comparable run is `--port-at=0,3` — the ring clears
-the port check and fails *the web outboard of a slot is cuttable* at **0.951mm**
-against the 1.5mm needed. Not a radius failure: 0.951mm at R30, R60, R120, R130
+the port check and fails *the web outboard of a slot is cuttable* at **0.951 mm**
+against the 1.5 mm needed. Not a radius failure: 0.951 mm at R30, R60, R120, R130
 and R132 alike, because 60 degree facets put the mortices that close to the rim
 whatever the ring's size.
 
 At **R133** it stops failing that check and starts failing before any check
-runs — the bed refuses the cheek outright, *"a part is 250 x 289mm"*. The
+runs — the bed refuses the cheek outright, *"a part is 250 x 289 mm"*. The
 conclusion is unchanged, and R133 is the crossover: R132 reaches the checks,
 R133 does not.
 
@@ -502,11 +502,11 @@ area is a refusal, not a smaller sheet.
 The laser removes `BURN` centred on the line, so a part comes out `BURN` under
 and a hole `BURN` over. Every panel dimension is therefore drawn `BURN` **over**
 and every slot `BURN` **under**, plus `PLAY` per side taken out of the slot and
-never off the tab — `bore_split.py`'s standing rule, and its 0.025mm figure for
-the 10mm bore.
+never off the tab — `bore_split.py`'s standing rule, and its 0.025 mm figure for
+the 10 mm bore.
 
-Measured back out of the written file rather than asserted: a 6.100mm drawn tab
-and a 5.950mm drawn slot give a 6.000mm tab in a 6.050mm slot, 0.025mm a side.
+Measured back out of the written file rather than asserted: a 6.100 mm drawn tab
+and a 5.950 mm drawn slot give a 6.000 mm tab in a 6.050 mm slot, 0.025 mm a side.
 
 ## Both cheeks are the same part, and both go on the same way up
 
@@ -523,15 +523,15 @@ its numbers on the inside, which is the cheaper of the two mistakes.
 **`flippable()` matches nearest points as a bijection**, and must not zip two
 sorted point lists. Sorting is unstable under a small perturbation: two nearly
 equal points swap order and every pair after them is compared with the wrong
-partner, so a 0.025mm difference reads as 20.7mm of error and answers the
+partner, so a 0.025 mm difference reads as 20.7 mm of error and answers the
 question the wrong way round.
 
-## The cheek stops 2mm outboard of its slots
+## The cheek stops 2 mm outboard of its slots
 
 `WEB`, not `MARGIN`, is the number to change — `MARGIN` is derived from it.
-The band is `bore + 2 × (thickness/2 + WEB)`: 17mm at the 10mm bore. Asked for
-"as thin as possible" and 2mm is the answer that still cuts; 1.5mm is the floor
-in 3mm birch.
+The band is `bore + 2 × (thickness/2 + WEB)`: 17 mm at the 10 mm bore. Asked for
+"as thin as possible" and 2 mm is the answer that still cuts; 1.5 mm is the floor
+in 3 mm birch.
 
 The knock-on is that there is no flange left to engrave on, so the cheek's
 panel numbers moved **into the channel**, which is the floor of the bore. Two
@@ -545,9 +545,9 @@ Run it as
 
     python3 $G/flat-part-check.py --dir . --min-edge 1.5
 
-**The flag is not optional.** Its default floor is 3.0mm because it was written
+**The flag is not optional.** Its default floor is 3.0 mm because it was written
 for a bullroarer's cord hole, which is under string tension and tears out; a
-cheek slot is not. Without it every ported cheek fails at 1.66mm against 3.00
+cheek slot is not. Without it every ported cheek fails at 1.66 mm against 3.00
 and the noise hides anything real. With it they pass 18 checks, 0 failed.
 
 Two of its checks do not apply to these files at all. *holes are inside the
@@ -563,20 +563,20 @@ pass on panel corners that jam at every mitre.
 **Effective — observed to fail on bad geometry:**
 
 - *the ply between two holes survives the kerf* — the best-evidenced check here,
-  because what made it fail was a shipped design rather than a mutation: 0.030mm
-  where 1.5mm was needed. It is what refuses a port that would break into a tab
+  because what made it fail was a shipped design rather than a mutation: 0.030 mm
+  where 1.5 mm was needed. It is what refuses a port that would break into a tab
   slot. Nothing shipped fails it — see the note on the round port's zero margin
   below, which is why.
-- *the two walls stand a bore apart* — 3mm on a hairpin tighter than its own wall
+- *the two walls stand a bore apart* — 3 mm on a hairpin tighter than its own wall
 - *no two wall panels share plan area* — one jamming pair per mitre, all eight designs
 - *the cheek outline does not cross itself* — four packed spirals and a tight double spiral
 - *every slot corner is inside its cheek* — the ess at a R25 trough
 - *the web outboard of a slot is cuttable* — the same ess, and any WEB under 1.5
 - *panels merged by `--merge-lead` keep their own teeth and numbers* — not a
   check but a rule, and the reason `merge_lead()` is forty lines rather than
-  four. `teeth()` reads a panel's length alone, so the 43.2mm merged panel
-  would get three teeth at -12, 0, +12 where its 23.2mm half had two at -6, +6,
-  and one of the three lands at 9.6mm along the duct, inside a port spanning
+  four. `teeth()` reads a panel's length alone, so the 43.2 mm merged panel
+  would get three teeth at -12, 0, +12 where its 23.2 mm half had two at -6, +6,
+  and one of the three lands at 9.6 mm along the duct, inside a port spanning
   3.07 to 12.94. Tags are worse: `build()` numbers by position, so dropping two
   panels renumbers all 36 that remain and a panel already cut reads a number
   that now means a different one. The label is pinned separately from the
@@ -585,7 +585,7 @@ pass on panel corners that jam at every mitre.
   to pass at four, but ONLY by calling `merge_lead()` directly with a made-up
   wall. No shape reaches it from the command line: any lead that bends into its
   first facet trips the collinearity refusal first, and the shortest double
-  spiral that builds at all — `--ds-half --ds-facets=1`, 160.6mm — still has
+  spiral that builds at all — `--ds-half --ds-facets=1`, 160.6 mm — still has
   panels to spare. Keep it: without it the two folds meet in the middle and the
   second reads a length the first has already changed, re-spacing the teeth of
   a panel whose mortices are settled. But do not read it as evidence the way
@@ -593,8 +593,8 @@ pass on panel corners that jam at every mitre.
   design.
 - *the rim is flush with every mortice* — `--narrow` only, in place of the web
   check, which under `--narrow` could not fail. Watched fail twice: pushing
-  `cheek_off()` 0.2mm off `slot_half()` reported 0.2000mm against 0.065 allowed,
-  and `--shape=serpentine --narrow` reports 1.2182mm, because a narrow rim cuts
+  `cheek_off()` 0.2 mm off `slot_half()` reported 0.2000 mm against 0.065 allowed,
+  and `--shape=serpentine --narrow` reports 1.2182 mm, because a narrow rim cuts
   into twelve mortices on the tight lobe. The serpentine cannot be cut narrow,
   and the two checks that say so both refuse it and write nothing.
 - *every engraved point is on its own part* — found 18 points off, the two cheek labels
@@ -617,7 +617,7 @@ pass on panel corners that jam at every mitre.
   Every attempt to make a sheet overflow tripped that instead.
 
 **Asks the wrong question:** *no two slots overlap*. Eighteen mutations never
-reach it, and it passes a real defect: a port 0.029mm from a slot is not an
+reach it, and it passes a real defect: a port 0.029 mm from a slot is not an
 overlap, and IS one hole once a kerf has been down both edges. Overlap is not
 the question; surviving material is. *the ply between two holes survives the
 kerf* asks that, and it is what decides where a port may sit.
@@ -625,29 +625,29 @@ kerf* asks that, and it is what decides where a port may sit.
 **The round port is placed hard against that limit, by construction.** `port()`
 keeps a tooth only where the gap clears `MIN_FEATURE + BURN`, so the surviving
 tooth lands exactly on the minimum: every round-ported design — serpentine,
-opposed and the R35to113 spiral — reports 1.650mm drawn, 1.500mm left, against
-1.5mm needed. A margin of **zero**, and it passes only because
+opposed and the R35to113 spiral — reports 1.650 mm drawn, 1.500 mm left, against
+1.5 mm needed. A margin of **zero**, and it passes only because
 the comparison carries a 1e-9 slack; without it the sum came out
 1.6499999999999986 and the design was refused over 1.3e-15mm.
 
 The square port is nothing like as tight, because `--merge-lead` gives it a
-whole facet to sit in: 2.2 to 4.5mm of margin across the eight square-ported
-designs, the double volute narrowest at 3.736mm and the R36to144 spiral widest at
-5.950mm. (Measured before the R36to144 and R74to144 spirals were dropped, on
-2026-10-14: the built spiral already has their shape.) The eighth is the 1000mm double spiral, which is square-ported at BOTH
-ends and reports the same 4.672mm at each -- `--port-both` folds the tail lead
+whole facet to sit in: 2.2 to 4.5 mm of margin across the eight square-ported
+designs, the double volute narrowest at 3.736 mm and the R36to144 spiral widest at
+5.950 mm. (Measured before the R36to144 and R74to144 spirals were dropped, on
+2026-10-14: the built spiral already has their shape.) The eighth is the 1000 mm double spiral, which is square-ported at BOTH
+ends and reports the same 4.672 mm at each -- `--port-both` folds the tail lead
 as well, so its far port gets the whole facet the mouth's does.
 
-## A port seats a BELL in 3mm of ply. Nothing has seated a mouthpiece in one
+## A port seats a BELL in 3 mm of ply. Nothing has seated a mouthpiece in one
 
-The stack is 16mm through and a port is cut in ONE cheek, so whatever goes into
-it meets 3mm of birch and not the whole sandwich. That reads thin on paper and
+The stack is 16 mm through and a port is cut in ONE cheek, so whatever goes into
+it meets 3 mm of birch and not the whole sandwich. That reads thin on paper and
 it is the first thing anyone asks about this joint.
 
 **For a bell it holds, and there is a photograph of it holding.** The R35to113
 spiral is square-ported and press-fit, and its bell is seated in the port — a
-ring-stack shank standing up out of the plane of the coil, carried by a 10 x 10mm
-hole through one 3mm cheek.
+ring-stack shank standing up out of the plane of the coil, carried by a 10 x 10 mm
+hole through one 3 mm cheek.
 
 ![The R35to113 spiral bore press-fit in pale birch, its finger joints and
 engraved panel numbers visible along every seam, with the ring-stack bell
@@ -657,7 +657,7 @@ end](built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to1
 
 **THE MOUTHPIECE IS NOT ON A PORT ON EITHER BUILT INSTRUMENT.** Look at the
 photograph again: the bell stands in the port, and the mouthpiece is out on the
-lead, seated in the TUBE END where the four walls grip the full 16mm depth. The
+lead, seated in the TUBE END where the four walls grip the full 16 mm depth. The
 three-turn trumpet does the same at both of its ends.
 
 ![The built three-turn trumpet laid flat: a square-section lattice bore in
@@ -668,10 +668,10 @@ other](https://gernreich.github.io/trumpet-elbows-allowed/built/coil-fold2-long-
 
 They are different joints, and only one of the two has been asked to hold a
 mouthpiece. A bell sits where it is put; a mouthpiece takes lip pressure and
-whatever the player leans into it, which is the load the 3mm has never seen.
+whatever the player leans into it, which is the load the 3 mm has never seen.
 Do not read the bell in that port as settling the mouthpiece.
 
-**SO THE 1000mm DOUBLE SPIRAL SHIPS BOTH ARRANGEMENTS**, and the folder holds
+**SO THE 1000 mm DOUBLE SPIRAL SHIPS BOTH ARRANGEMENTS**, and the folder holds
 three sheet sets because of it:
 
     ...-1000mm-narrow-*                      no ports at all, the plain coil
@@ -680,14 +680,14 @@ three sheet sets because of it:
 
 The one-port set is the spiral's arrangement, the one that exists in wood: the
 port takes the bell, its stub is capped, and the far rim end stays open for the
-mouthpiece to seat on the tube end where four walls grip 16mm. It is `--port`
+mouthpiece to seat on the tube end where four walls grip 16 mm. It is `--port`
 without `--port-both`, and its port goes through BOTH cheeks, so one face of it
 is a hole to plug — which is the cost `--port-per-cheek` exists to avoid and
 which the built spiral pays.
 
 The two-port set is the one that needs nothing plugged and puts the mouthpiece
 and the bell on opposite faces. It is also the one whose mouth port has never
-been made. Generate and cut the 240mm coupon first if that is the one you want
+been made. Generate and cut the 240 mm coupon first if that is the one you want
 (`--ds-half --ds-facets=2 --lead=42`, below); its sheets no longer ship.
 
 Only the one-port bore has a page: in
@@ -718,7 +718,7 @@ constant with a constant. **A check earns its place by being watched to fail.**
 ## volute.py and ribbon_view.py, checked the same way
 
 **`volute.py`.** Two of its four checks are failing on the shipped design right
-now — *the bore stays clear of itself* at 7.75mm against the 20mm band, and
+now — *the bore stays clear of itself* at 7.75 mm against the 20 mm band, and
 *the two openings are opposed* at 135 degrees — which is the file's whole point
 and makes them the best-evidenced checks in the repository. *the cheek fits the
 P2S bed* fires from `--r0=200` up. Its two refusals hold: an arc under the tooth
@@ -799,7 +799,7 @@ thing you cut and the thing you turn around cannot drift apart. Same flags as
 the generator.
 
 **It draws the passage, bounded by the wall faces at ±bore/2.** That is the
-whole reason it exists: the bore was cut 3mm narrow for a week and nothing here
+whole reason it exists: the bore was cut 3 mm narrow for a week and nothing here
 drew the space inside it. A picture of the plywood alone would not have shown
 it; a picture of the airway would.
 
@@ -809,8 +809,8 @@ thinner object than the part you cut — but it makes every look inside a look
 through a solid slab of ply, which is the one thing this page must not make
 hard. A page has six faces: the four wall-and-cheek ones, plus `mouth` and
 `far end` where the bore is not a closed ring. `ply, top` and `ply, bottom` in a
-key belong to no page this generator draws. What the plates would say — 20mm of
-band around a 10mm passage — the numbers panel says in words and the cut files
+key belong to no page this generator draws. What the plates would say — 20 mm of
+band around a 10 mm passage — the numbers panel says in words and the cut files
 show to scale.
 
 **A flag missing from the `known` set is refused by the guard that reads it.**
@@ -849,14 +849,14 @@ splitting there extracted the wrong script.
 **`--ends` is the one exception to "nothing else": the rest of the trumpet.**
 Added 2026-10-14, first so the built spiral's page looks like the photograph —
 the bell standing on the outside of the bottom cheek over the port, and the
-mouthpiece's 16mm plate on the open far end, axis along the tail — and then on
+mouthpiece's 16 mm plate on the open far end, axis along the tail — and then on
 every open design, where with no port the mouthpiece goes on the mouth and the
 bell on the far end, each on the tube end. Both
 are read from their cut files by trumpet-elbows-allowed's `parts/part-view.py`
 (its `data_for(path, n)`), imported from that checkout, so a redesigned bell or
 mouthpiece redraws here, and the page gate fails until it is. Each lands by a
 rotation, never a reflection, so their faces keep the winding the painter reads
-facing from. The cheeks are still not drawn, so the bell stands 3mm off the
+facing from. The cheeks are still not drawn, so the bell stands 3 mm off the
 airway, and a page with a port says that gap is the cheek. A closed ring has no
 ends, and `--port-both` and `--port-at` put both openings in the cheeks, so all
 three are refused. A checkbox
