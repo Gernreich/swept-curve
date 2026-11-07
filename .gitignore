@@ -18,3 +18,4 @@
 # archive of what earlier runs drew, as in trumpet-elbows-allowed, where these
 # designs lived until 2026-10-14. git history holds every one of them.
 old/
+/target/

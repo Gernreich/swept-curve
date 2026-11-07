@@ -182,7 +182,9 @@ shipped sheet is `--narrow`; **[the spiral bore's page](ribbon-spiral/)** gives
 the command that drew the sheets that were cut. `ribbon_bore.py` also lends its
 path writer to [square-flute](https://github.com/Gernreich/square-flute) and its
 panels and sheets to [lyre-harp](https://github.com/Gernreich/lyre-harp), each of
-which expects this repository cloned beside it.
+which expects this repository cloned beside it. `ribbon_bore.rs` (with `Cargo.toml` and
+`Cargo.lock`) is the same path writer in Rust, for the Rust generators that borrow it:
+the panpipes and the chanters.
 
 ## Files
 
