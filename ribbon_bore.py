@@ -180,7 +180,7 @@ def play():
 TOOTH = 2 * THICK    # Boxes.py FingerJointSettings; does not scale
 SHOULDER = 2.0       # least material either side of a tooth
 # The narrowest rib of ply the gate will pass, the same 1.5mm bore_split.py,
-# check.py and flat-part-check.py all use. Measured AFTER the kerf, since two
+# check.py and flat-part-check all use. Measured AFTER the kerf, since two
 # lines 0.1mm apart are one line once the laser has been down both.
 MIN_FEATURE = 1.5
 

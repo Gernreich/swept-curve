@@ -539,11 +539,11 @@ checks hold that: no engraved point off its own part, and none inside a slot.
 
 ## The flat gate applies here, with one flag
 
-`flat-part-check.py` reads these sheets, and it is worth running -- it is what
+`flat-part-check` reads these sheets, and it is worth running -- it is what
 catches a port cutting into a tab slot, which every check in this file passes.
 Run it as
 
-    python3 $G/flat-part-check.py --dir . --min-edge 1.5
+    $G/target/release/flat-part-check --dir . --min-edge 1.5
 
 **The flag is not optional.** Its default floor is 3.0 mm because it was written
 for a bullroarer's cord hole, which is under string tension and tears out; a
@@ -868,7 +868,7 @@ throat from the back.
 ## Previews, because a cut file is invisible on a page
 
 `previews/` holds a readable rendering of every cut file, built by
-`lasermade-tools/make-preview.py`. Same geometry, same cut order, thicker
+lasermade-tools' `make-preview`. Same geometry, same cut order, thicker
 strokes, and the three inks that fail contrast on a light ground darkened.
 Rebuild them whenever a cut file changes — verified by comparing the path data,
 which must be identical to the source.
@@ -1054,15 +1054,15 @@ python3 ribbon_view.py --shape=serpentine \
 
 # Every current sheet, from every design folder, into the ONE previews/ here.
 # `ribbon-*.svg` matched nothing once the sheets moved down into per-design
-# cut-files/ folders, and make-preview.py's default output is previews/ beside
+# cut-files/ folders, and make-preview's default output is previews/ beside
 # ITS SOURCE -- so the bare loop wrote eleven scattered previews/ directories
 # and left the real one stale. The output path is given explicitly for that
 # reason, and -not -path '*/old/*' keeps superseded sheets out.
 for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*'); do
-  python3 $G/make-preview.py "$f" "previews/$(basename $f)"
+  $G/target/release/make-preview "$f" "previews/$(basename $f)"
 done
 
-python3 $G/svg-stroke-check.py --dir . --quiet
+$G/target/release/svg-stroke-check --dir . --quiet
 
 # The writeup is the root README; regenerate and audit it there
 $G/rebuild-page.sh . --links

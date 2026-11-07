@@ -170,11 +170,11 @@ python3 ribbon_view.py --shape=spiral --port --port-square --cap --ends \
 # Every current sheet into the ONE previews/ here (explicit output path)
 # (the built spiral keeps its own previews/, beside its cut files)
 for f in $(find . -path '*/cut-files/*.svg' -not -path '*/old/*' -not -path './built/*'); do
-  python3 $G/make-preview.py "$f" "previews/$(basename $f)"
+  $G/target/release/make-preview "$f" "previews/$(basename $f)"
 done
 
-python3 $G/flat-part-check.py --dir . --min-edge 1.5
-python3 $G/svg-stroke-check.py --dir . --quiet
+$G/target/release/flat-part-check --dir . --min-edge 1.5
+$G/target/release/svg-stroke-check --dir . --quiet
 
 # The writeup is the root README; regenerate and audit it there
 $G/rebuild-page.sh . --links

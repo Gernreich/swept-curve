@@ -34,9 +34,6 @@ x-ported-both-square.svg
 # The shared gate tools, in the sibling repository lasermade-tools checked out
 # beside this one, named in CLAUDE.md and NOTES.md as the commands you run. They
 # exist, just not here. Came over from trumpet-elbows-allowed's list, 2026-10-14.
-svg-stroke-check.py
-make-preview.py
-flat-part-check.py
 
 # Generators in sibling repositories, named where the notes say what they
 # borrow from this one: lyre-harp's lyre_harp.py, square-flute's square_flute.py,
