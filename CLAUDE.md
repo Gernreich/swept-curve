@@ -14,14 +14,14 @@ brackets. Read that section before changing the code it names.
 - Every sheet kept here is the **10 mm bore**. `--bore` still takes any value.
 - **No 45 degree ring is kept here**: it belongs to another build. The 13-facet
   torus in `torus/` is kept. `--trace=` is kept but unused.
-- `ribbon_bore.py` is the authority. Its SVGs are regenerated, never edited.
+- `ribbon_bore.rs` is the authority. Its SVGs are regenerated, never edited.
   3 mm birch, xTool P2S.
 - `TOOTH = 2 * THICK` is Boxes.py's tooth and does **not** scale with the bore.
   Boxes.py (Florian Festi, GPL-3.0-or-later) is an external checkout, not a copy.
-- `lyre_harp.py` lives in `../lyre-harp/` since 2026-10-14 and imports
-  `ribbon_bore` from here, as `../square-flute/square_flute.py` does. A change here
+- `lyre_harp.rs` lives in `../lyre-harp/` since 2026-10-14 and uses the
+  `ribbon_bore` library from here, as `../square-flute/square_flute.rs` does. A change here
   that moves a byte of either fails that repository's `.repro` gate until its files
-  are redrawn. [`lyre_harp.py` moved to the lyre-harp repository]
+  are redrawn. [`lyre_harp.rs` moved to the lyre-harp repository]
 
 ## Geometry rules
 
@@ -100,7 +100,7 @@ brackets. Read that section before changing the code it names.
 - A check earns its place by being **watched to fail**. Some checks here cannot
   fail by construction; NOTES.md lists which, so don't count them as evidence.
   [Every check, against geometry it should reject]
-- `volute.py`'s two failing checks fail on purpose. [volute.py and ribbon_view.py]
+- `volute.rs`'s two failing checks fail on purpose. [volute.rs and ribbon_view.rs]
 - Every check prints a count. A check comparing two sets of coordinates must first
   establish that both are in the same space (same sheet).
 - **Screenshot the SVG after any change to drawing code.** The checks do not see
@@ -113,10 +113,10 @@ brackets. Read that section before changing the code it names.
 
 ## Viewer and previews
 
-- `ribbon_view.py` draws the airway only, never the cheek plates, and reuses
+- `ribbon_view.rs` draws the airway only, never the cheek plates, and reuses
   `offset()`. It reads flags through `ribbon_bore.read_flags()`. **`--out` is
   required.** A new flag must be added to its `known` set.
-  [`ribbon_view.py` draws the airway…]
+  [`ribbon_view.rs` draws the airway…]
 - `--embed` extracts its drawing code from the full page. Never copy it.
   all-gates.sh gates the Gernreich.github.io embed and the design pages.
   **Look at the page after changing it.**
@@ -135,37 +135,38 @@ brackets. Read that section before changing the code it names.
 
 Defaults are 3.0 mm ply and 0.15 mm kerf, matching trumpet-elbows-allowed's `bore_split.py`. Sheets in
 `cut-files/old/` need `--sheet=2.94 --kerf=0.13`. Every shipped sheet is
-`--narrow`, so a bare `ribbon_bore.py` reproduces none of them and drops stray
+`--narrow`, so a bare `ribbon_bore.rs` reproduces none of them and drops stray
 files in this folder. Each flag's full rationale is in NOTES.md, Commands.
 
 ```sh
 G=~/LaserMadeMusic/GIT/lasermade-tools
+cargo build --release                          # Rust since 2026-11-07
 
-python3 ribbon_bore.py --no-write          # checks only, writes nothing
-python3 ribbon_bore.py --out=/tmp/x.svg    # a trial
-python3 ribbon_bore.py --port --out=x-ported.svg
+target/release/ribbon_bore --no-write          # checks only, writes nothing
+target/release/ribbon_bore --out=/tmp/x.svg    # a trial
+target/release/ribbon_bore --port --out=x-ported.svg
     # --out must contain "ported", or the run refuses
-python3 ribbon_bore.py --port --port-square --out=x-ported-square.svg
+target/release/ribbon_bore --port --port-square --out=x-ported-square.svg
     # a BORE x BORE port; implies --merge-lead. Never hard-code 9.87
-python3 ribbon_bore.py --port --port-both --port-square --out=x-ported-both-square.svg
+target/release/ribbon_bore --port --port-both --port-square --out=x-ported-both-square.svg
     # --out must say "-both"; folds the tail lead too; --cap then makes two caps.
     # Coupon: --ds-half --ds-facets=2 --lead=42 (same lead as the 1000mm design)
-python3 ribbon_bore.py --port --port-both --port-per-cheek --port-square \
+target/release/ribbon_bore --port --port-both --port-per-cheek --port-square \
     --out=x-ported-both-square.svg
     # one port per cheek: cheek-a and cheek-b, each cut once
-python3 ribbon_bore.py --merge-lead --out=x-merged.svg   # names itself "-merged"
-python3 ribbon_bore.py --port --cap --out=x-ported.svg
+target/release/ribbon_bore --merge-lead --out=x-merged.svg   # names itself "-merged"
+target/release/ribbon_bore --port --cap --out=x-ported.svg
     # one cap per ported end, on the panels sheet; refused without --port
-python3 ribbon_bore.py --port --port-from-tip=8 --out=x-ported.svg   # default 10
-python3 ribbon_bore.py --narrow --out=x-narrow.svg
+target/release/ribbon_bore --port --port-from-tip=8 --out=x-ported.svg   # default 10
+target/release/ribbon_bore --narrow --out=x-narrow.svg
     # rim flush to the mortices; same naming rule; NOT --web=0
-python3 ribbon_view.py --shape=serpentine \
+target/release/ribbon_view --shape=serpentine \
     --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
-python3 ribbon_view.py --shape=spiral --port --port-square --cap --ends \
+target/release/ribbon_view --shape=spiral --port --port-square --cap --ends \
     --out=built/ribbon-spiral-bore10-45deg-R35to113/ribbon-spiral-bore10-45deg-R35to113.html
     # the built spiral as built: --ends adds the bell and the mouthpiece, read
     # from ../trumpet-elbows-allowed/parts. Every open design's page takes
-    # --ends; the closed rings cannot. [`ribbon_view.py` draws the airway]
+    # --ends; the closed rings cannot. [`ribbon_view.rs` draws the airway]
 
 # Every current sheet into the ONE previews/ here (explicit output path)
 # (the built spiral keeps its own previews/, beside its cut files)

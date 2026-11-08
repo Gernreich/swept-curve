@@ -192,7 +192,7 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 </tbody>
 </table>
 </div>
-<p>One more is drawn and not cut: the <strong><a href="volute/single-volute/single-volute-bore10-45deg.html" target="_blank" rel="noopener">single volute</a></strong>, six semicircles of stepping radius from <code>volute/volute.py</code>. Its inner end is enclosed, with nowhere to go, and its two openings come out 135° apart, so it has no cut files.</p>
+<p>One more is drawn and not cut: the <strong><a href="volute/single-volute/single-volute-bore10-45deg.html" target="_blank" rel="noopener">single volute</a></strong>, six semicircles of stepping radius from <code>volute/volute.rs</code>. Its inner end is enclosed, with nowhere to go, and its two openings come out 135° apart, so it has no cut files.</p>
 <h2 id="closed-rings">Closed rings</h2>
 <p>A ring has no ends, so it cannot take a mouthpiece and a bell the way the designs above do. These four are drawn because the mitring a ring needs is the mitring every other shape needs. The ring and the scallop take two ports on named facets, one through each cheek, which gives a mouthpiece and a bell two air paths between them. None has been cut.</p>
 <div class="tw">
@@ -245,9 +245,10 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <p>The two-port set below is the one where the mouthpiece must seat in a port — 10 × 10 mm through a single 3 mm cheek — which a bell has done and a mouthpiece has not. A bell sits where it is put; a mouthpiece takes lip pressure.</p>
 <p>In the two-port set the ports are <strong>split between the two cheeks</strong>, which is what makes it an instrument rather than a coil with holes in it. A port through both cheeks is a socket right through, and the side you are not using is an open hole to plug; two of those are waste. <code>--port-per-cheek</code> puts one port on each sheet instead — <code>cheek-a</code> carries the mouth, <code>cheek-b</code> the far end, each cut once — so the mouthpiece <strong>enters one face and the bell leaves the other</strong>, at points 222.5 mm apart and exactly opposite through the coil's centre. The openings are no longer in the plane at all, so the total-turning-zero argument that sets the two rim ends on opposite headings has stopped describing how it is played: those ends are the capped ones. <code>rotatable()</code> reports that the two sheets are the same part half a turn apart, to 9e-16mm — so one sheet cut twice with one turned round would also do, at the price of engraved numbers upside down on the turned one.</p>
 <h2 id="the-generator">The generator</h2>
-<p><code>ribbon_bore.py</code> draws every sheet here, and <code>ribbon_view.py</code> every viewer page; the viewer reads its design from the generator rather than keeping a copy. <code>CLAUDE.md</code> holds the rules for changing either, and <code>NOTES.md</code> the reasoning and measurements behind them.</p>
-<pre class="sh"><code>python3 ribbon_bore.py --shape=spiral --port --port-square --cap --narrow --no-write</code></pre>
-<p>That runs every check on the built spiral's design and writes nothing. Every shipped sheet is <code>--narrow</code>; <strong><a href="ribbon-spiral/" target="_blank" rel="noopener">the spiral bore's page</a></strong> gives the command that drew the sheets that were cut. <code>ribbon_bore.py</code> also lends its path writer to <a href="https://github.com/Gernreich/square-flute" target="_blank" rel="noopener">square-flute</a> and its panels and sheets to <a href="https://github.com/Gernreich/lyre-harp" target="_blank" rel="noopener">lyre-harp</a>, each of which expects this repository cloned beside it. <code>ribbon_bore.rs</code> (with <code>Cargo.toml</code> and <code>Cargo.lock</code>) is the same path writer in Rust, for the Rust generators that borrow it: the panpipes and the chanters.</p>
+<p><code>ribbon_bore.rs</code> draws every sheet here, and <code>ribbon_view.rs</code> every viewer page; the viewer reads its design from the generator rather than keeping a copy. Both are Rust since 2026-11-07, built with <code>cargo build --release</code> (<code>Cargo.toml</code> and <code>Cargo.lock</code> beside them); they were Python until then, and the move changed no byte of any sheet or page. <code>CLAUDE.md</code> holds the rules for changing either, and <code>NOTES.md</code> the reasoning and measurements behind them.</p>
+<pre class="sh"><code>cargo build --release
+target/release/ribbon_bore --shape=spiral --port --port-square --cap --narrow --no-write</code></pre>
+<p>That runs every check on the built spiral's design and writes nothing. Every shipped sheet is <code>--narrow</code>; <strong><a href="ribbon-spiral/" target="_blank" rel="noopener">the spiral bore's page</a></strong> gives the command that drew the sheets that were cut. <code>ribbon_bore.rs</code> is also a library: it lends its path writer to <a href="https://github.com/Gernreich/square-flute" target="_blank" rel="noopener">square-flute</a>, the ocarinas, the panpipes and the chanters, and its panels and sheets to <a href="https://github.com/Gernreich/lyre-harp" target="_blank" rel="noopener">lyre-harp</a>, each of which expects this repository cloned beside it.</p>
 <h2 id="files">Files</h2>
 <div class="tw">
 <table>
@@ -273,11 +274,11 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <td>display renderings of the designs' cut files — <strong>not</strong> cut files</td>
 </tr>
 <tr>
-<td><code>ribbon_bore.py</code> · <code>ribbon_view.py</code></td>
-<td>the generator and the viewer</td>
+<td><code>ribbon_bore.rs</code> · <code>ribbon_view.rs</code> · <code>ribbon_view_page.rs</code> · <code>bin/</code></td>
+<td>the generator and the viewer (the last holds the viewer's page, browser code); <code>Cargo.toml</code> · <code>Cargo.lock</code> build them</td>
 </tr>
 <tr>
-<td><code>volute/volute.py</code> · <code>volute/volute.json</code></td>
+<td><code>volute/volute.rs</code> · <code>volute/volute.json</code></td>
 <td>the compass construction behind the single volute</td>
 </tr>
 <tr>

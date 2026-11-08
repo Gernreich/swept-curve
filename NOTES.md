@@ -26,11 +26,11 @@ that a ring cannot live here.
 
 ## Working in this repository
 
-A laser-cutting build repository. `ribbon_bore.py` is the generator and the
+A laser-cutting build repository. `ribbon_bore.rs` is the generator and the
 authority; the SVG beside it is its output and is regenerated, not edited.
 Everything is 3 mm birch on an xTool P2S.
 
-`ribbon_bore.py` draws its own sheets rather than going through Boxes.py, but it
+`ribbon_bore.rs` draws its own sheets rather than going through Boxes.py, but it
 keeps Boxes.py's tooth: `TOOTH = 2 * THICK` at line 180, the figure Boxes.py's
 `FingerJointSettings` uses, and it does not scale with the bore.
 **Boxes.py is Florian Festi's**,
@@ -73,7 +73,7 @@ The radius holds all the way across an arc and changes only at a join, where a
 mitre already expects a corner. `spiral` is the classical compass spiral: one
 arc per facet, the radius stepping by a fixed amount. **`double-volute` is a
 chain of SEMICIRCLES** of stepping radius about two alternating centres —
-which is the case `volute/volute.py` exists to argue.
+which is the case `volute/volute.rs` exists to argue.
 
 **A smooth Archimedean spiral, sampled** — `double-spiral` alone. **Its vertices sit
 on `r = R0 + b*theta`, taken every FACET degrees**, so the radius differs at
@@ -184,7 +184,7 @@ shape is written down somewhere other than here.
 A trace file carries the stations **and the provenance** - where they came
 from, how they were taken, and what was measured off them. A traced number
 without that is a number nobody can check. No trace is kept at present: the one
-there was, six semicircles of stepping radius from `volute/volute.py`, was
+there was, six semicircles of stepping radius from `volute/volute.rs`, was
 removed on 2026-10-12. The page drawn from it stays, as
 `volute/single-volute/single-volute-bore10-45deg.html`, and cannot be redrawn
 until a trace is written again.
@@ -215,7 +215,7 @@ At FACET 45 that is an octagon: eight facets, sitting at apothem
 is the one thing to get right before comparing a ring here against a ring
 measured off a cut file.
 
-`ribbon_view.py` draws a closed loop with no mouth and no far end, because the
+`ribbon_view.rs` draws a closed loop with no mouth and no far end, because the
 last station is the first.
 
 ### The seam is not a free end, and every torus ever drawn failed for it
@@ -302,7 +302,7 @@ straight, which would be a circle.
 
 First drawn here as `ribbon-oval-bore10-45deg-R21.8-straight43.6-221mm`, then
 moved to `~/LaserMadeMusic/GIT/lyre-harp/` as a prototype and deleted there on
-2026-09-16. `ribbon_bore.py --shape=oval --facet=45 --oval-end-deg=90
+2026-09-16. `ribbon_bore.rs --shape=oval --facet=45 --oval-end-deg=90
 --oval-end-r=21.8 --oval-flat=0 --oval-side-flat=43.6 --narrow` still draws it:
 45 degree facets, four per half-circle, at **R21.8, the tightest radius any
 check passes** — R21.7 leaves a 9.98 mm inner panel against the 10 mm a tooth
@@ -313,13 +313,13 @@ long as it is wide: 220.7 mm of centreline, a 124 x 79 mm cheek, 20 panels.
 a half-circle — a hexagon cut in half, 15.5% over at every mitre — and over 30,
 which needs R27.8.
 
-### `lyre_harp.py` moved to the lyre-harp repository
+### `lyre_harp.rs` moved to the lyre-harp repository
 
 The lyre-harp frame is a closed duct whose width changes round the loop, drawn
 with this folder's panels, mortices and sheets. Its generator and its notes
 moved to [lyre-harp](https://github.com/Gernreich/lyre-harp) on 2026-10-14:
 it is its own instrument, not a swept-curve trumpet. It still imports
-`ribbon_bore.py` from here, so a change here can move its sheets, and its
+`ribbon_bore.rs` from here, so a change here can move its sheets, and its
 gate is what says so.
 
 ### Two ports on a ring are two paths, and that is not a duct
@@ -391,7 +391,7 @@ asks at this point, not because anything here wants it.
 **Every number in this section is from this command**, which is the thing the
 first version of it left out and the reason two readers got two answers:
 
-    python3 ribbon_bore.py --shape=torus --facet=F --radius=R \
+    target/release/ribbon_bore --shape=torus --facet=F --radius=R \
             --port --port-at=0,K --no-write
 
 `n = round(360/F)` facets, `K = n//2` so the ports sit opposite. A DEFAULT torus
@@ -715,9 +715,9 @@ different tool -- `flat-part-check`, which had never been pointed at these files
 itself: two offsets of one polyline, a guard with its own precondition, a
 constant with a constant. **A check earns its place by being watched to fail.**
 
-## volute.py and ribbon_view.py, checked the same way
+## volute.rs and ribbon_view.rs, checked the same way
 
-**`volute.py`.** Two of its four checks are failing on the shipped design right
+**`volute.rs`.** Two of its four checks are failing on the shipped design right
 now — *the bore stays clear of itself* at 7.75 mm against the 20 mm band, and
 *the two openings are opposed* at 135 degrees — which is the file's whole point
 and makes them the best-evidenced checks in the repository. *the cheek fits the
@@ -730,9 +730,9 @@ of the tube, so the openings sit (315 + 180) mod 360 = 135 degrees apart.
 
 *every arc holds a tooth* cannot fail — `centreline()` raises on the same
 condition first, exactly as `the shortest panel still holds a tooth` does in
-`ribbon_bore.py`.
+`ribbon_bore.rs`.
 
-**`ribbon_view.py`.** It no longer keeps a copy of the generator's argument
+**`ribbon_view.rs`.** It no longer keeps a copy of the generator's argument
 handling. It diverged four ways by 2026-09-16 — the generator ignored flags the
 viewer refused, the viewer drew pages for combinations the generator refuses,
 both quoted R30 for the scallop and racetrack, and the viewer's own naming rule
@@ -792,7 +792,7 @@ check should not be sitting there looking cuttable. It also means a copy of
 this script tried out in this folder writes to, and then deletes, the real cut
 file. That happened. Use `--out` for trials.
 
-## `ribbon_view.py` draws the airway, and nothing else
+## `ribbon_view.rs` draws the airway, and nothing else
 
 One self-contained page per design, beside the cut files it belongs to, so the
 thing you cut and the thing you turn around cannot drift apart. Same flags as
@@ -852,9 +852,10 @@ the bell standing on the outside of the bottom cheek over the port, and the
 mouthpiece's 16 mm plate on the open far end, axis along the tail — and then on
 every open design, where with no port the mouthpiece goes on the mouth and the
 bell on the far end, each on the tube end. Both
-are read from their cut files by trumpet-elbows-allowed's `parts/part-view.py`
-(its `data_for(path, n)`), imported from that checkout, so a redesigned bell or
-mouthpiece redraws here, and the page gate fails until it is. Each lands by a
+are read from their cut files in that checkout the way trumpet-elbows-allowed's
+`parts/part-view.py` reads them (its `data_for(path, n)`, repeated in Rust inside
+`ribbon_view.rs` since 2026-11-07), so a redesigned bell or mouthpiece redraws
+here, and the page gate fails until it is. Each lands by a
 rotation, never a reflection, so their faces keep the winding the painter reads
 facing from. The cheeks are still not drawn, so the bell stands 3 mm off the
 airway, and a page with a port says that gap is the cheek. A closed ring has no
@@ -911,19 +912,19 @@ G=~/LaserMadeMusic/GIT/lasermade-tools
 # or --kerf needed; the sheets in each cut-files/old/ were drawn at 2.94 and
 # 0.13 and need --sheet=2.94 --kerf=0.13 to come back.
 #
-# "at the default ply and kerf" is NOT the same as a bare `ribbon_bore.py`.
+# "at the default ply and kerf" is NOT the same as a bare `ribbon_bore.rs`.
 # Every shipped sheet is --narrow, so the bare run reproduces none of them: it
 # draws a FULL-WIDTH double spiral and, having no --out, drops two files named
 # like cut files into THIS DIRECTORY rather than into any cut-files/ -- which is
 # where a stray sheet in this folder comes from. Use --no-write to run the checks,
 # or --out to send a trial somewhere harmless.
-python3 ribbon_bore.py --no-write      # the checks alone, writes nothing
-python3 ribbon_bore.py --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
-python3 ribbon_bore.py --port --out=x-ported.svg   # with the mouthpiece slot;
+target/release/ribbon_bore --no-write      # the checks alone, writes nothing
+target/release/ribbon_bore --out=/tmp/x.svg   # a trial, somewhere it cannot hurt
+target/release/ribbon_bore --port --out=x-ported.svg   # with the mouthpiece slot;
                                        # the name must carry "ported" or it
                                        # refuses, so it cannot overwrite the
                                        # plain sheets
-python3 ribbon_bore.py --port --port-square --out=x-ported-square.svg
+target/release/ribbon_bore --port --port-square --out=x-ported-square.svg
                                        # a BORE x BORE port instead of 7 x 14.
                                        # Implies --merge-lead, because the
                                        # lead panel's one tooth sits where the
@@ -935,7 +936,7 @@ python3 ribbon_bore.py --port --port-square --out=x-ported-square.svg
                                        # at draw time, so the opening is BORE
                                        # exactly at any --kerf. Never write the
                                        # 9.87 down: it is one kerf's answer
-python3 ribbon_bore.py --port --port-both --port-square \
+target/release/ribbon_bore --port --port-both --port-square \
     --out=x-ported-both-square.svg     # the SAME port at both ends, not just
                                        # the mouth. Both ends are leads built
                                        # by the same tail(), so the far end
@@ -964,7 +965,7 @@ python3 ribbon_bore.py --port --port-both --port-square \
                                        # the tail fold and the far port, the
                                        # parts of this flag that are new, the
                                        # way the 196mm one is for the crossover
-python3 ribbon_bore.py --port --port-both --port-per-cheek --port-square \
+target/release/ribbon_bore --port --port-both --port-per-cheek --port-square \
     --out=x-ported-both-square.svg     # the two ports SPLIT between the two
                                        # cheeks instead of each going through
                                        # both. No geometry moves -- same coil,
@@ -1002,11 +1003,11 @@ python3 ribbon_bore.py --port --port-both --port-per-cheek --port-square \
                                        # round would do -- at the price of
                                        # numbers upside down on the turned one,
                                        # which is why two sheets is the default
-python3 ribbon_bore.py --merge-lead --out=x-merged.svg   # the merge on its own,
+target/release/ribbon_bore --merge-lead --out=x-merged.svg   # the merge on its own,
                                        # to look at. Names itself "-merged";
                                        # --port-square does not, because
                                        # "square" already means merged
-python3 ribbon_bore.py --port --cap --out=x-ported.svg
+target/release/ribbon_bore --port --cap --out=x-ported.svg
                                        # ONE CAP PER PORTED END -- one here,
                                        # two under --port-both, and caps() is
                                        # a function for the reason band() is.
@@ -1022,10 +1023,10 @@ python3 ribbon_bore.py --port --cap --out=x-ported.svg
                                        # seal the only opening. It goes on the
                                        # panels sheet because the cheek sheet
                                        # is cut twice and would give you two
-python3 ribbon_bore.py --port --port-from-tip=8 --out=x-ported.svg
+target/release/ribbon_bore --port --port-from-tip=8 --out=x-ported.svg
                                        # move the port along the lead; the
                                        # default 10 is a bore back from the tip
-python3 ribbon_bore.py --narrow --out=x-narrow.svg   # the cheek trimmed flush
+target/release/ribbon_bore --narrow --out=x-narrow.svg   # the cheek trimmed flush
                                        # to the mortices: no web, band 15.81
                                        # instead of 20, and every slot open at
                                        # the rim. Same naming rule as --port,
@@ -1035,7 +1036,7 @@ python3 ribbon_bore.py --narrow --out=x-narrow.svg   # the cheek trimmed flush
                                        # which leaves an uncuttable 0.095mm
                                        # rib; --narrow follows the drawn slot
                                        # edge, so it tracks --kerf and --sheet
-python3 ribbon_view.py --shape=serpentine \
+target/release/ribbon_view --shape=serpentine \
     --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
                                        # the page you turn, and the one that
                                        # ships. --out is required: without it

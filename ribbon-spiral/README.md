@@ -95,11 +95,12 @@ and pays two panels for it.
 
 ## Rebuild it
 
-The generator is `ribbon_bore.py`, at the root of this repository, and both
-commands run from there. Report only, writing nothing:
+The generator is `ribbon_bore.rs`, at the root of this repository: Rust since
+2026-11-07, built there with `cargo build --release`, and both commands run from
+there. Report only, writing nothing:
 
 ```
-python3 ribbon_bore.py \
+target/release/ribbon_bore \
     --shape=spiral --port --port-square --cap --narrow --no-write
 ```
 
@@ -108,7 +109,7 @@ name says `narrow`, which the generator insists on so a sheet cannot overwrite
 its full-width twin:
 
 ```
-python3 ribbon_bore.py \
+target/release/ribbon_bore \
     --shape=spiral --port --port-square --cap --narrow \
     --out=built/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg
 ```

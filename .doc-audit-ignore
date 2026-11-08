@@ -7,7 +7,7 @@ Boxes.py
 
 bore_split.py
 
-# The --out= stem on the spiral bore's page. ribbon_bore.py takes ONE name and
+# The --out= stem on the spiral bore's page. ribbon_bore takes ONE name and
 # writes TWO sheets from it, appending -cheek-x2-cut-files and -panels-cut-files,
 # so the stem itself is never a file and never should be. The two sheets it does
 # write are named on that page and both exist. Came over from
@@ -35,12 +35,11 @@ x-ported-both-square.svg
 # beside this one, named in CLAUDE.md and NOTES.md as the commands you run. They
 # exist, just not here. Came over from trumpet-elbows-allowed's list, 2026-10-14.
 
-# Generators in sibling repositories, named where the notes say what they
-# borrow from this one: lyre-harp's lyre_harp.py, square-flute's square_flute.py,
+# Generators in sibling repositories, named where the notes compare or borrow:
 # trumpet-elbows-allowed's lattice viewer, tools/viewer.py, and its
-# parts/part-view.py, which ribbon_view.py --ends imports.
-lyre_harp.py
-square_flute.py
+# parts/part-view.py, whose reading of the bell and mouthpiece cut files
+# ribbon_view.rs --ends repeats. (lyre_harp and square_flute are Rust since
+# 2026-11-07, and doc-audit does not read .rs names, so they need no line.)
 viewer.py
 part-view.py
 

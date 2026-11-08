@@ -209,11 +209,11 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 </div>
 <p>The square-ported one is what the photographs show. A round port needs no lead panel moved and so keeps all 38; the square one asks for the bore's own section and pays two panels for it.</p>
 <h2 id="rebuild-it">Rebuild it</h2>
-<p>The generator is <code>ribbon_bore.py</code>, at the root of this repository, and both commands run from there. Report only, writing nothing:</p>
-<pre><code>python3 ribbon_bore.py \
+<p>The generator is <code>ribbon_bore.rs</code>, at the root of this repository: Rust since 2026-11-07, built there with <code>cargo build --release</code>, and both commands run from there. Report only, writing nothing:</p>
+<pre><code>target/release/ribbon_bore \
     --shape=spiral --port --port-square --cap --narrow --no-write</code></pre>
 <p>Every number on this page comes off that report. Writing needs an <code>--out</code> whose name says <code>narrow</code>, which the generator insists on so a sheet cannot overwrite its full-width twin:</p>
-<pre><code>python3 ribbon_bore.py \
+<pre><code>target/release/ribbon_bore \
     --shape=spiral --port --port-square --cap --narrow \
     --out=built/ribbon-spiral-bore10-45deg-R35to113/cut-files/ribbon-spiral-bore10-45deg-R35to113-1000mm-ported-square-narrow.svg</code></pre>
 <p><strong>These sheets were cut.</strong> Both of them reproduce byte-identically from the line above, which is what makes the numbers here measurements rather than notes.</p>

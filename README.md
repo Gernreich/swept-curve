@@ -62,7 +62,7 @@ fitted.
 | **[ess](ess/ribbon-ess-bore10-45deg-5arc/ribbon-ess-bore10-45deg-5arc.html)** | 836.5 mm | 45° | a trough and a crest of R55, doubling back into a long narrow loop, level at both ends |
 
 One more is drawn and not cut: the **[single volute](volute/single-volute/single-volute-bore10-45deg.html)**,
-six semicircles of stepping radius from `volute/volute.py`. Its inner end is
+six semicircles of stepping radius from `volute/volute.rs`. Its inner end is
 enclosed, with nowhere to go, and its two openings come out 135° apart, so it has
 no cut files.
 
@@ -168,23 +168,25 @@ down on the turned one.
 
 ## The generator
 
-`ribbon_bore.py` draws every sheet here, and `ribbon_view.py` every viewer page;
-the viewer reads its design from the generator rather than keeping a copy.
-`CLAUDE.md` holds the rules for changing either, and `NOTES.md` the reasoning and
-measurements behind them.
+`ribbon_bore.rs` draws every sheet here, and `ribbon_view.rs` every viewer page;
+the viewer reads its design from the generator rather than keeping a copy. Both
+are Rust since 2026-11-07, built with `cargo build --release` (`Cargo.toml` and
+`Cargo.lock` beside them); they were Python until then, and the move changed no
+byte of any sheet or page. `CLAUDE.md` holds the rules for changing either, and
+`NOTES.md` the reasoning and measurements behind them.
 
 ```sh
-python3 ribbon_bore.py --shape=spiral --port --port-square --cap --narrow --no-write
+cargo build --release
+target/release/ribbon_bore --shape=spiral --port --port-square --cap --narrow --no-write
 ```
 
 That runs every check on the built spiral's design and writes nothing. Every
 shipped sheet is `--narrow`; **[the spiral bore's page](ribbon-spiral/)** gives
-the command that drew the sheets that were cut. `ribbon_bore.py` also lends its
-path writer to [square-flute](https://github.com/Gernreich/square-flute) and its
-panels and sheets to [lyre-harp](https://github.com/Gernreich/lyre-harp), each of
-which expects this repository cloned beside it. `ribbon_bore.rs` (with `Cargo.toml` and
-`Cargo.lock`) is the same path writer in Rust, for the Rust generators that borrow it:
-the panpipes and the chanters.
+the command that drew the sheets that were cut. `ribbon_bore.rs` is also a
+library: it lends its path writer to [square-flute](https://github.com/Gernreich/square-flute),
+the ocarinas, the panpipes and the chanters, and its panels and sheets to
+[lyre-harp](https://github.com/Gernreich/lyre-harp), each of which expects this
+repository cloned beside it.
 
 ## Files
 
@@ -195,8 +197,8 @@ the panpipes and the chanters.
 | `double-spiral/` · `volute/` · `three-lobe-serpentine-with-collinear-ends/` · `serpentine/` · `ess/` | the open designs, a folder each: cut files and a viewer |
 | `torus/` · `scallop/` · `racetrack/` · `oval/` | the closed rings, the same way |
 | `previews/` | display renderings of the designs' cut files — **not** cut files |
-| `ribbon_bore.py` · `ribbon_view.py` | the generator and the viewer |
-| `volute/volute.py` · `volute/volute.json` | the compass construction behind the single volute |
+| `ribbon_bore.rs` · `ribbon_view.rs` · `ribbon_view_page.rs` · `bin/` | the generator and the viewer (the last holds the viewer's page, browser code); `Cargo.toml` · `Cargo.lock` build them |
+| `volute/volute.rs` · `volute/volute.json` | the compass construction behind the single volute |
 | `CLAUDE.md` · `NOTES.md` | the rules, and the reasoning behind them |
 | `README.md` · `index.html` | this writeup and its published page; the markdown is the source |
 
