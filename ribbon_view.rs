@@ -14,7 +14,7 @@
 //! above and below would hide the very shape this page exists to show.
 //!
 //! --ends draws the bell and the mouthpiece from their own cut files in
-//! trumpet-elbows-allowed, read the way that repository's part-view.py reads
+//! trumpet-elbows-allowed, read the way that repository's parts/part-view.rs reads
 //! them (its rings_of(), sections(), prof() and solid(), below in Rust), so a
 //! redesigned bell or mouthpiece redraws here too.
 //!
@@ -135,9 +135,9 @@ fn framed(v: &mut Vec<[f64; 3]>, a: &[P], d: &[P], h: f64, i: usize, t0: f64, t1
     out
 }
 
-/// part-view.py's reading of a bell or mouthpiece cut file: its rings,
-/// stacked into a solid. In trumpet-elbows-allowed it is Python, and its
-/// helpers come from bell-view.py; this is the same arithmetic.
+/// part-view's reading of a bell or mouthpiece cut file: its rings, stacked
+/// into a solid. In trumpet-elbows-allowed it is parts/views.rs (bell-view.py
+/// and part-view.py until 2026-11-07); this is the same arithmetic.
 mod part_view {
     use super::*;
     use lasermade_tools::re;
@@ -390,7 +390,7 @@ fn place(v: &mut Vec<[f64; 3]>, q: &mut Vec<J>, part: &part_view::Solid, origin:
 /// bell on the far end. Returns what the panel says.
 fn ends(cfg: &Cfg, c: &[P], v: &mut Vec<[f64; 3]>, q: &mut Vec<J>, spans: &[(usize, f64, f64)], h: f64) -> R<J> {
     let parts = parts_dir();
-    if !std::path::Path::new(&format!("{parts}/part-view.py")).exists() {
+    if !std::path::Path::new(&format!("{parts}/part-view.rs")).exists() {
         return Err("\x00ribbon_view: --ends draws the bell and mouthpiece from trumpet-elbows-allowed, and needs that repository cloned beside this one.".into());
     }
     let bell = part_view::data_for(&format!("{parts}/{BELL_SVG}"), 32)?;

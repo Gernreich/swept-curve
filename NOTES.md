@@ -42,7 +42,7 @@ variations on each other:
 
 | | curve | section at a turn | why it exists |
 | --- | --- | --- | --- |
-| `../walk` (`bore_split.py`) | 90° lattice turns | +41.4% | fits a walk into a box |
+| `../walk` (`bore_split`) | 90° lattice turns | +41.4% | fits a walk into a box |
 | `--shape=torus` | a circle, 45° facets | +8.2% | a closed constant-section loop |
 | here | any planar curve | +3.5% at 30° | constant section on a smooth curve |
 
@@ -125,7 +125,7 @@ for its quantity buys you.
 The inner wall is the centreline offset inward by `bore/2`, so there is no bore
 at all below `R = bore/2`. **But the tooth runs out long before the geometry
 does.** A Boxes.py tooth is `2 × thickness` and does *not* scale with the bore —
-the same fact that forces `pin_width()` in `bore_split.py` to floor at the
+the same fact that forces `pin_width()` in `bore_split` to floor at the
 tooth. At the 10 mm bore and 30° facets:
 
     R 15   inner panel 5.09mm   shorter than one tooth
@@ -502,7 +502,7 @@ area is a refusal, not a smaller sheet.
 The laser removes `BURN` centred on the line, so a part comes out `BURN` under
 and a hole `BURN` over. Every panel dimension is therefore drawn `BURN` **over**
 and every slot `BURN` **under**, plus `PLAY` per side taken out of the slot and
-never off the tab — `bore_split.py`'s standing rule, and its 0.025 mm figure for
+never off the tab — `bore_split`'s standing rule, and its 0.025 mm figure for
 the 10 mm bore.
 
 Measured back out of the written file rather than asserted: a 6.100 mm drawn tab
@@ -822,7 +822,7 @@ in this file that a second copy of the argument handling can quietly lose.
 
 It reuses `offset()` for the wall faces rather than reading the cut files, so
 it cannot disagree with the generator about where anything is. It is *not* the
-lattice viewer in trumpet-elbows-allowed's `tools/viewer.py`: that one is built on integer cells and cube
+lattice viewer in trumpet-elbows-allowed's `tools/viewer.rs`: that one is built on integer cells and cube
 faces with occupancy-based hidden-face removal, and there is no lattice here.
 
 `--embed` writes a compact build for an iframe: canvas only, a caption, a slow
@@ -853,7 +853,7 @@ mouthpiece's 16 mm plate on the open far end, axis along the tail — and then o
 every open design, where with no port the mouthpiece goes on the mouth and the
 bell on the far end, each on the tube end. Both
 are read from their cut files in that checkout the way trumpet-elbows-allowed's
-`parts/part-view.py` reads them (its `data_for(path, n)`, repeated in Rust inside
+`parts/views.rs` reads them (its `data_for(path, n)`, repeated inside
 `ribbon_view.rs` since 2026-11-07), so a redesigned bell or mouthpiece redraws
 here, and the page gate fails until it is. Each lands by a
 rotation, never a reflection, so their faces keep the winding the painter reads
@@ -906,7 +906,7 @@ while the sheet still holds it, black for the outlines.
 ```sh
 G=~/LaserMadeMusic/GIT/lasermade-tools
 
-# The ply is 3.0 and the kerf 0.15 by default, and bore_split.py's SHEET and
+# The ply is 3.0 and the kerf 0.15 by default, and bore_split's SHEET and
 # KERF are the same two numbers. They have to agree: one instrument, one
 # machine. Every sheet in this tree comes back at THOSE DEFAULTS -- no --sheet
 # or --kerf needed; the sheets in each cut-files/old/ were drawn at 2.94 and

@@ -2,10 +2,6 @@
 
 Boxes.py
 
-# Named in prose because this construction is the alternative to it, but it
-# lives in trumpet-elbows-allowed/tools. Naming it beats copying it.
-
-bore_split.py
 
 # The --out= stem on the spiral bore's page. ribbon_bore takes ONE name and
 # writes TWO sheets from it, appending -cheek-x2-cut-files and -panels-cut-files,
@@ -35,13 +31,6 @@ x-ported-both-square.svg
 # beside this one, named in CLAUDE.md and NOTES.md as the commands you run. They
 # exist, just not here. Came over from trumpet-elbows-allowed's list, 2026-10-14.
 
-# Generators in sibling repositories, named where the notes compare or borrow:
-# trumpet-elbows-allowed's lattice viewer, tools/viewer.py, and its
-# parts/part-view.py, whose reading of the bell and mouthpiece cut files
-# ribbon_view.rs --ends repeats. (lyre_harp and square_flute are Rust since
-# 2026-11-07, and doc-audit does not read .rs names, so they need no line.)
-viewer.py
-part-view.py
 
 # Names in the notes that are not files by design: x.svg and x-ported.svg are
 # throwaway trial outputs, and the bare -cheek-x2-cut-files.svg and

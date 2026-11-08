@@ -133,7 +133,7 @@ brackets. Read that section before changing the code it names.
 
 ## Commands
 
-Defaults are 3.0 mm ply and 0.15 mm kerf, matching trumpet-elbows-allowed's `bore_split.py`. Sheets in
+Defaults are 3.0 mm ply and 0.15 mm kerf, matching trumpet-elbows-allowed's `bore_split`. Sheets in
 `cut-files/old/` need `--sheet=2.94 --kerf=0.13`. Every shipped sheet is
 `--narrow`, so a bare `ribbon_bore.rs` reproduces none of them and drops stray
 files in this folder. Each flag's full rationale is in NOTES.md, Commands.
