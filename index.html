@@ -99,7 +99,7 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <body>
 <button class="tog" type="button">theme</button>
 <div class="wrap">
-<nav><b>Contents</b><a class="l1" href="#trumpet-swept-curve">Trumpet, swept curve</a><a class="l2" href="#built">Built</a><a class="l2" href="#designed-not-yet-cut">Designed, not yet cut</a><a class="l2" href="#closed-rings">Closed rings</a><a class="l2" href="#the-double-spiral">The double spiral</a><a class="l2" href="#the-generator">The generator</a><a class="l2" href="#files">Files</a><a class="l2" href="#more-and-licence">More, and licence</a><a class="l2" href="#credits">Credits</a></nav>
+<nav><b>Contents</b><a class="l1" href="#trumpet-swept-curve">Trumpet, swept curve</a><a class="l2" href="#built">Built</a><a class="l2" href="#designed-not-yet-cut">Designed, not yet cut</a><a class="l2" href="#closed-rings">Closed rings</a><a class="l2" href="#the-double-spiral">The double spiral</a><a class="l2" href="#the-generator">The generator</a><a class="l2" href="#solidcraft-designs">SolidCraft designs</a><a class="l2" href="#files">Files</a><a class="l2" href="#more-and-licence">More, and licence</a><a class="l2" href="#credits">Credits</a></nav>
 <main>
 <h1 id="trumpet-swept-curve">Trumpet, swept curve</h1>
 <p><strong><a href="https://gernreich.github.io/" target="_blank" rel="noopener">← All projects</a></strong></p>
@@ -249,6 +249,42 @@ pre,.tw{break-inside:avoid}h1{break-after:avoid}}
 <pre class="sh"><code>cargo build --release
 target/release/ribbon_bore --shape=spiral --port --port-square --cap --narrow --no-write</code></pre>
 <p>That runs every check on the built spiral's design and writes nothing. Every shipped sheet is <code>--narrow</code>; <strong><a href="ribbon-spiral/" target="_blank" rel="noopener">the spiral bore's page</a></strong> gives the command that drew the sheets that were cut. <code>ribbon_bore.rs</code> is also a library: it lends its path writer to <a href="https://github.com/Gernreich/square-flute" target="_blank" rel="noopener">square-flute</a>, the ocarinas, the panpipes and the chanters, and its panels and sheets to <a href="https://github.com/Gernreich/lyre-harp" target="_blank" rel="noopener">lyre-harp</a>, each of which expects this repository cloned beside it.</p>
+<h2 id="solidcraft-designs">SolidCraft designs</h2>
+<p>Every design folder also holds the bore as a parametric SolidCraft design, <code>solidcraft/NAME.sc</code> beside the script it was built from (<code>solidcraft/NAME.solidcraft.json</code>), and the STEP file SolidCraft builds from it, <code>step/NAME.step</code>, to open or import in a CAD program such as Fusion or FreeCAD: one solid body per part, in millimetres, assembled, with no parameters. The bore lies flat as the cut files draw it, the cheeks above and below.</p>
+<p>The centreline's vertices are the design's parameters (<code>c0_x</code>, <code>c0_y</code> and on, under the <strong>SOLID</strong> tab, <strong>MODIFY</strong> panel, <strong>Change Parameters</strong>), with these:</p>
+<div class="tw">
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bore</code></td>
+<td>10 mm</td>
+<td>the airway, wall face to wall face and cheek to cheek</td>
+</tr>
+<tr>
+<td><code>ply</code></td>
+<td>3 mm</td>
+<td>the walls and cheeks, nominal</td>
+</tr>
+<tr>
+<td><code>sheet</code> · <code>kerf</code> · <code>slot_tighten</code></td>
+<td>3 · 0.15 · 0 mm</td>
+<td>what the sheet calipers, the beam, and how much narrower the mortices are drawn: together, how far each narrow cheek runs past its walls</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Everything else is a read-only parameter worked out from these as <code>ribbon_bore.rs</code> works it out: each wall offset (bore + ply)/2 from the centreline and mitred where its neighbouring offset lines meet, the cheeks' rims the same way, each panel along its wall with its ends trimmed ply/2 · tan(turn/2). So moving a vertex moves the walls, cheeks and panels with it. The panels are plain boxes, without teeth, and the cheeks have no mortices, ports or caps. The built spiral's lead panel is folded into the next, as its cut files fold it.</p>
+<p><strong>Checked</strong>: before writing, <code>ribbon_solidcraft.rs</code> checks every wall point, rim point and panel against the generator's own, and the script stops if one is off. Built by SolidCraft, no two parts of any design overlap. The serpentine and the ring changed to a 12 mm bore match the generator's <code>--bore=12</code> part by part, and the serpentine with a vertex moved 4 mm still builds with no overlap.</p>
+<pre class="sh"><code>target/release/ribbon_view --shape=serpentine --narrow --solidcraft=FILE.solidcraft.json
+solidcraft-cli run FILE.solidcraft.json --save NAME.sc     # or --out NAME.step</code></pre>
+<p>The flags are the design's own, as its viewer page is drawn, plus <code>--narrow</code>.</p>
 <h2 id="files">Files</h2>
 <div class="tw">
 <table>
@@ -263,7 +299,7 @@ target/release/ribbon_bore --shape=spiral --port --port-square --cap --narrow --
 </tr>
 <tr>
 <td><code>double-spiral/</code> · <code>volute/</code> · <code>three-lobe-serpentine-with-collinear-ends/</code> · <code>serpentine/</code> · <code>ess/</code></td>
-<td>the open designs, a folder each: cut files and a viewer</td>
+<td>the open designs, a folder each: cut files, a viewer and the SolidCraft design with its STEP file</td>
 </tr>
 <tr>
 <td><code>torus/</code> · <code>scallop/</code> · <code>racetrack/</code> · <code>oval/</code></td>
@@ -276,6 +312,10 @@ target/release/ribbon_bore --shape=spiral --port --port-square --cap --narrow --
 <tr>
 <td><code>ribbon_bore.rs</code> · <code>ribbon_view.rs</code> · <code>ribbon_view_page.rs</code> · <code>bin/</code></td>
 <td>the generator and the viewer (the last holds the viewer's page, browser code); <code>Cargo.toml</code> · <code>Cargo.lock</code> build them</td>
+</tr>
+<tr>
+<td><code>ribbon_solidcraft.rs</code></td>
+<td>each design as a parametric SolidCraft design, written by <code>ribbon_view --solidcraft=FILE</code> into the design's <code>solidcraft/</code> and built into its <code>step/</code></td>
 </tr>
 <tr>
 <td><code>volute/volute.rs</code> · <code>volute/volute.json</code></td>

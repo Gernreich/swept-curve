@@ -29,6 +29,7 @@
 use lasermade_tools::py::{self, g, hypot, matan2 as atan2, mcos as cos, msin as sin, mtan as tan};
 use std::f64::consts::PI;
 
+pub mod ribbon_solidcraft;
 pub mod ribbon_view;
 pub mod ribbon_view_page;
 

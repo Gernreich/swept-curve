@@ -188,16 +188,56 @@ the ocarinas, the panpipes and the chanters, and its panels and sheets to
 [lyre-harp](https://github.com/Gernreich/lyre-harp), each of which expects this
 repository cloned beside it.
 
+## SolidCraft designs
+
+Every design folder also holds the bore as a parametric SolidCraft design,
+`solidcraft/NAME.sc` beside the script it was built from
+(`solidcraft/NAME.solidcraft.json`), and the STEP file SolidCraft builds from it,
+`step/NAME.step`, to open or import in a CAD program such as Fusion or FreeCAD: one
+solid body per part, in millimetres, assembled, with no parameters. The bore lies flat
+as the cut files draw it, the cheeks above and below.
+
+The centreline's vertices are the design's parameters (`c0_x`, `c0_y` and on, under the
+**SOLID** tab, **MODIFY** panel, **Change Parameters**), with these:
+
+| Parameter | Default | What it is |
+| --- | --- | --- |
+| `bore` | 10 mm | the airway, wall face to wall face and cheek to cheek |
+| `ply` | 3 mm | the walls and cheeks, nominal |
+| `sheet` · `kerf` · `slot_tighten` | 3 · 0.15 · 0 mm | what the sheet calipers, the beam, and how much narrower the mortices are drawn: together, how far each narrow cheek runs past its walls |
+
+Everything else is a read-only parameter worked out from these as `ribbon_bore.rs`
+works it out: each wall offset (bore + ply)/2 from the centreline and mitred where its
+neighbouring offset lines meet, the cheeks' rims the same way, each panel along its
+wall with its ends trimmed ply/2 · tan(turn/2). So moving a vertex moves the walls,
+cheeks and panels with it. The panels are plain boxes, without teeth, and the cheeks
+have no mortices, ports or caps. The built spiral's lead panel is folded into the next,
+as its cut files fold it.
+
+**Checked**: before writing, `ribbon_solidcraft.rs` checks every wall point, rim point
+and panel against the generator's own, and the script stops if one is off. Built by
+SolidCraft, no two parts of any design overlap. The serpentine and the ring changed to
+a 12 mm bore match the generator's `--bore=12` part by part, and the serpentine with a
+vertex moved 4 mm still builds with no overlap.
+
+```sh
+target/release/ribbon_view --shape=serpentine --narrow --solidcraft=FILE.solidcraft.json
+solidcraft-cli run FILE.solidcraft.json --save NAME.sc     # or --out NAME.step
+```
+
+The flags are the design's own, as its viewer page is drawn, plus `--narrow`.
+
 ## Files
 
 | | |
 | --- | --- |
 | `built/` | the spiral bore, which exists in wood: its cut files, previews, photographs, viewer, and the framed build of the viewer this page opens with |
 | `ribbon-spiral/` | the spiral bore's page |
-| `double-spiral/` · `volute/` · `three-lobe-serpentine-with-collinear-ends/` · `serpentine/` · `ess/` | the open designs, a folder each: cut files and a viewer |
+| `double-spiral/` · `volute/` · `three-lobe-serpentine-with-collinear-ends/` · `serpentine/` · `ess/` | the open designs, a folder each: cut files, a viewer and the SolidCraft design with its STEP file |
 | `torus/` · `scallop/` · `racetrack/` · `oval/` | the closed rings, the same way |
 | `previews/` | display renderings of the designs' cut files — **not** cut files |
 | `ribbon_bore.rs` · `ribbon_view.rs` · `ribbon_view_page.rs` · `bin/` | the generator and the viewer (the last holds the viewer's page, browser code); `Cargo.toml` · `Cargo.lock` build them |
+| `ribbon_solidcraft.rs` | each design as a parametric SolidCraft design, written by `ribbon_view --solidcraft=FILE` into the design's `solidcraft/` and built into its `step/` |
 | `volute/volute.rs` · `volute/volute.json` | the compass construction behind the single volute |
 | `CLAUDE.md` · `NOTES.md` | the rules, and the reasoning behind them |
 | `README.md` · `index.html` | this writeup and its published page; the markdown is the source |

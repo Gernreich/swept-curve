@@ -5,7 +5,9 @@
 //!         --out=serpentine/ribbon-serpentine-bore10-30deg-3lobes-R72/ribbon-serpentine-bore10-30deg-3lobes-R72.html
 //!
 //! Takes the generator's own flags, read by Cfg::read_flags(), plus --out
-//! (required), --home, --embed, --trace and --ends. The page goes beside the
+//! (required), --home, --embed, --trace and --ends; or --solidcraft=FILE in
+//! place of --out, which writes the bore as a SolidCraft design instead
+//! (ribbon_solidcraft.rs). The page goes beside the
 //! cut files it belongs to.
 //!
 //! It draws the AIRWAY, and the airway ALONE: the passage the air takes,
@@ -595,10 +597,16 @@ fn report(path: &str, d: &Data, tail: &str) {
 
 /// An Err starting with NUL is a sys.exit(message): stderr, no "error: ".
 fn run(a: &[String]) -> R<i32> {
-    const VIEW: [&str; 5] = ["--out=", "--home=", "--embed", "--trace=", "--ends"];
+    const VIEW: [&str; 6] = ["--out=", "--home=", "--embed", "--trace=", "--ends", "--solidcraft="];
     let mut cfg = Cfg::default();
     let design: Vec<String> = a.iter().filter(|x| !VIEW.iter().any(|p| x.starts_with(p))).cloned().collect();
     cfg.read_flags(&design).map_err(|e| format!("\x00{e}"))?;
+    // the bore as a parametric SolidCraft design, in place of the page
+    if let Some(f) = a.iter().find_map(|x| x.strip_prefix("--solidcraft=")) {
+        std::fs::write(f, crate::ribbon_solidcraft::script(&cfg)?).map_err(|e| format!("{f}: {e}"))?;
+        println!("  wrote {}", crate::basename(f));
+        return Ok(0);
+    }
     let path = match a.iter().find(|x| x.starts_with("--out=")) {
         Some(o) => o.split_once('=').unwrap().1.to_string(),
         None => return Err("\x00ribbon_view: say where the page goes with --out=PATH. It belongs beside the cut files it describes, in the design's own folder.".into()),
