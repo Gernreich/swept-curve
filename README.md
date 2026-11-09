@@ -205,20 +205,30 @@ The centreline's vertices are the design's parameters (`c0_x`, `c0_y` and on, un
 | `bore` | 10 mm | the airway, wall face to wall face and cheek to cheek |
 | `ply` | 3 mm | the walls and cheeks, nominal |
 | `sheet` · `kerf` · `slot_tighten` | 3 · 0.15 · 0 mm | what the sheet calipers, the beam, and how much narrower the mortices are drawn: together, how far each narrow cheek runs past its walls |
+| `tooth` · `shoulder` · `play` | 6 · 2 · 0.025 mm | each tooth and each gap along a panel, the least of it left past its end teeth, and each mortice's play a side along its tooth |
+| `port_across` · `port_along` · `port_from_tip` | as built | a ported design's ports, as cut, and each one's middle along its facet |
 
 Everything else is a read-only parameter worked out from these as `ribbon_bore.rs`
 works it out: each wall offset (bore + ply)/2 from the centreline and mitred where its
 neighbouring offset lines meet, the cheeks' rims the same way, each panel along its
 wall with its ends trimmed ply/2 · tan(turn/2). So moving a vertex moves the walls,
-cheeks and panels with it. The panels are plain boxes, without teeth, and the cheeks
-have no mortices, ports or caps. The built spiral's lead panel is folded into the next,
-as its cut files fold it.
+cheeks and panels with it. The panels have their teeth and the cheeks their mortices
+(2026-11-09), each panel as many teeth as its length holds; a panel whose cut
+files carry another count keeps it (twelve panels, all in the four ported designs). The cheeks' rims are as cut: the generator draws
+a narrow cheek's rim on its mortices' outer edges with no kerf added, so the beam
+leaves it half a kerf inside the line, at a free end too, and every mortice is a notch
+open to the rim. Each design has the ports its committed cheeks are cut with (the
+spiral, the 1506 mm double spiral, the scallop and the torus, square-ported); none
+has caps. The built spiral's lead panel is folded into the next, as its cut files fold
+it.
 
 **Checked**: before writing, `ribbon_solidcraft.rs` checks every wall point, rim point
 and panel against the generator's own, and the script stops if one is off. Built by
 SolidCraft, no two parts of any design overlap. The serpentine and the ring changed to
 a 12 mm bore match the generator's `--bore=12` part by part, and the serpentine with a
-vertex moved 4 mm still builds with no overlap.
+vertex moved 4 mm still builds with no overlap. Read back with `sc-flatten
+--redraw-all`, every one of the eleven designs lands on its committed cut files: cuts
+within 0.021 mm, engraved marks within 0.113 mm (2026-11-09).
 
 ```sh
 target/release/ribbon_view --shape=serpentine --narrow --solidcraft=FILE.solidcraft.json

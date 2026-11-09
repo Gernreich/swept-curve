@@ -13,7 +13,9 @@ brackets. Read that section before changing the code it names.
   every design here takes are still in that repository's `parts/`.
 - Each design folder's `solidcraft/` and `step/` are written by
   `ribbon_view --solidcraft=FILE` (ribbon_solidcraft.rs) with the page's flags plus
-  `--narrow`, then `solidcraft-cli run` + `sc-slim`; lane C of all-gates.sh redraws them.
+  `--narrow` and the ports its committed cheeks are cut with (all-gates.sh's `scr` rows
+  are the list), then `solidcraft-cli run` + `sc-slim`; lane C of all-gates.sh redraws them.
+  Panels carry teeth, cheeks mortices; `sc-flatten --redraw-all` must read each back.
 - Every sheet kept here is the **10 mm bore**. `--bore` still takes any value.
 - **No 45 degree ring is kept here**: it belongs to another build. The 13-facet
   torus in `torus/` is kept. `--trace=` is kept but unused.
